@@ -1,0 +1,233 @@
+[INFO] [PF400_Client] Robot created. Robot ID: 1 - Host: 127.0.0.1 - Port: 10100
+[INFO] [PF400_Client] Robot created. Robot ID: 1 - Host: 127.0.0.1 - Port: 8000
+[INFO] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 8000
+[INFO] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 8000
+[INFO] [PF400_Client] Socket Created
+[INFO] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 8000
+[ERROR] [PF400_Client] Failed to create socket
+[INFO] [PF400_Client] Socket Created
+[INFO] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 8000
+[ERROR] [PF400_Client] Failed to create socket
+[INFO] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 8000
+[INFO] [PF400_Client] Socket Created
+[INFO] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 8000
+[ERROR] [PF400_Client] Failed to create socket
+[ERROR] [PF400_Client] Failed to create socket
+[ERROR] [PF400_Client] Failed to send data
+[INFO] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 8000
+[INFO] [PF400_Client] Socket Created
+[INFO] [PF400_Client] Socket Created
+[ERROR] [PF400_Client] Failed to send data
+[INFO] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 8000
+[INFO] [PF400_Client] Socket Created
+[ERROR] [PF400_Client] Failed to send data
+[INFO] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 8000
+[ERROR] [PF400_Client] Failed to create socket
+[INFO] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 8000
+[ERROR] [PF400_Client] Failed to create socket
+[ERROR] [PF400_Client] Failed to send data: [Errno 9] Bad file descriptor
+[INFO] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 8000
+[ERROR] [PF400_Client] Failed to create socket
+[ERROR] [PF400_Client] Failed to send data: [Errno 9] Bad file descriptor
+[INFO] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 8000
+[INFO] [PF400_Client] Socket Created
+[ERROR] [PF400_Client] Failed to send data: [Errno 9] Bad file descriptor
+[INFO] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 8000
+[INFO] [PF400_Client] Socket Created
+[INFO] [PF400_Client] hp 1
+
+[INFO] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 8000
+[INFO] [PF400_Client] Socket Created
+[INFO] [PF400_Client] hp 1
+
+[INFO] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 8000
+[INFO] [PF400_Client] Socket Created
+[ERROR] [PF400_Client] Failed to send data: [Errno 54] Connection reset by peer
+[INFO] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 8000
+[INFO] [PF400_Client] Socket Created
+[INFO] [PF400_Client] hp 1
+
+[INFO] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 8000
+[INFO] [PF400_Client] Socket Created
+[INFO] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 8000
+[INFO] [PF400_Client] Socket Created
+[INFO] [PF400_Client] hp 1
+
+[INFO] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 8000
+[INFO] [PF400_Client] Socket Created
+[ERROR] [PF400_Client] Failed to send data: [Errno 54] Connection reset by peer
+[INFO] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 8000
+[INFO] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 8000
+[INFO] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 8000
+[INFO] [PF400_Client] Socket Created
+[INFO] [PF400_Client] hp 1
+
+[INFO] [PF400_Client] TCP/IP client is closed
+[INFO] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 8000
+[INFO] [PF400_Client] Socket Created
+[INFO] [PF400_Client] hp 1
+
+[INFO] [PF400_Client] TCP/IP client is closed
+[INFO] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 8000
+[INFO] [PF400_Client] Socket Created
+[INFO] [PF400_Client] Socket Created
+[ERROR] [PF400_Client] Failed enable_power: [Errno 54] Connection reset by peer
+[INFO] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 8000
+[INFO] [PF400_Client] Socket Created
+[INFO] [PF400_Client] Socket Created
+[INFO] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 8000
+[INFO] [PF400_Client] Socket Created
+[INFO] [PF400_Client] Socket Created
+[INFO] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 10000
+[INFO] [PF400_Client] Socket Created
+[INFO] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 10000
+[INFO] [PF400_Client] Socket Created
+[INFO] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 10000
+[INFO] [PF400_Client] Socket Created
+[INFO] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 10000
+[INFO] [PF400_Client] Socket Created
+[INFO] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 10000
+[INFO] [PF400_Client] Socket Created
+[INFO] [PF400_Client] hp 1
+
+[INFO] [PF400_Client] Enabling power on the robot
+[INFO] [PF400_Client] TCP/IP client is closed
+[INFO] [PF400_Client] Robot initialization is successfully completed!
+[INFO] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 10000
+[INFO] [PF400_Client] Socket Created
+[INFO] [PF400_Client] hp 1
+
+[INFO] [PF400_Client] Enabling power on the robot
+[INFO] [PF400_Client] TCP/IP client is closed
+[INFO] [PF400_Client] Socket Created
+[INFO] [PF400_Client] attach 1
+
+[INFO] [PF400_Client] Attaching the robot
+[INFO] [PF400_Client] TCP/IP client is closed
+[INFO] [PF400_Client] Socket Created
+[INFO] [PF400_Client] home
+
+[INFO] [PF400_Client] Homing the robot
+[INFO] [PF400_Client] TCP/IP client is closed
+[INFO] [PF400_Client] Robot initialization is successfully completed!
+[INFO] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 10000
+[INFO] [PF400_Client] Socket Created
+[INFO] [PF400_Client] hp 1
+
+[INFO] [PF400_Client] Enabling power on the robot
+[INFO] [PF400_Client] TCP/IP client is closed
+[INFO] [PF400_Client] Socket Created
+[INFO] [PF400_Client] attach 1
+
+[INFO] [PF400_Client] Attaching the robot
+[INFO] [PF400_Client] TCP/IP client is closed
+[INFO] [PF400_Client] Socket Created
+[INFO] [PF400_Client] home
+
+[INFO] [PF400_Client] Homing the robot
+[INFO] [PF400_Client] TCP/IP client is closed
+[INFO] [PF400_Client] Setting defult values to the motion profile
+[INFO] [PF400_Client] Socket Created
+[INFO] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 10000
+[INFO] [PF400_Client] Socket Created
+[INFO] [PF400_Client] hp 1
+
+[INFO] [PF400_Client] Enabling power on the robot
+[INFO] [PF400_Client] TCP/IP client is closed
+[INFO] [PF400_Client] Socket Created
+[INFO] [PF400_Client] attach 1
+
+[INFO] [PF400_Client] Attaching the robot
+[INFO] [PF400_Client] TCP/IP client is closed
+[INFO] [PF400_Client] Socket Created
+[INFO] [PF400_Client] home
+
+[INFO] [PF400_Client] Homing the robot
+[INFO] [PF400_Client] TCP/IP client is closed
+[INFO] [PF400_Client] Setting defult values to the motion profile
+[INFO] [PF400_Client] Socket Created
+[INFO] [PF400_Client] Profile 1 50 0 100 100.1 0.1 0.1 False 10
+
+[INFO] [PF400_Client] TCP/IP client is closed
+[INFO] [PF400_Client] Robot initialization is successfully completed!
+[INFO] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 10000
+[INFO] [PF400_Client] Socket Created
+[INFO] [PF400_Client] hp 1
+
+[INFO] [PF400_Client] Enabling power on the robot
+[INFO] [PF400_Client] TCP/IP client is closed
+[INFO] [PF400_Client] Socket Created
+[INFO] [PF400_Client] attach 1
+
+[INFO] [PF400_Client] Attaching the robot
+[INFO] [PF400_Client] TCP/IP client is closed
+[INFO] [PF400_Client] Socket Created
+[INFO] [PF400_Client] home
+
+[INFO] [PF400_Client] Homing the robot
+[INFO] [PF400_Client] TCP/IP client is closed
+[INFO] [PF400_Client] Setting defult values to the motion profile
+[INFO] [PF400_Client] Socket Created
+[INFO] [PF400_Client] Profile 1 50 0 100 100 0.1 0.1 False 10
+
+[INFO] [PF400_Client] TCP/IP client is closed
+[INFO] [PF400_Client] Robot initialization is successfully completed!
+[INFO] [PF400_Client] Socket Created
+[INFO] [PF400_Client] MoveJ [-493.56371, -82.630104, 1157.130034, -83.036521, 90, 180]
+
+[INFO] [PF400_Client] Robot is moved to the HomeALL location
+[INFO] [PF400_Client] TCP/IP client is closed
+[INFO] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 10000
+[INFO] [PF400_Client] Socket Created
+[INFO] [PF400_Client] hp 1
+
+[INFO] [PF400_Client] Enabling power on the robot
+[INFO] [PF400_Client] TCP/IP client is closed
+[INFO] [PF400_Client] Socket Created
+[INFO] [PF400_Client] attach 1
+
+[INFO] [PF400_Client] Attaching the robot
+[INFO] [PF400_Client] TCP/IP client is closed
+[INFO] [PF400_Client] Socket Created
+[INFO] [PF400_Client] home
+
+[INFO] [PF400_Client] Homing the robot
+[INFO] [PF400_Client] TCP/IP client is closed
+[INFO] [PF400_Client] Setting defult values to the motion profile
+[INFO] [PF400_Client] Socket Created
+[INFO] [PF400_Client] Profile 1 50 0 100 100 0.1 0.1 False 10
+
+[INFO] [PF400_Client] TCP/IP client is closed
+[INFO] [PF400_Client] Robot initialization is successfully completed!
+[INFO] [PF400_Client] Socket Created
+[INFO] [PF400_Client] MoveJ 1 [-493.56371, -82.630104, 1157.130034, -83.036521, 90, 180] [-493.56371, -82.630104, 1157.130034, -83.036521, 90, 180] [-493.56371, -82.630104, 1157.130034, -83.036521, 90, 180] [-493.56371, -82.630104, 1157.130034, -83.036521, 90, 180] [-493.56371, -82.630104, 1157.130034, -83.036521, 90, 180] [-493.56371, -82.630104, 1157.130034, -83.036521, 90, 180]
+
+[INFO] [PF400_Client] Robot is moved to the HomeALL location
+[INFO] [PF400_Client] TCP/IP client is closed
+[INFO] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 10000
+[INFO] [PF400_Client] Socket Created
+[INFO] [PF400_Client] hp 1
+
+[INFO] [PF400_Client] Enabling power on the robot
+[INFO] [PF400_Client] TCP/IP client is closed
+[INFO] [PF400_Client] Socket Created
+[INFO] [PF400_Client] attach 1
+
+[INFO] [PF400_Client] Attaching the robot
+[INFO] [PF400_Client] TCP/IP client is closed
+[INFO] [PF400_Client] Socket Created
+[INFO] [PF400_Client] home
+
+[INFO] [PF400_Client] Homing the robot
+[INFO] [PF400_Client] TCP/IP client is closed
+[INFO] [PF400_Client] Setting defult values to the motion profile
+[INFO] [PF400_Client] Socket Created
+[INFO] [PF400_Client] Profile 1 50 0 100 100 0.1 0.1 False 10
+
+[INFO] [PF400_Client] TCP/IP client is closed
+[INFO] [PF400_Client] Robot initialization is successfully completed!
+[INFO] [PF400_Client] Socket Created
+[INFO] [PF400_Client] MoveJ 1 -493.56371 -82.630104 1157.130034 -83.036521 90 180
+
+[INFO] [PF400_Client] Robot is moved to the HomeALL location
+[INFO] [PF400_Client] TCP/IP client is closed
