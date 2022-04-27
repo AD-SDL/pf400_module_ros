@@ -59,7 +59,7 @@ class PF400(object):
                                     "Transfer_D": [0,0,0,0,0,0],
                                     "Table_rack": [0,0,0,0,0,0],
                                     "Mobile_robot": [0,0,0,0,0,0],
-                                    "Successful_plate_transfer": [0,0,0,0,0,0], 
+                                    "Completed_plate": [0,0,0,0,0,0], 
                                     "Trash": [0,0,0,0,0,0]
                                     }
 
@@ -186,6 +186,25 @@ class PF400(object):
 
         except socket.error as err:
             self.logger.error('Failed to check robot heartbeat: {}'.format(err))
+        else:
+            self.disconnect_robot(PF400)  
+
+    def stop_robot(self):
+        """
+        Stops the robot immediately but leaves power on.
+        """
+
+        PF400 = self.connect_robot()
+
+        command = 'halt\n'
+        try:
+            PF400.send(bytes(command.encode('ascii')))
+            out = PF400.recv(4096).decode("utf-8")
+            self.logger.info(out)
+
+        except socket.error as err:
+            self.logger.error('Failed to stop robot : {}'.format(err))
+
         else:
             self.disconnect_robot(PF400)  
 
@@ -352,7 +371,7 @@ class PF400(object):
         # TODO: HOME the robot arm before starting a program & Plan different movements dependng of the current grabber state
 
         if job.upper() == "TRANSFER":
-            
+
             self.logger.info("Executing plate transfer between OT2 ID: {} and OT2 ID: {}".format(robot_ID_list[0],robot_ID_list[1]))
             self.pick_plate_ot2(robot_ID_list[0])
             self.drop_plate_ot2(robot_ID_list[1])
@@ -414,29 +433,59 @@ class PF400(object):
     def locate_robot(self):
         
         PF400 = self.connect_robot()
-        command = 'where\n'
+
+        command = 'wherej\n'
+        # Add ASCII NULL character at the end of the cmd string
         try:
             PF400.send(bytes(command.encode('ascii')))
-            # data = bytearray()
-            # while True:
-            #     packet = PF400.recv(4096)
-            #     if not packet:
-            #         break
-            #     data.extend(packet)
-            out_msg = PF400.recv(8000).decode("utf-8")
+            location = PF400.recv(4096).decode("utf-8")
+            self.logger.info(location)
+            location = "5 6 7 8 9 10"
+            coordinate_list = list(map(int,location.split(" ")))
+
         except socket.error as err:
-            print('Failed to send data')
+            self.logger.error('Failed to find robot location: {}'.format(err))
+        else:
+            self.disconnect_robot(PF400)  
 
-        self.disconnect_robot(PF400)
+        return coordinate_list
 
-        return out_msg
+    def teach_location(self, location: str, robot_id:int = None):
 
+        current_location = self.locate_robot()
+        try:
+            if robot_id == None and (location.lower == "homeall" or location.lower == "homearm" or location.lower == "mobile_robot" or location.lower == "trash") :
+            # TODO: Find a better way for this 
+                for count, loc in enumerate(self.location_dictionary[location]):
+                    self.location_dictionary[location][count] = current_location[count]
+
+            elif robot_id != None:
+                if location.upper() == "FRONT":
+                    key_name = "OT2_" + str(robot_id) + "_front"
+                elif location.upper() == "ABOVE_PLATE":
+                    key_name =  "OT2_" + str(robot_id) + "_above_plate"
+                elif location.upper() == "PICK_PLATE":
+                    key_name = "OT2_" + str(robot_id) + "_pick_plate"
+                elif location.upper() == "PLATE_RACK":
+                    key_name = "OT2_" + str(robot_id) + "_plate_rack"
+            else:
+                raise Exception("Please enter a valid location name!!! Format: location: str, robot_id:int = None ")
+            
+            for count, loc in enumerate(self.location_dictionary[key_name]):
+                self.location_dictionary[key_name][count] = current_location[count]        
+           
+        
+        except Exception as err:
+            self.logger.error(err)
+            
 
 
 if __name__ == "__main__":
     robot = PF400("1","192.168.1.81",10000)
-    robot.initialize_robot()
+    # robot.initialize_robot()
     # robot.move_single("HomeALL")
     # robot.pick_plate_ot2(1)
     # robot.drop_plate_ot2(2)
-    robot.program_robot_target("Transfer",[4,3])
+    # robot.teach_location("HomeALdL")
+    # robot.teach_location("above_plate",2)
+    # robot.program_robot_target("Transfer",[1,2])

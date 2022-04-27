@@ -51,3 +51,351 @@
 [INFO] [2022-04-26 20:15:18] [PF400_Client] MoveJ 1 3 0 0 0 0 0
 
 [INFO] [2022-04-26 20:15:18] [PF400_Client] [pick_plate_ot2 ID:3] Robot is moved to the 6th location
+[INFO] [2022-04-27 00:23:06] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 10000
+[INFO] [2022-04-27 00:23:06] [PF400_Client] hp 1
+
+[INFO] [2022-04-27 00:23:06] [PF400_Client] Enabling power on the robot
+[INFO] [2022-04-27 00:23:06] [PF400_Client] attach 1
+
+[INFO] [2022-04-27 00:23:06] [PF400_Client] Attaching the robot
+[INFO] [2022-04-27 00:23:06] [PF400_Client] home
+
+[INFO] [2022-04-27 00:23:06] [PF400_Client] Homing the robot
+[INFO] [2022-04-27 00:23:06] [PF400_Client] Setting defult values to the motion profile
+[INFO] [2022-04-27 00:23:06] [PF400_Client] Profile 1 50 0 100 100 0.1 0.1 False 10
+
+[INFO] [2022-04-27 00:23:06] [PF400_Client] sysState
+
+[INFO] [2022-04-27 00:23:06] [PF400_Client] Robot initialization is successfully completed!
+[INFO] [2022-04-27 00:23:06] [PF400_Client] wherej
+
+[INFO] [2022-04-27 00:23:06] [PF400_Client] wherej
+
+[INFO] [2022-04-27 00:24:34] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 10000
+[INFO] [2022-04-27 00:24:34] [PF400_Client] hp 1
+
+[INFO] [2022-04-27 00:24:34] [PF400_Client] Enabling power on the robot
+[INFO] [2022-04-27 00:24:34] [PF400_Client] attach 1
+
+[INFO] [2022-04-27 00:24:34] [PF400_Client] Attaching the robot
+[INFO] [2022-04-27 00:24:34] [PF400_Client] home
+
+[INFO] [2022-04-27 00:24:34] [PF400_Client] Homing the robot
+[INFO] [2022-04-27 00:24:34] [PF400_Client] Setting defult values to the motion profile
+[INFO] [2022-04-27 00:24:34] [PF400_Client] Profile 1 50 0 100 100 0.1 0.1 False 10
+
+[INFO] [2022-04-27 00:24:34] [PF400_Client] sysState
+
+[INFO] [2022-04-27 00:24:34] [PF400_Client] Robot initialization is successfully completed!
+[INFO] [2022-04-27 00:24:34] [PF400_Client] wherej
+
+[INFO] [2022-04-27 00:24:34] [PF400_Client] wherej
+
+[INFO] [2022-04-27 00:25:16] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 10000
+[INFO] [2022-04-27 00:25:16] [PF400_Client] hp 1
+
+[INFO] [2022-04-27 00:25:16] [PF400_Client] Enabling power on the robot
+[INFO] [2022-04-27 00:25:16] [PF400_Client] attach 1
+
+[INFO] [2022-04-27 00:25:16] [PF400_Client] Attaching the robot
+[INFO] [2022-04-27 00:25:16] [PF400_Client] home
+
+[INFO] [2022-04-27 00:25:16] [PF400_Client] Homing the robot
+[INFO] [2022-04-27 00:25:16] [PF400_Client] Setting defult values to the motion profile
+[INFO] [2022-04-27 00:25:16] [PF400_Client] Profile 1 50 0 100 100 0.1 0.1 False 10
+
+[INFO] [2022-04-27 00:25:16] [PF400_Client] sysState
+
+[INFO] [2022-04-27 00:25:16] [PF400_Client] Robot initialization is successfully completed!
+[INFO] [2022-04-27 00:25:16] [PF400_Client] wherej
+
+[INFO] [2022-04-27 00:25:16] [PF400_Client] wherej
+
+[INFO] [2022-04-27 00:26:16] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 10000
+[INFO] [2022-04-27 00:26:16] [PF400_Client] hp 1
+
+[INFO] [2022-04-27 00:26:16] [PF400_Client] Enabling power on the robot
+[INFO] [2022-04-27 00:26:16] [PF400_Client] attach 1
+
+[INFO] [2022-04-27 00:26:16] [PF400_Client] Attaching the robot
+[INFO] [2022-04-27 00:26:16] [PF400_Client] home
+
+[INFO] [2022-04-27 00:26:16] [PF400_Client] Homing the robot
+[INFO] [2022-04-27 00:26:16] [PF400_Client] Setting defult values to the motion profile
+[INFO] [2022-04-27 00:26:16] [PF400_Client] Profile 1 50 0 100 100 0.1 0.1 False 10
+
+[INFO] [2022-04-27 00:26:16] [PF400_Client] sysState
+
+[INFO] [2022-04-27 00:26:16] [PF400_Client] Robot initialization is successfully completed!
+[INFO] [2022-04-27 00:26:16] [PF400_Client] wherej
+
+[INFO] [2022-04-27 00:28:42] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 10000
+[INFO] [2022-04-27 00:28:42] [PF400_Client] hp 1
+
+[INFO] [2022-04-27 00:28:42] [PF400_Client] Enabling power on the robot
+[INFO] [2022-04-27 00:28:42] [PF400_Client] attach 1
+
+[INFO] [2022-04-27 00:28:42] [PF400_Client] Attaching the robot
+[INFO] [2022-04-27 00:28:42] [PF400_Client] home
+
+[INFO] [2022-04-27 00:28:42] [PF400_Client] Homing the robot
+[INFO] [2022-04-27 00:28:42] [PF400_Client] Setting defult values to the motion profile
+[INFO] [2022-04-27 00:28:42] [PF400_Client] Profile 1 50 0 100 100 0.1 0.1 False 10
+
+[INFO] [2022-04-27 00:28:42] [PF400_Client] sysState
+
+[INFO] [2022-04-27 00:28:42] [PF400_Client] Robot initialization is successfully completed!
+[INFO] [2022-04-27 00:28:42] [PF400_Client] wherej
+
+[INFO] [2022-04-27 00:28:56] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 10000
+[INFO] [2022-04-27 00:28:56] [PF400_Client] hp 1
+
+[INFO] [2022-04-27 00:28:56] [PF400_Client] Enabling power on the robot
+[INFO] [2022-04-27 00:28:56] [PF400_Client] attach 1
+
+[INFO] [2022-04-27 00:28:56] [PF400_Client] Attaching the robot
+[INFO] [2022-04-27 00:28:56] [PF400_Client] home
+
+[INFO] [2022-04-27 00:28:56] [PF400_Client] Homing the robot
+[INFO] [2022-04-27 00:28:56] [PF400_Client] Setting defult values to the motion profile
+[INFO] [2022-04-27 00:28:56] [PF400_Client] Profile 1 50 0 100 100 0.1 0.1 False 10
+
+[INFO] [2022-04-27 00:28:56] [PF400_Client] sysState
+
+[INFO] [2022-04-27 00:28:56] [PF400_Client] Robot initialization is successfully completed!
+[INFO] [2022-04-27 00:28:56] [PF400_Client] wherej
+
+[INFO] [2022-04-27 00:29:36] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 10000
+[INFO] [2022-04-27 00:29:36] [PF400_Client] hp 1
+
+[INFO] [2022-04-27 00:29:36] [PF400_Client] Enabling power on the robot
+[INFO] [2022-04-27 00:29:36] [PF400_Client] attach 1
+
+[INFO] [2022-04-27 00:29:36] [PF400_Client] Attaching the robot
+[INFO] [2022-04-27 00:29:36] [PF400_Client] home
+
+[INFO] [2022-04-27 00:29:36] [PF400_Client] Homing the robot
+[INFO] [2022-04-27 00:29:36] [PF400_Client] Setting defult values to the motion profile
+[INFO] [2022-04-27 00:29:36] [PF400_Client] Profile 1 50 0 100 100 0.1 0.1 False 10
+
+[INFO] [2022-04-27 00:29:36] [PF400_Client] sysState
+
+[INFO] [2022-04-27 00:29:36] [PF400_Client] Robot initialization is successfully completed!
+[INFO] [2022-04-27 00:29:36] [PF400_Client] wherej
+
+[INFO] [2022-04-27 00:29:36] [PF400_Client] wherej
+
+[INFO] [2022-04-27 00:32:00] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 10000
+[INFO] [2022-04-27 00:32:00] [PF400_Client] hp 1
+
+[INFO] [2022-04-27 00:32:00] [PF400_Client] Enabling power on the robot
+[INFO] [2022-04-27 00:32:00] [PF400_Client] attach 1
+
+[INFO] [2022-04-27 00:32:00] [PF400_Client] Attaching the robot
+[INFO] [2022-04-27 00:32:00] [PF400_Client] home
+
+[INFO] [2022-04-27 00:32:00] [PF400_Client] Homing the robot
+[INFO] [2022-04-27 00:32:00] [PF400_Client] Setting defult values to the motion profile
+[INFO] [2022-04-27 00:32:00] [PF400_Client] Profile 1 50 0 100 100 0.1 0.1 False 10
+
+[INFO] [2022-04-27 00:32:00] [PF400_Client] sysState
+
+[INFO] [2022-04-27 00:32:00] [PF400_Client] Robot initialization is successfully completed!
+[INFO] [2022-04-27 00:32:00] [PF400_Client] wherej
+
+[INFO] [2022-04-27 00:33:38] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 10000
+[INFO] [2022-04-27 00:33:38] [PF400_Client] hp 1
+
+[INFO] [2022-04-27 00:33:38] [PF400_Client] Enabling power on the robot
+[INFO] [2022-04-27 00:33:38] [PF400_Client] attach 1
+
+[INFO] [2022-04-27 00:33:38] [PF400_Client] Attaching the robot
+[INFO] [2022-04-27 00:33:38] [PF400_Client] home
+
+[INFO] [2022-04-27 00:33:38] [PF400_Client] Homing the robot
+[INFO] [2022-04-27 00:33:38] [PF400_Client] Setting defult values to the motion profile
+[INFO] [2022-04-27 00:33:38] [PF400_Client] Profile 1 50 0 100 100 0.1 0.1 False 10
+
+[INFO] [2022-04-27 00:33:38] [PF400_Client] sysState
+
+[INFO] [2022-04-27 00:33:38] [PF400_Client] Robot initialization is successfully completed!
+[INFO] [2022-04-27 00:33:38] [PF400_Client] wherej
+
+[INFO] [2022-04-27 00:34:20] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 10000
+[INFO] [2022-04-27 00:34:20] [PF400_Client] hp 1
+
+[INFO] [2022-04-27 00:34:20] [PF400_Client] Enabling power on the robot
+[INFO] [2022-04-27 00:34:20] [PF400_Client] attach 1
+
+[INFO] [2022-04-27 00:34:20] [PF400_Client] Attaching the robot
+[INFO] [2022-04-27 00:34:20] [PF400_Client] home
+
+[INFO] [2022-04-27 00:34:20] [PF400_Client] Homing the robot
+[INFO] [2022-04-27 00:34:20] [PF400_Client] Setting defult values to the motion profile
+[INFO] [2022-04-27 00:34:20] [PF400_Client] Profile 1 50 0 100 100 0.1 0.1 False 10
+
+[INFO] [2022-04-27 00:34:20] [PF400_Client] sysState
+
+[INFO] [2022-04-27 00:34:20] [PF400_Client] Robot initialization is successfully completed!
+[INFO] [2022-04-27 00:34:20] [PF400_Client] wherej
+
+[INFO] [2022-04-27 00:34:20] [PF400_Client] wherej
+
+[INFO] [2022-04-27 00:38:11] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 10000
+[INFO] [2022-04-27 00:38:11] [PF400_Client] hp 1
+
+[INFO] [2022-04-27 00:38:11] [PF400_Client] Enabling power on the robot
+[INFO] [2022-04-27 00:38:11] [PF400_Client] attach 1
+
+[INFO] [2022-04-27 00:38:11] [PF400_Client] Attaching the robot
+[INFO] [2022-04-27 00:38:11] [PF400_Client] home
+
+[INFO] [2022-04-27 00:38:11] [PF400_Client] Homing the robot
+[INFO] [2022-04-27 00:38:11] [PF400_Client] Setting defult values to the motion profile
+[INFO] [2022-04-27 00:38:11] [PF400_Client] Profile 1 50 0 100 100 0.1 0.1 False 10
+
+[INFO] [2022-04-27 00:38:11] [PF400_Client] sysState
+
+[INFO] [2022-04-27 00:38:11] [PF400_Client] Robot initialization is successfully completed!
+[INFO] [2022-04-27 00:38:11] [PF400_Client] wherej
+
+[INFO] [2022-04-27 00:38:11] [PF400_Client] wherej
+
+[INFO] [2022-04-27 00:38:21] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 10000
+[INFO] [2022-04-27 00:38:21] [PF400_Client] hp 1
+
+[INFO] [2022-04-27 00:38:21] [PF400_Client] Enabling power on the robot
+[INFO] [2022-04-27 00:38:21] [PF400_Client] attach 1
+
+[INFO] [2022-04-27 00:38:21] [PF400_Client] Attaching the robot
+[INFO] [2022-04-27 00:38:21] [PF400_Client] home
+
+[INFO] [2022-04-27 00:38:21] [PF400_Client] Homing the robot
+[INFO] [2022-04-27 00:38:21] [PF400_Client] Setting defult values to the motion profile
+[INFO] [2022-04-27 00:38:21] [PF400_Client] Profile 1 50 0 100 100 0.1 0.1 False 10
+
+[INFO] [2022-04-27 00:38:21] [PF400_Client] sysState
+
+[INFO] [2022-04-27 00:38:21] [PF400_Client] Robot initialization is successfully completed!
+[INFO] [2022-04-27 00:38:21] [PF400_Client] wherej
+
+[INFO] [2022-04-27 00:40:28] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 10000
+[INFO] [2022-04-27 00:40:28] [PF400_Client] hp 1
+
+[INFO] [2022-04-27 00:40:28] [PF400_Client] Enabling power on the robot
+[INFO] [2022-04-27 00:40:28] [PF400_Client] attach 1
+
+[INFO] [2022-04-27 00:40:28] [PF400_Client] Attaching the robot
+[INFO] [2022-04-27 00:40:28] [PF400_Client] home
+
+[INFO] [2022-04-27 00:40:28] [PF400_Client] Homing the robot
+[INFO] [2022-04-27 00:40:28] [PF400_Client] Setting defult values to the motion profile
+[INFO] [2022-04-27 00:40:28] [PF400_Client] Profile 1 50 0 100 100 0.1 0.1 False 10
+
+[INFO] [2022-04-27 00:40:28] [PF400_Client] sysState
+
+[INFO] [2022-04-27 00:40:28] [PF400_Client] Robot initialization is successfully completed!
+[INFO] [2022-04-27 00:40:28] [PF400_Client] wherej
+
+[INFO] [2022-04-27 00:40:28] [PF400_Client] wherej
+
+[INFO] [2022-04-27 00:40:35] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 10000
+[INFO] [2022-04-27 00:40:35] [PF400_Client] hp 1
+
+[INFO] [2022-04-27 00:40:35] [PF400_Client] Enabling power on the robot
+[INFO] [2022-04-27 00:40:35] [PF400_Client] attach 1
+
+[INFO] [2022-04-27 00:40:35] [PF400_Client] Attaching the robot
+[INFO] [2022-04-27 00:40:35] [PF400_Client] home
+
+[INFO] [2022-04-27 00:40:35] [PF400_Client] Homing the robot
+[INFO] [2022-04-27 00:40:35] [PF400_Client] Setting defult values to the motion profile
+[INFO] [2022-04-27 00:40:35] [PF400_Client] Profile 1 50 0 100 100 0.1 0.1 False 10
+
+[INFO] [2022-04-27 00:40:35] [PF400_Client] sysState
+
+[INFO] [2022-04-27 00:40:35] [PF400_Client] Robot initialization is successfully completed!
+[INFO] [2022-04-27 00:40:35] [PF400_Client] wherej
+
+[INFO] [2022-04-27 00:40:35] [PF400_Client] wherej
+
+[INFO] [2022-04-27 00:42:13] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 10000
+[INFO] [2022-04-27 00:42:13] [PF400_Client] hp 1
+
+[INFO] [2022-04-27 00:42:13] [PF400_Client] Enabling power on the robot
+[INFO] [2022-04-27 00:42:13] [PF400_Client] attach 1
+
+[INFO] [2022-04-27 00:42:13] [PF400_Client] Attaching the robot
+[INFO] [2022-04-27 00:42:13] [PF400_Client] home
+
+[INFO] [2022-04-27 00:42:13] [PF400_Client] Homing the robot
+[INFO] [2022-04-27 00:42:13] [PF400_Client] Setting defult values to the motion profile
+[INFO] [2022-04-27 00:42:13] [PF400_Client] Profile 1 50 0 100 100 0.1 0.1 False 10
+
+[INFO] [2022-04-27 00:42:13] [PF400_Client] sysState
+
+[INFO] [2022-04-27 00:42:13] [PF400_Client] Robot initialization is successfully completed!
+[INFO] [2022-04-27 00:42:13] [PF400_Client] wherej
+
+[INFO] [2022-04-27 00:42:13] [PF400_Client] wherej
+
+[INFO] [2022-04-27 00:46:50] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 10000
+[INFO] [2022-04-27 00:46:50] [PF400_Client] hp 1
+
+[INFO] [2022-04-27 00:46:50] [PF400_Client] Enabling power on the robot
+[INFO] [2022-04-27 00:46:50] [PF400_Client] attach 1
+
+[INFO] [2022-04-27 00:46:50] [PF400_Client] Attaching the robot
+[INFO] [2022-04-27 00:46:50] [PF400_Client] home
+
+[INFO] [2022-04-27 00:46:50] [PF400_Client] Homing the robot
+[INFO] [2022-04-27 00:46:50] [PF400_Client] Setting defult values to the motion profile
+[INFO] [2022-04-27 00:46:50] [PF400_Client] Profile 1 50 0 100 100 0.1 0.1 False 10
+
+[INFO] [2022-04-27 00:46:50] [PF400_Client] sysState
+
+[INFO] [2022-04-27 00:46:50] [PF400_Client] Robot initialization is successfully completed!
+[INFO] [2022-04-27 00:46:50] [PF400_Client] wherej
+
+[INFO] [2022-04-27 00:46:50] [PF400_Client] wherej
+
+[INFO] [2022-04-27 00:48:18] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 10000
+[INFO] [2022-04-27 00:48:18] [PF400_Client] hp 1
+
+[INFO] [2022-04-27 00:48:18] [PF400_Client] Enabling power on the robot
+[INFO] [2022-04-27 00:48:18] [PF400_Client] attach 1
+
+[INFO] [2022-04-27 00:48:18] [PF400_Client] Attaching the robot
+[INFO] [2022-04-27 00:48:18] [PF400_Client] home
+
+[INFO] [2022-04-27 00:48:18] [PF400_Client] Homing the robot
+[INFO] [2022-04-27 00:48:18] [PF400_Client] Setting defult values to the motion profile
+[INFO] [2022-04-27 00:48:18] [PF400_Client] Profile 1 50 0 100 100 0.1 0.1 False 10
+
+[INFO] [2022-04-27 00:48:18] [PF400_Client] sysState
+
+[INFO] [2022-04-27 00:48:18] [PF400_Client] Robot initialization is successfully completed!
+[INFO] [2022-04-27 00:48:18] [PF400_Client] wherej
+
+[INFO] [2022-04-27 00:48:18] [PF400_Client] wherej
+
+[INFO] [2022-04-27 00:48:34] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 10000
+[INFO] [2022-04-27 00:48:34] [PF400_Client] hp 1
+
+[INFO] [2022-04-27 00:48:34] [PF400_Client] Enabling power on the robot
+[INFO] [2022-04-27 00:48:34] [PF400_Client] attach 1
+
+[INFO] [2022-04-27 00:48:34] [PF400_Client] Attaching the robot
+[INFO] [2022-04-27 00:48:34] [PF400_Client] home
+
+[INFO] [2022-04-27 00:48:34] [PF400_Client] Homing the robot
+[INFO] [2022-04-27 00:48:34] [PF400_Client] Setting defult values to the motion profile
+[INFO] [2022-04-27 00:48:34] [PF400_Client] Profile 1 50 0 100 100 0.1 0.1 False 10
+
+[INFO] [2022-04-27 00:48:34] [PF400_Client] sysState
+
+[INFO] [2022-04-27 00:48:34] [PF400_Client] Robot initialization is successfully completed!
+[INFO] [2022-04-27 00:48:34] [PF400_Client] wherej
+
+[INFO] [2022-04-27 00:48:34] [PF400_Client] wherej
+
