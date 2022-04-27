@@ -3,9 +3,9 @@ import time
 import logging
 
 #Log Configuration
-logging.basicConfig(filename = "robot_client_logs.log", level=logging.DEBUG, format = '[%(levelname)s] [%(asctime)s] [%(name)s] %(message)s', datefmt = '%Y-%m-%d %H:%M:%S')
+logging.basicConfig(filename = "logs/robot_client_logs.log", level=logging.DEBUG, format = '[%(levelname)s] [%(asctime)s] [%(name)s] %(message)s', datefmt = '%Y-%m-%d %H:%M:%S')
 
-class arm_robot(object):
+class PF400(object):
     """
     Description: 
                  - Python interface that allows remote commands to be executed using simple string messages over TCP/IP on PF400 cobot. 
@@ -347,7 +347,12 @@ class arm_robot(object):
         """
             Programs the robot to execute sequance of movements from its' current location to a given target location
         """
-        if job.lower() == "transfer":
+        # TODO: Find current robot pose
+        # TODO: Find robot location in the operation environment and plan movements dependiging on the surrounding obstacles
+        # TODO: HOME the robot arm before starting a program & Plan different movements dependng of the current grabber state
+
+        if job.upper() == "TRANSFER":
+            
             self.logger.info("Executing plate transfer between OT2 ID: {} and OT2 ID: {}".format(robot_ID_list[0],robot_ID_list[1]))
             self.pick_plate_ot2(robot_ID_list[0])
             self.drop_plate_ot2(robot_ID_list[1])
@@ -429,7 +434,7 @@ class arm_robot(object):
 
 
 if __name__ == "__main__":
-    robot = arm_robot("1","192.168.1.81",10000)
+    robot = PF400("1","192.168.1.81",10000)
     robot.initialize_robot()
     # robot.move_single("HomeALL")
     # robot.pick_plate_ot2(1)
