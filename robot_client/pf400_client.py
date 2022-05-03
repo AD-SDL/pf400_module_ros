@@ -28,31 +28,32 @@ class PF400(object):
         self.port = port
         
         # Default Motion Profile Paramiters. Using two profiles for faster and slower movements
-        self.motion_profile = [{"Speed": 20, "Speed2": 0, "Acceleration": 100, "Deceleration": 100, "AccelRamp": 0.1, "DecelRamp": 0.1, "InRange": 0, "Straight": 0},{"Speed": 100, "Speed2": 0, "Acceleration": 100, "Deceleration": 100, "AccelRamp": 0.1, "DecelRamp": 0.1, "InRange": 60, "Straight": 0}]
+        self.motion_profile = [{"Speed": 30, "Speed2": 0, "Acceleration": 100, "Deceleration": 100, "AccelRamp": 0.1, "DecelRamp": 0.1, "InRange": 0, "Straight": -1}, {"Speed": 50, "Speed2": 0, "Acceleration": 100, "Deceleration": 100, "AccelRamp": 0.1, "DecelRamp": 0.1, "InRange": 60, "Straight": 0}]
         # TODO: Use second motion prfile for slower movements 
 
         # Predefined locations for plate transferring oparetions
         self.location_dictionary = {"HomeALL": [600,-62,143,-84,109,0], 
                                     "HomeArm": [129.162,-61.890,143.007,-84.875,109.138,479.581], 
-                                    "OT2_1_plate_rack": [63.353,-58.618,130.758,-76.604,127,994.992],
+                                    "OT2_1_plate_rack": [770,10.428,82.322,-8.404,127,509.286],
                                     "OT2_2_plate_rack": [63.353,-58.618,130.758,-76.604,127,994.992], 
                                     "OT2_3_plate_rack": [63.353,-58.618,130.758,-76.604,127,994.992], 
                                     "OT2_4_plate_rack": [63.353,-58.618,130.758,-76.604,127,994.992],
-                                    "OT2_1_approach_plate_rack":[68,-62.388,142.675,-84.751,127,975.395],
+                                    "OT2_1_front_plate_rack":[774.343,-6.413,99.779,-9.019,127,509.288],
+                                    "OT2_1_approach_plate_rack":[774.343,-38.579,119.211,6.105,127,510.411],
                                     "OT2_2_approach_plate_rack":[68,-62.388,142.675,-84.751,127,975.395],
                                     "OT2_3_approach_plate_rack":[68,-62.388,142.675,-84.751,127,975.395],
                                     "OT2_4_approach_plate_rack":[68,-62.388,142.675,-84.751,127,975.395],
                                     "OT2_1_above_plate": [192.641,-0.148,87.200,-0.363,127,479.571],
                                     "OT2_2_above_plate": [192.641,-0.256,85.369,1.821,127,-446.647], 
-                                    "OT2_3_above_plate": [3,0,0,0,0,0], 
+                                    "OT2_3_above_plate": [192.983,6.602,116.191,-36.962,127,-952.970], 
                                     "OT2_4_above_plate": [4,0,0,0,0,0],
                                     "OT2_1_pick_plate": [129.687,-0.148,87.200,-0.363,127,479.571],
                                     "OT2_2_pick_plate": [130.707,-0.256,85.369,1.821,127,-446.647], 
-                                    "OT2_3_pick_plate": [3,0,0,0,0,0], 
+                                    "OT2_3_pick_plate": [129.873,8.477,114.726,-36.823,127,-952.973], 
                                     "OT2_4_pick_plate": [4,0,0,0,0,0],
                                     "OT2_1_front": [265.684,-54.964,112.009,29.191,127,483.687],
                                     "OT2_2_front": [265.684,-54.964,112.009,29.191,127,-446.523], 
-                                    "OT2_3_front": [3,0,0,0,0,0], 
+                                    "OT2_3_front": [265.636,-41.853,147.729,-20.043,127,-952.971], 
                                     "OT2_4_front": [4,0,0,0,0,0],
                                     "Transfer_A": [0,0,0,0,0,0],
                                     "Transfer_B": [0,0,0,0,0,0],
@@ -60,8 +61,8 @@ class PF400(object):
                                     "Transfer_D": [0,0,0,0,0,0],
                                     "Table_rack": [0,0,0,0,0,0],
                                     "Mobile_robot": [0,0,0,0,0,0],
-                                    "Completed_plate_above": [156.820,-91.717,93.577,-4.248,127,975.377], 
-                                    "Completed_plate": [66.511,-91.717,93.577,-4.248,127,975.377], 
+                                    "Completed_plate_above": [68,-62.388,142.675,-84.751,127,975.395], 
+                                    "Completed_plate": [63.353,-58.618,130.758,-76.604,127,994.992], 
                                     "Trash": [0,0,0,0,0,0]
                                     }
 
@@ -422,13 +423,15 @@ class PF400(object):
             fast = 2 
 
         approach_plate_rack = self.set_move_command("OT2_" + str(ot2_ID) + "_approach_plate_rack", fast, False, False)
+        front_rack = self.set_move_command("OT2_" + str(ot2_ID) + "_front_plate_rack", slow, False, False)
         plate_rack = self.set_move_command("OT2_" + str(ot2_ID) + "_plate_rack", slow, False, False)
         pick_plate = self.set_move_command("OT2_" + str(ot2_ID) + "_plate_rack", slow, True, False)
+        front_with_plate = self.set_move_command("OT2_" + str(ot2_ID) + "_front_plate_rack", slow, True, False)
         approach_rack_back = self.set_move_command("OT2_" + str(ot2_ID) + "_approach_plate_rack", slow, True, False)
        
 
 
-        drop_commands = [approach_plate_rack, plate_rack, pick_plate, approach_rack_back]
+        drop_commands = [approach_plate_rack, front_rack, plate_rack, pick_plate, front_with_plate, approach_rack_back]
 
         for count, command in enumerate(drop_commands):
             # time.sleep(1)
@@ -519,6 +522,7 @@ class PF400(object):
             self.move_single("HomeALL", 2)
             self.pick_plate_ot2(robot_ID_list[0])
             self.drop_plate_ot2(robot_ID_list[1])
+            
 
         elif job.upper() == "FULL_TRANSFER":
 
@@ -526,9 +530,14 @@ class PF400(object):
             self.move_single("HomeALL", 2)
             self.pick_plate_from_rack(1)
             self.drop_plate_ot2(1)
+            time.sleep(50)
             self.pick_plate_ot2(1)
             self.drop_plate_ot2(2)
+            time.sleep(50)
             self.pick_plate_ot2(2)
+            self.drop_plate_ot2(3)
+            time.sleep(50)
+            self.pick_plate_ot2(3)
             self.drop_complete_plate()
 
             
@@ -616,7 +625,8 @@ class PF400(object):
 
 if __name__ == "__main__":
     robot = PF400("1","192.168.0.1",10100)
-    # robot.initialize_robot()
+    robot.initialize_robot()
+    # robot.pick_plate_from_rack(1)
     robot.program_robot_target("full_transfer")
     # robot.move_single("HomeALL")
     # robot.pick_plate_ot2(1)
