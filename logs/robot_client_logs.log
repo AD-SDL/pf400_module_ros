@@ -7601,3 +7601,58 @@ Ok
 [INFO] [2022-05-03 17:33:49] [PF400_Client] 0
 
 [INFO] [2022-05-03 17:33:49] [PF400_Client] [drop_complete_plate] Robot is moved to the 4th location
+[INFO] [2022-05-05 11:53:00] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.0.1 - Port: 10100
+[INFO] [2022-05-05 11:53:00] [PF400_Client] Enabling power on the robot
+[INFO] [2022-05-05 11:53:01] [PF400_Client] 0
+
+[INFO] [2022-05-05 11:53:06] [PF400_Client] Attaching the robot
+[INFO] [2022-05-05 11:53:06] [PF400_Client] 0
+
+[INFO] [2022-05-05 11:53:11] [PF400_Client] Homing the robot
+[INFO] [2022-05-05 11:53:22] [PF400_Client] 0
+
+[INFO] [2022-05-05 11:53:37] [PF400_Client] Setting defult values to the motion profile 1 and 2
+[INFO] [2022-05-05 11:53:37] [PF400_Client] 0
+
+[INFO] [2022-05-05 11:53:38] [PF400_Client] 0
+
+[INFO] [2022-05-05 11:53:43] [PF400_Client] 0 21
+
+[INFO] [2022-05-05 11:53:43] [PF400_Client] Robot initialization is successfully completed!
+[INFO] [2022-05-05 12:04:40] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.0.1 - Port: 10100
+[INFO] [2022-05-05 12:04:40] [PF400_Client] 
+Ok
+[INFO] [2022-05-05 12:04:52] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.0.1 - Port: 10100
+[INFO] [2022-05-05 12:04:52] [PF400_Client] 
+Ok
+[INFO] [2022-05-05 12:04:55] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.0.1 - Port: 10100
+[INFO] [2022-05-05 12:04:55] [PF400_Client] 
+Ok
+[INFO] [2022-05-05 12:06:00] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.0.1 - Port: 10100
+[INFO] [2022-05-05 12:06:01] [PF400_Client] 
+Ok
+[INFO] [2022-05-05 12:06:31] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.0.1 - Port: 10100
+[INFO] [2022-05-05 12:06:32] [PF400_Client] 
+Ok
+[INFO] [2022-05-05 12:07:04] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.0.1 - Port: 10100
+[INFO] [2022-05-05 12:07:04] [PF400_Client] 
+Ok
+[INFO] [2022-05-05 12:07:26] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.0.1 - Port: 10100
+[INFO] [2022-05-05 12:07:26] [PF400_Client] 
+Ok
+[INFO] [2022-05-05 12:07:40] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.0.1 - Port: 10100
+[INFO] [2022-05-05 12:07:59] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.0.1 - Port: 10100
+[INFO] [2022-05-05 12:08:00] [PF400_Client] 
+Ok
+[INFO] [2022-05-05 12:08:29] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.0.1 - Port: 10100
+[INFO] [2022-05-05 12:08:30] [PF400_Client] 
+Ok
+[INFO] [2022-05-05 12:08:34] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.0.1 - Port: 10100
+[INFO] [2022-05-05 12:08:34] [PF400_Client] 
+Ok
+[INFO] [2022-05-05 12:08:44] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.0.1 - Port: 10100
+[INFO] [2022-05-05 12:08:44] [PF400_Client] 
+Ok
+[INFO] [2022-05-05 12:08:46] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.0.1 - Port: 10100
+[INFO] [2022-05-05 12:08:46] [PF400_Client] 
+Ok
