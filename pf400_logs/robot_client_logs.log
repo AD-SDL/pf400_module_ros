@@ -1,0 +1,92 @@
+[INFO] [2022-05-06 17:48:19] [PF400_Client] Robot created. Robot ID: 1 ~ Host: 192.168.1.81 ~ Port: 10100
+[INFO] [2022-05-06 17:48:56] [PF400_Client] Robot created. Robot ID: 1 ~ Host: 192.168.1.81 ~ Port: 10100
+[INFO] [2022-05-06 17:49:26] [PF400_Client] Robot created. Robot ID: 1 ~ Host: 192.168.1.81 ~ Port: 10100
+[INFO] [2022-05-06 17:49:44] [PF400_Client] Robot created. Robot ID: 1 ~ Host: 192.168.1.81 ~ Port: 10100
+[INFO] [2022-05-06 17:49:44] [PF400_Client] Failed enable_power:
+[INFO] [2022-05-06 17:49:44] [PF400_Client] hp 1
+
+[INFO] [2022-05-06 17:50:02] [PF400_Client] Robot created. Robot ID: 1 ~ Host: 192.168.1.81 ~ Port: 10100
+[INFO] [2022-05-06 17:50:02] [PF400_Client] Failed enable_power:
+[INFO] [2022-05-06 17:50:02] [PF400_Client] hp 1
+
+[INFO] [2022-05-06 17:50:30] [PF400_Client] Robot created. Robot ID: 1 ~ Host: 192.168.1.81 ~ Port: 10100
+[INFO] [2022-05-06 17:50:30] [PF400_Client] sysState
+
+[INFO] [2022-05-06 17:53:08] [PF400_Client] Robot created. Robot ID: 1 ~ Host: 192.168.1.81 ~ Port: 10100
+[INFO] [2022-05-06 17:53:08] [PF400_Client] Failed enable_power:
+[INFO] [2022-05-06 17:53:08] [PF400_Client] hp 1
+
+[INFO] [2022-05-06 17:53:08] [PF400_Client] sysState
+
+[INFO] [2022-05-06 17:55:07] [PF400_Client] Robot created. Robot ID: 1 ~ Host: 192.168.1.81 ~ Port: 10100
+[INFO] [2022-05-06 17:55:07] [PF400_Client] Failed enable_power:
+[INFO] [2022-05-06 17:55:07] [PF400_Client] hp 1
+
+[INFO] [2022-05-06 17:55:07] [PF400_Client] sysState
+
+[INFO] [2022-05-06 17:55:54] [PF400_Client] Robot created. Robot ID: 1 ~ Host: 192.168.1.81 ~ Port: 10100
+[INFO] [2022-05-06 17:55:54] [PF400_Client] Failed enable_power:
+[INFO] [2022-05-06 17:55:54] [PF400_Client] hp 1
+
+[INFO] [2022-05-06 17:55:54] [PF400_Client] sysState
+
+[INFO] [2022-05-06 17:57:00] [PF400_Client] Robot created. Robot ID: 1 ~ Host: 192.168.1.81 ~ Port: 10100
+[INFO] [2022-05-06 17:57:00] [PF400_Client] Failed to attach the robot:
+[INFO] [2022-05-06 17:57:00] [PF400_Client] attach 1
+
+[INFO] [2022-05-06 17:57:00] [PF400_Client] Failed enable_power:
+[INFO] [2022-05-06 17:57:00] [PF400_Client] hp 1
+
+[INFO] [2022-05-06 17:57:00] [PF400_Client] sysState
+
+[INFO] [2022-05-06 18:00:17] [PF400_Client] Robot created. Robot ID: 1 ~ Host: 192.168.1.81 ~ Port: 10100
+[INFO] [2022-05-06 18:00:17] [PF400_Client] Failed to attach the robot:
+[INFO] [2022-05-06 18:00:17] [PF400_Client] attach 1
+
+[INFO] [2022-05-06 18:00:17] [PF400_Client] Failed enable_power:
+[INFO] [2022-05-06 18:00:17] [PF400_Client] hp 1
+
+[INFO] [2022-05-06 18:00:17] [PF400_Client] sysState
+
+[INFO] [2022-05-06 18:03:09] [PF400_Client] Robot created. Robot ID: 1 ~ Host: 192.168.1.81 ~ Port: 10100
+[INFO] [2022-05-06 18:03:09] [PF400_Client] Attaching the robot
+[INFO] [2022-05-06 18:03:09] [PF400_Client] attach 1
+
+[INFO] [2022-05-06 18:03:09] [PF400_Client] Failed enable_power:
+[INFO] [2022-05-06 18:03:09] [PF400_Client] hp 1
+
+[INFO] [2022-05-06 18:03:09] [PF400_Client] sysState
+
+[INFO] [2022-05-06 18:04:00] [PF400_Client] Robot created. Robot ID: 1 ~ Host: 192.168.1.81 ~ Port: 10100
+[INFO] [2022-05-06 18:04:13] [PF400_Client] Robot created. Robot ID: 1 ~ Host: 192.168.1.81 ~ Port: 10100
+[INFO] [2022-05-06 18:04:13] [PF400_Client] attach 1
+
+[INFO] [2022-05-06 18:04:13] [PF400_Client] Failed enable_power:
+[INFO] [2022-05-06 18:04:13] [PF400_Client] hp 1
+
+[INFO] [2022-05-06 18:04:13] [PF400_Client] sysState
+
+[INFO] [2022-05-06 18:05:11] [PF400_Client] Robot created. Robot ID: 1 ~ Host: 192.168.1.81 ~ Port: 10100
+[INFO] [2022-05-06 18:05:11] [PF400_Client] attach 1
+
+[INFO] [2022-05-06 18:05:11] [PF400_Client] Failed enable_power:
+[INFO] [2022-05-06 18:05:11] [PF400_Client] hp 1
+
+[INFO] [2022-05-06 18:05:11] [PF400_Client] sysState
+
+[INFO] [2022-05-06 18:05:41] [PF400_Client] Robot created. Robot ID: 1 ~ Host: 192.168.1.81 ~ Port: 10100
+[INFO] [2022-05-06 18:05:41] [PF400_Client] attach 1
+
+[INFO] [2022-05-06 18:05:41] [PF400_Client] Failed enable_power:
+[INFO] [2022-05-06 18:05:41] [PF400_Client] hp 1
+
+[INFO] [2022-05-06 18:05:41] [PF400_Client] sysState
+
+[INFO] [2022-05-06 18:05:45] [PF400_Client] Robot created. Robot ID: 1 ~ Host: 192.168.1.81 ~ Port: 10100
+[INFO] [2022-05-06 18:05:45] [PF400_Client] attach 1
+
+[INFO] [2022-05-06 18:05:45] [PF400_Client] Failed enable_power:
+[INFO] [2022-05-06 18:05:45] [PF400_Client] hp 1
+
+[INFO] [2022-05-06 18:05:46] [PF400_Client] sysState
+

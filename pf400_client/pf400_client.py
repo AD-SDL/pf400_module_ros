@@ -5,7 +5,9 @@ import logging
 import json
 
 #Log Configuration
-logging.basicConfig(filename = "~/.pf400_logs/robot_client_logs.log", level=logging.DEBUG, format = '[%(levelname)s] [%(asctime)s] [%(name)s] %(message)s', datefmt = '%Y-%m-%d %H:%M:%S')
+file_path = os.path.join(os.path.split(os.path.dirname(__file__))[0]  + '/pf400_logs/robot_client_logs.log')
+
+logging.basicConfig(filename = file_path, level=logging.DEBUG, format = '[%(levelname)s] [%(asctime)s] [%(name)s] %(message)s', datefmt = '%Y-%m-%d %H:%M:%S')
 
 class PF400(object):
     """
@@ -22,6 +24,7 @@ class PF400(object):
 
     """
     def __init__(self):
+        
         self.logger = logging.getLogger("PF400_Client")
         self.logger.addHandler(logging.StreamHandler())
         
@@ -77,7 +80,7 @@ class PF400(object):
         PF400.close()
         # self.logger.info("TCP/IP client is closed")
 
-    def send_command(self, cmd: str=None, wait:int=0, ini_msg:str=None,err_msg:str=None):
+    def send_command(self, cmd: str=None, wait:int=0, ini_msg:str = None, err_msg:str = None):
         """
         Send and arbitrary command to the robot
         - command : 
@@ -85,6 +88,8 @@ class PF400(object):
         """
 
         ##Command Checking 
+        #TODO: We can check the available commands if the user enters a wrong one break
+
         if cmd==None:
             self.logger.info("Invalid command: " +cmd)
             return -1 ## make it return the last valid state
@@ -99,19 +104,23 @@ class PF400(object):
         ##return invalid CMD before trying to connect
 
         PF400_sock = self.connect_robot()
+        
         try:
+            PF400_sock.send(bytes(cmd.encode('ascii')))
+            robot_output = PF400_sock.recv(4096).decode("utf-8")
             if ini_msg:
                 self.logger.info(ini_msg)
-            PF400_sock.send(bytes(cmd.encode('ascii')))
-            robot_state = PF400.recv(4096).decode("utf-8")
-            self.logger.info(robot_state)
+            self.logger.info(robot_output)
+            print("here")
         except socket.error as err:
             self.logger.error(err_msg +' {}'.format(err))
+            print("here2")
+
             return('failed')## what is a failed state or it is the last state
         else:
-            self.disconnect_robot(PF400)
+            self.disconnect_robot(PF400_sock)
             #TODO:add wait
-        return(robot_state)
+        return(robot_output)
 
 
     def check_robot_state(self):
@@ -119,7 +128,7 @@ class PF400(object):
         cmd = 'sysState\n'
         err_msg = 'Failed to check robot state:'
 
-        self.send_command(cmd,err_msg)
+        self.send_command(cmd, err_msg)
 
 
 
@@ -137,9 +146,9 @@ class PF400(object):
 
         cmd = 'attach 1\n'
         ini_msg = "Attaching the robot"
-        err_msg = 'Failed to attach the robot:'
+        err_msg = "Failed to attach the robot:"
 
-        self.send_command(cmd, ini_msg, err_msg)
+        self.send_command(cmd, ini_msg)
 
         
     def home_robot(self):
@@ -347,7 +356,7 @@ class PF400(object):
         above_with_plate = self.set_move_command("OT2_" + str(ot2_ID) + "_above_plate", slow, True, False)
         front_with_plate = self.set_move_command("OT2_" + str(ot2_ID) + "_front", slow, True, False)
 
-        pick_up_commands = [move_front, above_plate] ......
+        pick_up_commands = [move_front, above_plate, approach_plate, pick_up_plate, above_with_plate, front_with_plate] 
         for count, command in enumerate(pick_up_commands):
             # time.sleep(1)
             PF400 = self.connect_robot()
@@ -614,8 +623,9 @@ if __name__ == "__main__":
     # robot.initialize_robot()
     # robot.pick_plate_ot2(1)
     # robot.load_robot_data()
+    robot.attach_robot()
     robot.enable_power()
-
+    robot.check_robot_state()
     #TODO: Return out msg and error code
 
 
