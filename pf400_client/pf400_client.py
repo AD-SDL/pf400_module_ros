@@ -77,7 +77,7 @@ class PF400(object):
         PF400.close()
         # self.logger.info("TCP/IP client is closed")
 
-    def send_command(self, cmd: str=None, wait:int=0, log_msg:str=None):
+    def send_command(self, cmd: str=None, wait:int=0, ini_msg:str=None,err_msg:str=None):
         """
         Send and arbitrary command to the robot
         - command : 
@@ -100,13 +100,13 @@ class PF400(object):
 
         PF400_sock = self.connect_robot()
         try:
-            if log_msg:
-                self.logger.info(log_msg)
+            if ini_msg:
+                self.logger.info(ini_msg)
             PF400_sock.send(bytes(cmd.encode('ascii')))
             robot_state = PF400.recv(4096).decode("utf-8")
             self.logger.info(robot_state)
         except socket.error as err:
-            self.logger.error('Failed to check robot state: {}'.format(err))
+            self.logger.error(err_msg +' {}'.format(err))
             return('failed')## what is a failed state or it is the last state
         else:
             self.disconnect_robot(PF400)
