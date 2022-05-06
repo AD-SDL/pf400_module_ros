@@ -1,8 +1,6 @@
-import os.path
 import socket
 import time
 import logging
-import json
 
 #Log Configuration
 logging.basicConfig(filename = "~/.pf400_logs/robot_client_logs.log", level=logging.DEBUG, format = '[%(levelname)s] [%(asctime)s] [%(name)s] %(message)s', datefmt = '%Y-%m-%d %H:%M:%S')
@@ -21,39 +19,55 @@ class PF400(object):
                  - Responses begin with a "0" if the command was successful, or a negative error code number
 
     """
-    def __init__(self):
+    def __init__(self, robot_ID:str, host: str, port: int):
         self.logger = logging.getLogger("PF400_Client")
         self.logger.addHandler(logging.StreamHandler())
         
-        robot1, motion_profile, locations = self.load_robot_data()
-        self.ID = robot1["ID"]
-        self.host = robot1["Host"]
-        self.port = robot1["Port"]
-       
+        self.ID = robot_ID
+        self.host = host
+        self.port = port
         
         # Default Motion Profile Paramiters. Using two profiles for faster and slower movements
-        self.motion_profile = motion_profile
+        self.motion_profile = [{"Speed": 30, "Speed2": 0, "Acceleration": 100, "Deceleration": 100, "AccelRamp": 0.1, "DecelRamp": 0.1, "InRange": 0, "Straight": -1}, {"Speed": 50, "Speed2": 0, "Acceleration": 100, "Deceleration": 100, "AccelRamp": 0.1, "DecelRamp": 0.1, "InRange": 60, "Straight": 0}]
         # TODO: Use second motion prfile for slower movements 
 
         # Predefined locations for plate transferring oparetions
-        self.location_dictionary = locations
+        self.location_dictionary = {"HomeALL": [600,-62,143,-84,109,0], 
+                                    "HomeArm": [129.162,-61.890,143.007,-84.875,109.138,479.581], 
+                                    "OT2_1_plate_rack": [770,10.428,82.322,-8.404,127,509.286],
+                                    "OT2_2_plate_rack": [63.353,-58.618,130.758,-76.604,127,994.992], 
+                                    "OT2_3_plate_rack": [63.353,-58.618,130.758,-76.604,127,994.992], 
+                                    "OT2_4_plate_rack": [63.353,-58.618,130.758,-76.604,127,994.992],
+                                    "OT2_1_front_plate_rack":[774.343,-6.413,99.779,-9.019,127,509.288],
+                                    "OT2_1_approach_plate_rack":[774.343,-38.579,119.211,6.105,127,510.411],
+                                    "OT2_2_approach_plate_rack":[68,-62.388,142.675,-84.751,127,975.395],
+                                    "OT2_3_approach_plate_rack":[68,-62.388,142.675,-84.751,127,975.395],
+                                    "OT2_4_approach_plate_rack":[68,-62.388,142.675,-84.751,127,975.395],
+                                    "OT2_1_above_plate": [192.641,-0.148,87.200,-0.363,127,479.571],
+                                    "OT2_2_above_plate": [192.641,-0.256,85.369,1.821,127,-446.647], 
+                                    "OT2_3_above_plate": [192.983,6.602,116.191,-36.962,127,-952.970], 
+                                    "OT2_4_above_plate": [4,0,0,0,0,0],
+                                    "OT2_1_pick_plate": [129.687,-0.148,87.200,-0.363,127,479.571],
+                                    "OT2_2_pick_plate": [130.707,-0.256,85.369,1.821,127,-446.647], 
+                                    "OT2_3_pick_plate": [129.873,8.477,114.726,-36.823,127,-952.973], 
+                                    "OT2_4_pick_plate": [4,0,0,0,0,0],
+                                    "OT2_1_front": [265.684,-54.964,112.009,29.191,127,483.687],
+                                    "OT2_2_front": [265.684,-54.964,112.009,29.191,127,-446.523], 
+                                    "OT2_3_front": [265.636,-41.853,147.729,-20.043,127,-952.971], 
+                                    "OT2_4_front": [4,0,0,0,0,0],
+                                    "Transfer_A": [0,0,0,0,0,0],
+                                    "Transfer_B": [0,0,0,0,0,0],
+                                    "Transfer_C": [0,0,0,0,0,0],
+                                    "Transfer_D": [0,0,0,0,0,0],
+                                    "Table_rack": [0,0,0,0,0,0],
+                                    "Mobile_robot": [0,0,0,0,0,0],
+                                    "Completed_plate_above": [68,-62.388,142.675,-84.751,127,975.395], 
+                                    "Completed_plate": [63.353,-58.618,130.758,-76.604,127,994.992], 
+                                    "Trash": [0,0,0,0,0,0]
+                                    }
+        self.current_state=self.check_robot_state()
 
-        self.logger.info("Robot created. Robot ID: {} ~ Host: {} ~ Port: {}".format(self.ID, self.host, self.port))
-    
-    def load_robot_data(self):
-        # Setting parent file directory 
-        current_directory = os.path.dirname(__file__)
-        parent_directory = os.path.split(current_directory)[0] 
-        file_path = os.path.join(parent_directory + '/utils/robot_data.json')
-
-        # load json file
-        with open(file_path) as f:
-            data = json.load(f)
-
-        f.close()
-
-        return data["Robot_Data"][0], data["Robot_Data"][0]["motion_profile"],data["Robot_Data"][0]["locations"][0]
-
+        self.logger.info("Robot created. Robot ID: {} - Host: {} - Port: {}".format(self.ID, self.host, self.port))
 
     #Connect the socket object to the robot
     def connect_robot(self):    
@@ -77,17 +91,26 @@ class PF400(object):
         PF400.close()
         # self.logger.info("TCP/IP client is closed")
 
-    def send_command(self, command_name):
+    def send_command(self, cmd: str=None, wait:int=0, log_msg:str=None):
+        """
+        Send and arbitrary command to the robot
+        - command : 
+        - wait : wait time after movement is complete
+        """
 
-        PF400_sock = self.connect_robot()
-        try:
-            PF400_sock.send(bytes(command_name.encode('ascii')))
-            output_msg = PF400_sock.recv(4096).decode("utf-8")
-            
-            # TODO: Remove the below info logger once each function has the capability to process the output message
-            self.logger.info(output_msg)
-            
-            self.logger.info("New command sent to the robot {}".format(command_name))
+        ##Command Checking 
+        if cmd==None:
+            self.logger.info("Invalid command: " +cmd)
+            return -1 ## make it return the last valid state
+        
+        ##logging messages
+        if ini_msg=='':
+            ini_msg = 'send command'
+        if err_msg=='':
+            err_msg = 'Failed to send command: '
+
+        ##TODO check cmd against cmd list 
+        ##return invalid CMD before trying to connect
 
         PF400_sock = self.connect_robot()
         try:
@@ -97,25 +120,31 @@ class PF400(object):
             robot_state = PF400.recv(4096).decode("utf-8")
             self.logger.info(robot_state)
         except socket.error as err:
-
-            self.logger.error('Failed to send the command [{}]! ERROR: {}'.format(command_name, err))
+            self.logger.error('Failed to check robot state: {}'.format(err))
+            return('failed')## what is a failed state or it is the last state
         else:
-            self.disconnect_robot(PF400_sock)
-            return output_msg
+            self.disconnect_robot(PF400)
+            #TODO:add wait
+        return(robot_state)
+
+
+    def check_robot_state(self):
+
+        cmd = 'sysState\n'
+        err_msg = 'Failed to check robot state:'
+
+        self.send_command(cmd,err_msg)
+
+
 
     def enable_power(self):
 
         #Send cmd to Activate the robot
-        command_name = 'hp 1\n'
-        output_msg = self.send_command(command_name)
+        cmd = 'hp 1\n'
+        ini_msg = 'Enabling power on the robot'
+        err_msg = 'Failed enable_power:'
 
-        if output_msg == "0":
-            self.logger.info("Power enabled")
-        else:
-            self.logger.info("Error occurred while enabling power. Error code: {}".format(output_msg))
-
-
-       
+        self.send_command(cmd, ini_msg, err_msg)
 
 
     def attach_robot(self):
@@ -299,7 +328,7 @@ class PF400(object):
             robot_command = "MoveJ 3" 
 
         else:
-            raise Exception("Please enter a valid motion profiile! 1 for slower movement, 2 for faster movement profile, 3 for modified profile")
+            raise Exception("Please enter a valid motion profiile! 1 for slower movement / defualt profile, 2 for faster movement profile, 3 for modified profile")
        
         for count, location in enumerate(self.location_dictionary[robot_location]):
             if grab == True and count == 4:
@@ -317,9 +346,11 @@ class PF400(object):
         # TODO:ADD Motion profile index
         
         if profile == 3: 
-            slow, fast = 3, 3
+            slow = 3
+            fast = 3
         else:
-            slow, fast = 1, 2
+            slow = 1
+            fast = 2 
             
 
         # self.logger.info("Setting defult values to the motion profile")
@@ -332,7 +363,9 @@ class PF400(object):
         above_with_plate = self.set_move_command("OT2_" + str(ot2_ID) + "_above_plate", slow, True, False)
         front_with_plate = self.set_move_command("OT2_" + str(ot2_ID) + "_front", slow, True, False)
 
-        pick_up_commands = [move_front, above_plate] ......
+
+        pick_up_commands = [move_front, above_plate, approach_plate, pick_up_plate, above_with_plate, front_with_plate]
+
         for count, command in enumerate(pick_up_commands):
             # time.sleep(1)
             PF400 = self.connect_robot()
@@ -354,10 +387,11 @@ class PF400(object):
 
         # Set movement commands to complete a drop_plate_ot2 operation
         if profile == 3: 
-            slow, fast = 3, 3
+            slow = 3
+            fast = 3
         else:
-            slow, fast = 1, 2
-            
+            slow = 1
+            fast = 2 
 
         front_with_plate = self.set_move_command("OT2_" + str(ot2_ID) + "_front", slow, True, False)
         above_with_plate = self.set_move_command("OT2_" + str(ot2_ID) + "_above_plate", slow, True, False)
@@ -389,9 +423,11 @@ class PF400(object):
     def pick_plate_from_rack(self, ot2_ID, profile = 0):
         
         if profile == 3: 
-            slow, fast = 3, 3
+            slow = 3
+            fast = 3
         else:
-            slow, fast = 1, 2
+            slow = 1
+            fast = 2 
 
         approach_plate_rack = self.set_move_command("OT2_" + str(ot2_ID) + "_approach_plate_rack", fast, False, False)
         front_rack = self.set_move_command("OT2_" + str(ot2_ID) + "_front_plate_rack", slow, False, False)
@@ -591,22 +627,14 @@ class PF400(object):
         
         except Exception as err:
             self.logger.error(err)
-
+            
 
 
 if __name__ == "__main__":
-    robot = PF400()
-    # robot.initialize_robot()
-    # robot.pick_plate_ot2(1)
-    # robot.load_robot_data()
-    robot.enable_power()
-
-    #TODO: Return out msg and error code
-
-
-
+    robot = PF400("1","192.168.0.1",10100)
+    robot.initialize_robot()
     # robot.pick_plate_from_rack(1)
-    # robot.program_robot_target("full_transfer")
+    robot.program_robot_target("full_transfer")
     # robot.move_single("HomeALL")
     # robot.pick_plate_ot2(1)
     # robot.drop_plate_ot2(2)
@@ -620,4 +648,3 @@ if __name__ == "__main__":
     #         robot.program_robot_target("Transfer",[2,1])
     # except KeyboardInterrupt as err:
     #     print(err)
-
