@@ -77,17 +77,26 @@ class PF400(object):
         PF400.close()
         # self.logger.info("TCP/IP client is closed")
 
-    def send_command(self, command_name):
+    def send_command(self, cmd: str=None, wait:int=0, log_msg:str=None):
+        """
+        Send and arbitrary command to the robot
+        - command : 
+        - wait : wait time after movement is complete
+        """
 
-        PF400_sock = self.connect_robot()
-        try:
-            PF400_sock.send(bytes(command_name.encode('ascii')))
-            output_msg = PF400_sock.recv(4096).decode("utf-8")
-            
-            # TODO: Remove the below info logger once each function has the capability to process the output message
-            self.logger.info(output_msg)
-            
-            self.logger.info("New command sent to the robot {}".format(command_name))
+        ##Command Checking 
+        if cmd==None:
+            self.logger.info("Invalid command: " +cmd)
+            return -1 ## make it return the last valid state
+        
+        ##logging messages
+        if ini_msg=='':
+            ini_msg = 'send command'
+        if err_msg=='':
+            err_msg = 'Failed to send command: '
+
+        ##TODO check cmd against cmd list 
+        ##return invalid CMD before trying to connect
 
         PF400_sock = self.connect_robot()
         try:
@@ -97,25 +106,31 @@ class PF400(object):
             robot_state = PF400.recv(4096).decode("utf-8")
             self.logger.info(robot_state)
         except socket.error as err:
-
-            self.logger.error('Failed to send the command [{}]! ERROR: {}'.format(command_name, err))
+            self.logger.error('Failed to check robot state: {}'.format(err))
+            return('failed')## what is a failed state or it is the last state
         else:
-            self.disconnect_robot(PF400_sock)
-            return output_msg
+            self.disconnect_robot(PF400)
+            #TODO:add wait
+        return(robot_state)
+
+
+    def check_robot_state(self):
+
+        cmd = 'sysState\n'
+        err_msg = 'Failed to check robot state:'
+
+        self.send_command(cmd,err_msg)
+
+
 
     def enable_power(self):
 
         #Send cmd to Activate the robot
-        command_name = 'hp 1\n'
-        output_msg = self.send_command(command_name)
+        cmd = 'hp 1\n'
+        ini_msg = 'Enabling power on the robot'
+        err_msg = 'Failed enable_power:'
 
-        if output_msg == "0":
-            self.logger.info("Power enabled")
-        else:
-            self.logger.info("Error occurred while enabling power. Error code: {}".format(output_msg))
-
-
-       
+        self.send_command(cmd, ini_msg, err_msg)
 
 
     def attach_robot(self):
