@@ -3,7 +3,7 @@ import time
 import logging
 
 #Log Configuration
-logging.basicConfig(filename = "logs/robot_client_logs.log", level=logging.DEBUG, format = '[%(levelname)s] [%(asctime)s] [%(name)s] %(message)s', datefmt = '%Y-%m-%d %H:%M:%S')
+logging.basicConfig(filename = "~/.pf400_logs/robot_client_logs.log", level=logging.DEBUG, format = '[%(levelname)s] [%(asctime)s] [%(name)s] %(message)s', datefmt = '%Y-%m-%d %H:%M:%S')
 
 class PF400(object):
     """
@@ -65,6 +65,7 @@ class PF400(object):
                                     "Completed_plate": [63.353,-58.618,130.758,-76.604,127,994.992], 
                                     "Trash": [0,0,0,0,0,0]
                                     }
+        self.current_state=self.check_robot_state()
 
         self.logger.info("Robot created. Robot ID: {} - Host: {} - Port: {}".format(self.ID, self.host, self.port))
 
@@ -83,67 +84,110 @@ class PF400(object):
             return PF400     
 
         #self.logger.info('Socket Connected to ' + self.host + " Port:", self.port )
-        #TODO:Read the status of the robot
+        #TODO:Read the status of the robot 
 
 
     def disconnect_robot(self, PF400):
         PF400.close()
         # self.logger.info("TCP/IP client is closed")
 
+    def send_command(self, cmd: str=None, wait:int=0, log_msg:str=None):
+        """
+        Send and arbitrary command to the robot
+        - command : 
+        - wait : wait time after movement is complete
+        """
+
+        ##Command Checking 
+        if cmd==None:
+            self.logger.info("Invalid command: " +cmd)
+            return -1 ## make it return the last valid state
+        
+        ##logging messages
+        if ini_msg=='':
+            ini_msg = 'send command'
+        if err_msg=='':
+            err_msg = 'Failed to send command: '
+
+        ##TODO check cmd against cmd list 
+        ##return invalid CMD before trying to connect
+
+        PF400_sock = self.connect_robot()
+        try:
+            if log_msg:
+                self.logger.info(log_msg)
+            PF400_sock.send(bytes(cmd.encode('ascii')))
+            robot_state = PF400.recv(4096).decode("utf-8")
+            self.logger.info(robot_state)
+        except socket.error as err:
+            self.logger.error('Failed to check robot state: {}'.format(err))
+            return('failed')## what is a failed state or it is the last state
+        else:
+            self.disconnect_robot(PF400)
+            #TODO:add wait
+        return(robot_state)
+
+
+    def check_robot_state(self):
+
+        cmd = 'sysState\n'
+        err_msg = 'Failed to check robot state:'
+
+        self.send_command(cmd,err_msg)
+
+
+
     def enable_power(self):
 
-        PF400 = self.connect_robot()
-
         #Send cmd to Activate the robot
-        command = 'hp 1\n'
-        # Add ASCII NULL character at the end of the cmd string
-        try:
-            self.logger.info("Enabling power on the robot")
-            PF400.send(bytes(command.encode('ascii')))
-            out_msg = PF400.recv(4096).decode("utf-8")
-            self.logger.info(out_msg)
+        cmd = 'hp 1\n'
+        ini_msg = 'Enabling power on the robot'
+        err_msg = 'Failed enable_power:'
 
-        except socket.error as err:
-            self.logger.error('Failed enable_power: {}'.format(err))
+        self.send_command(cmd, ini_msg, err_msg)
 
-        else:
-            self.disconnect_robot(PF400)    
 
     def attach_robot(self):
-        PF400 = self.connect_robot()
 
-        command = 'attach 1\n'
-        # Add ASCII NULL character at the end of the cmd string
-        try:
-            self.logger.info("Attaching the robot")
-            PF400.send(bytes(command.encode('ascii')))
-            # time.sleep(15)
-            out_msg = PF400.recv(4096).decode("utf-8")
-            self.logger.info(out_msg)
+        cmd = 'attach 1\n'
+        ini_msg = "Attaching the robot"
+        err_msg = 'Failed to attach the robot:'
 
-        except socket.error as err:
-            self.logger.error('Failed to attach the robot: {}'.format(err))
+        self.send_command(cmd, ini_msg, err_msg)
 
-        else:
-            self.disconnect_robot(PF400)    
         
     def home_robot(self):
 
-        PF400 = self.connect_robot()
+        cmd = 'home\n'
+        ini_msg = 'Homing the robot'
+        err_msg = 'Failed to home the robot: '
 
-        command = 'home\n'
-        # Add ASCII NULL character at the end of the cmd string
-        try:
-            self.logger.info("Homing the robot")
-            PF400.send(bytes(command.encode('ascii')))
-            out_msg = PF400.recv(4096).decode("utf-8")
-            self.logger.info(out_msg)
+        self.send_command(cmd, ini_msg, err_msg)
 
-        except socket.error as err:
-            self.logger.error('Failed to home the robot: {}'.format(err))
-        else:
-            self.disconnect_robot(PF400)  
     
+    def initialize_robot(self):
+        
+        # Enable power 
+        self.enable_power()
+        time.sleep(5)
+        # Attach robot
+        self.attach_robot()
+        time.sleep(5)
+
+        # Home robot
+        self.home_robot()
+        time.sleep(15)
+
+        # Set default motion profile
+        self.set_profile()
+        time.sleep(5)
+
+        self.check_robot_state()
+
+        self.logger.info("Robot initialization is successfully completed!")
+
+        
+    ##create "profile section" apart from the "command section"
     def set_profile(self, profile_dict = {"0":0}):
 
         if len(profile_dict) == 1:
@@ -208,26 +252,7 @@ class PF400(object):
         else:
             raise Exception("Motion profile takes 8 arguments, {} where given".format(len(profile_dict)))
 
-    def initialize_robot(self):
-        
-        # Enable power 
-        self.enable_power()
-        time.sleep(5)
-        # Attach robot
-        self.attach_robot()
-        time.sleep(5)
 
-        # Home robot
-        self.home_robot()
-        time.sleep(15)
-
-        # Set default motion profile
-        self.set_profile()
-        time.sleep(5)
-
-        self.check_robot_state()
-
-        self.logger.info("Robot initialization is successfully completed!")
     
     def set_motion_blend_tolerance(self, tolerance: int = 0):
         """
@@ -281,24 +306,6 @@ class PF400(object):
         else:
             self.disconnect_robot(PF400)  
 
-    def check_robot_state(self):
-
-        PF400 = self.connect_robot()
-
-        command = 'sysState\n'
-        try:
-            PF400.send(bytes(command.encode('ascii')))
-            robot_state = PF400.recv(4096).decode("utf-8")
-            self.logger.info(robot_state)
-
-        except socket.error as err:
-            self.logger.error('Failed to check robot state: {}'.format(err))
-
-        else:
-            self.disconnect_robot(PF400)  
-            return robot_state
-
-    
     def wait_before_next_move(self):
         """
         If you want to wait for the robot to stop moving, issue a waitForEom command
