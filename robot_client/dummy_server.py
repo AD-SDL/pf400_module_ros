@@ -4,7 +4,7 @@ import struct
 import time
 
 HOST = "192.168.1.81"  # Standard loopback interface address (localhost)
-PORT = 10000  # Port to listen on (non-privileged ports are > 1023)
+PORT = 10100  # Port to listen on (non-privileged ports are > 1023)
  
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 sock.bind((HOST,PORT))
@@ -24,7 +24,7 @@ while True:
         while True:
             # Read at least the header
         
-            packet = sockClient.recv(4096)
+            packet = sockClient.recv(1000)
             if not packet:
                 break
             data += packet

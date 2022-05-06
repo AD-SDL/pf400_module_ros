@@ -7656,3 +7656,111 @@ Ok
 [INFO] [2022-05-05 12:08:46] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.0.1 - Port: 10100
 [INFO] [2022-05-05 12:08:46] [PF400_Client] 
 Ok
+[INFO] [2022-05-05 12:26:31] [PF400_Client] Robot created. Robot ID: 1 - Host: 130.202.148.107 - Port: 10100
+[INFO] [2022-05-05 12:26:31] [PF400_Client] MoveJ 2 129.687 -0.148 87.2 -0.363 127 479.571
+MoveJ 1 129.687 -0.148 87.2 -0.363 120.0 479.571
+MoveJ 1 192.641 -0.148 87.2 -0.363 120.0 479.571
+MoveJ 1 265.684 -54.964 112.009 29.191 120.0 483.687
+
+[INFO] [2022-05-05 12:26:56] [PF400_Client] Robot created. Robot ID: 1 - Host: 130.202.148.107 - Port: 10100
+[INFO] [2022-05-05 12:26:56] [PF400_Client] MoveJ 2 129.687 -0.148 87.2 -0.363 127 479.571
+MoveJ 1 129.687 -0.148 87.2 -0.363 120.0 479.571
+MoveJ 1 192.641 -0.148 87.2 -0.363 120.0 479.571
+MoveJ 1 265.684 -54.964 112.009 29.191 120.0 483.687
+
+[INFO] [2022-05-05 14:58:36] [PF400_Client] Robot created. Robot ID: 1 - Host: 130.202.148.107 - Port: 10100
+[INFO] [2022-05-05 14:58:36] [PF400_Client] MoveJ 2 129.687 -0.148 87.2 -0.363 127 479.571
+MoveJ 1 129.687 -0.148 87.2 -0.363 120.0 479.571
+MoveJ 1 192.641 -0.148 87.2 -0.363 120.0 479.571
+MoveJ 1 265.684 -54.964 112.009 29.191 120.0 483.687
+
+[INFO] [2022-05-06 12:07:39] [PF400_Client] Robot created. Robot ID: 1 - Host: 130.202.148.107 - Port: 10100
+[INFO] [2022-05-06 12:09:22] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 10100
+[INFO] [2022-05-06 12:11:32] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 10100
+[INFO] [2022-05-06 12:11:32] [PF400_Client] MoveJ 2 129.687 -0.148 87.2 -0.363 127 479.571
+MoveJ 1 129.687 -0.148 87.2 -0.363 120.0 479.571
+MoveJ 1 192.641 -0.148 87.2 -0.363 120.0 479.571
+MoveJ 1 265.684 -54.964 112.009 29.191 120.0 483.687
+
+[INFO] [2022-05-06 13:01:03] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 10100
+[INFO] [2022-05-06 13:01:03] [PF400_Client] MoveJ 2 129.687 -0.148 87.2 -0.363 127 479.571
+MoveJ 1 129.687 -0.148 87.2 -0.363 120.0 479.571
+MoveJ 1 192.641 -0.148 87.2 -0.363 120.0 479.571
+MoveJ 1 265.684 -54.964 112.009 29.191 120.0 483.687
+
+[INFO] [2022-05-06 13:48:01] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 10100
+[INFO] [2022-05-06 13:48:10] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 10100
+[INFO] [2022-05-06 13:48:21] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 10100
+[INFO] [2022-05-06 13:50:07] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 10100
+[INFO] [2022-05-06 13:50:19] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 10100
+[INFO] [2022-05-06 13:50:58] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 10100
+[INFO] [2022-05-06 13:51:08] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 10100
+[INFO] [2022-05-06 13:53:08] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 10100
+[INFO] [2022-05-06 13:53:52] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 10100
+[INFO] [2022-05-06 13:54:11] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 10100
+[INFO] [2022-05-06 13:55:07] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 10100
+[INFO] [2022-05-06 13:55:13] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 10100
+[INFO] [2022-05-06 13:56:56] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 10100
+[INFO] [2022-05-06 13:57:04] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 10100
+[INFO] [2022-05-06 13:57:12] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 10100
+[INFO] [2022-05-06 13:57:43] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 10100
+[INFO] [2022-05-06 13:58:07] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 10100
+[INFO] [2022-05-06 13:58:26] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 10100
+[INFO] [2022-05-06 14:01:33] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 10100
+[INFO] [2022-05-06 14:01:42] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 10100
+[INFO] [2022-05-06 14:01:59] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 10100
+[INFO] [2022-05-06 14:02:04] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 10100
+[INFO] [2022-05-06 14:02:54] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 10100
+[INFO] [2022-05-06 14:07:25] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 10100
+[INFO] [2022-05-06 14:07:28] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 10100
+[INFO] [2022-05-06 14:07:40] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 10100
+[INFO] [2022-05-06 14:09:19] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 10100
+[INFO] [2022-05-06 14:09:49] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 10100
+[INFO] [2022-05-06 14:10:01] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 10100
+[INFO] [2022-05-06 14:10:09] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 10100
+[INFO] [2022-05-06 14:10:34] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 10100
+[INFO] [2022-05-06 14:10:48] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 10100
+[INFO] [2022-05-06 14:10:59] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 10100
+[INFO] [2022-05-06 14:11:15] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 10100
+[INFO] [2022-05-06 14:13:21] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 10100
+[INFO] [2022-05-06 14:13:28] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 10100
+[INFO] [2022-05-06 14:20:27] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.0.1 - Port: 10100
+[INFO] [2022-05-06 14:22:26] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.0.1 - Port: 10100
+[INFO] [2022-05-06 14:22:31] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.0.1 - Port: 10100
+[INFO] [2022-05-06 14:22:55] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.0.1 - Port: 10100
+[INFO] [2022-05-06 14:23:08] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.0.1 - Port: 10100
+[INFO] [2022-05-06 14:23:13] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.0.1 - Port: 10100
+[INFO] [2022-05-06 14:23:36] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.0.1 - Port: 10100
+[INFO] [2022-05-06 14:24:03] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 10100
+[INFO] [2022-05-06 14:24:03] [PF400_Client] MoveJ 2 129.687 -0.148 87.2 -0.363 127 479.571
+MoveJ 1 129.687 -0.148 87.2 -0.363 120.0 479.571
+MoveJ 1 192.641 -0.148 87.2 -0.363 120.0 479.571
+MoveJ 1 265.684 -54.964 112.009 29.191 120.0 483.687
+
+[INFO] [2022-05-06 14:29:00] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 10100
+[INFO] [2022-05-06 14:29:00] [PF400_Client] MoveJ 2 129.687 -0.148 87.2 -0.363 127 479.571
+MoveJ 1 129.687 -0.148 87.2 -0.363 120.0 479.571
+MoveJ 1 192.641 -0.148 87.2 -0.363 120.0 479.571
+MoveJ 1 265.684 -54.964 112.009 29.191 120.0 483.687
+
+[INFO] [2022-05-06 14:30:17] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 10100
+[INFO] [2022-05-06 14:30:17] [PF400_Client] MoveJ 2 129.687 -0.148 87.2 -0.363 127 479.571
+MoveJ 1 129.687 -0.148 87.2 -0.363 120.0 479.571
+MoveJ 1 192.641 -0.148 87.2 -0.363 120.0 479.571
+MoveJ 1 265.684 -54.964 112.009 29.191 120.0 483.687
+
+[INFO] [2022-05-06 14:32:11] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 10100
+[INFO] [2022-05-06 14:32:11] [PF400_Client] MoveJ 2 129.687 -0.148 87.2 -0.363 127 479.571
+MoveJ 1 129.687 -0.148 87.2 -0.363 120.0 479.571
+MoveJ 1 192.641 -0.148 87.2 -0.363 120.0 479.571
+MoveJ 1 265.684 -54.964 112.009 29.191 120.0 483.687
+
+[INFO] [2022-05-06 14:32:28] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 10100
+[INFO] [2022-05-06 14:32:39] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 10100
+[INFO] [2022-05-06 14:37:09] [PF400_Client] Robot created. Robot ID: 1 - Host: 192.168.1.81 - Port: 10100
+[INFO] [2022-05-06 14:37:09] [PF400_Client] hp 1
+
+[INFO] [2022-05-06 14:37:09] [PF400_Client] New command sent to the robot hp 1
+
+[INFO] [2022-05-06 14:37:09] [PF400_Client] Error occurred while enabling power. Error code: hp 1
+
