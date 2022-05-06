@@ -353,30 +353,22 @@ class PF400(object):
         above_with_plate = self.set_move_command("OT2_" + str(ot2_ID) + "_above_plate", slow, True, False)
         front_with_plate = self.set_move_command("OT2_" + str(ot2_ID) + "_front", slow, True, False)
 
+        pick_up_commands = [move_front, above_plate] ......
+        for count, command in enumerate(pick_up_commands):
+            # time.sleep(1)
+            PF400 = self.connect_robot()
+            try:
+                PF400.send(bytes(command.encode('ascii')))
+                out_msg = PF400.recv(4096).decode("utf-8")
+                self.logger.info(out_msg)
 
-        pick_up_commands =  approach_plate + pick_up_plate + above_with_plate + front_with_plate 
+                # TODO: CHECK FOR ERROR RETURN FORM ROBOT FIRST 
+                self.logger.info("[pick_plate_ot2 ID:{}] Robot is moved to the {}th location".format(str(ot2_ID), count+1))
 
-        PF400 = self.connect_robot()
-        PF400.send(bytes(pick_up_commands.encode('ascii')))
-        out_msg = PF400.recv(4096).decode("utf-8")
-        self.logger.info(out_msg)
-
-
-        # for count, command in enumerate(pick_up_commands):
-        #     # time.sleep(1)
-        #     PF400 = self.connect_robot()
-        #     try:
-        #         PF400.send(bytes(command.encode('ascii')))
-        #         out_msg = PF400.recv(4096).decode("utf-8")
-        #         self.logger.info(out_msg)
-
-        #         # TODO: CHECK FOR ERROR RETURN FORM ROBOT FIRST 
-        #         self.logger.info("[pick_plate_ot2 ID:{}] Robot is moved to the {}th location".format(str(ot2_ID), count+1))
-
-        #     except socket.error as err:
-        #         self.logger.error('Failed move the robot {}'.format(err))
-        #     else:
-        #         self.disconnect_robot(PF400)  
+            except socket.error as err:
+                self.logger.error('Failed move the robot {}'.format(err))
+            else:
+                self.disconnect_robot(PF400)  
 
 
     def drop_plate_ot2(self, ot2_ID, profile = 0):
@@ -629,6 +621,8 @@ if __name__ == "__main__":
     # robot.pick_plate_ot2(1)
     # robot.load_robot_data()
     robot.enable_power()
+
+    #TODO: Return out msg and error code
 
 
 
