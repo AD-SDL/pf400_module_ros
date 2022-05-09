@@ -13,8 +13,8 @@ class PF400(object):
     """
     Description: 
                  - Python interface that allows remote commands to be executed using simple string messages over TCP/IP on PF400 cobot. 
-                 - Arm_Robot is the main object that will be used for operations such as remote connection as well as sending movement commands.
-                 - Programs are sent to the 10x000 port (first robot port: 101000). 
+                 - PF400 is the main object that will be used for operations such as remote connection as well as sending movement commands.
+                 - Programs are sent to the 10x00 port (first robot port: 10100). 
                  - A program sent to robot will be executed immediately unless there is a prior operation running on the robot. 
                  - If a second motion command is sent while the referenced robot is moving, the second command is blocked and will not reply until the first motion is complete.
                  - Blended motion tolerance can be adjusted in the motion profile
@@ -80,7 +80,7 @@ class PF400(object):
         PF400.close()
         # self.logger.info("TCP/IP client is closed")
 
-    def send_command(self, cmd: str=None, wait:int=0, ini_msg:str = None, err_msg:str = None):
+    def send_command(self, cmd: str=None, ini_msg:str = None, err_msg:str = None, wait:int = 0.1):
         """
         Send and arbitrary command to the robot
         - command : 
@@ -111,145 +111,130 @@ class PF400(object):
             if ini_msg:
                 self.logger.info(ini_msg)
             self.logger.info(robot_output)
-            print("here")
+            # Wait after executing the command. Default wait time 0.1 sc
+            time.sleep(wait)
         except socket.error as err:
             self.logger.error(err_msg +' {}'.format(err))
-            print("here2")
 
             return('failed')## what is a failed state or it is the last state
         else:
             self.disconnect_robot(PF400_sock)
-            #TODO:add wait
-        return(robot_output)
+            # Returning the output message as a list             
+            return(robot_output.split())
 
 
-    def check_robot_state(self):
+    def check_robot_state(self, wait:int = 0.1):
 
         cmd = 'sysState\n'
+        input_msg = 'Checking robot state:'
         err_msg = 'Failed to check robot state:'
 
-        self.send_command(cmd, err_msg)
+        out_msg = self.send_command(cmd, input_msg, err_msg)
+        return out_msg
 
 
 
-    def enable_power(self):
+    def enable_power(self, wait:int = 0.1):
 
         #Send cmd to Activate the robot
         cmd = 'hp 1\n'
         ini_msg = 'Enabling power on the robot'
         err_msg = 'Failed enable_power:'
 
-        self.send_command(cmd, ini_msg, err_msg)
+        out_msg = self.send_command(cmd, ini_msg, err_msg, wait)
+
+        return out_msg
 
 
-    def attach_robot(self):
+    def attach_robot(self, wait:int = 0.1):
 
         cmd = 'attach 1\n'
         ini_msg = "Attaching the robot"
         err_msg = "Failed to attach the robot:"
 
-        self.send_command(cmd, ini_msg)
+        out_msg = self.send_command(cmd, ini_msg, err_msg, wait)
+
+        return out_msg
 
         
-    def home_robot(self):
+    def home_robot(self, wait:int = 0.1):
 
         cmd = 'home\n'
         ini_msg = 'Homing the robot'
         err_msg = 'Failed to home the robot: '
 
-        self.send_command(cmd, ini_msg, err_msg)
+        out_msg = self.send_command(cmd, ini_msg, err_msg, wait)
+
+        return out_msg
 
     
     def initialize_robot(self):
         
         # Enable power 
-        self.enable_power()
-        time.sleep(5)
+        power = self.enable_power(5)
         # Attach robot
-        self.attach_robot()
-        time.sleep(5)
-
+        attach = self.attach_robot(5)
         # Home robot
-        self.home_robot()
-        time.sleep(15)
-
+        home = self.home_robot(15)
         # Set default motion profile
-        self.set_profile()
-        time.sleep(5)
+        profile = self.set_profile(5)
+        # Check robots' current state
+        rState =self.check_robot_state()
 
-        self.check_robot_state()
+        if power[0].find('-') == -1 and attach[0].find('-') == -1 and home[0].find('-') == -1 and profile[0].find('-')== -1 :
+            self.logger.info("Robot initialization is successfully completed!")
+        else:    
+            self.logger.info("Robot initialization failed!")
 
-        self.logger.info("Robot initialization is successfully completed!")
+        return power, attach, profile, home, rState
 
         
     ##create "profile section" apart from the "command section"
-    def set_profile(self, profile_dict = {"0":0}):
+    def set_profile(self, wait:int = 0.1, profile_dict:dict = {"0":0}):
 
         if len(profile_dict) == 1:
            
-            self.logger.info("Setting defult values to the motion profile 1 and 2")
-
-            PF400 = self.connect_robot()
-            command = 'Profile 1'
+            cmd = 'Profile 1'
             for key, value in self.motion_profile[0].items():
-                command += ' ' + str(value)
-            command += '\n'
-            
-            try:
-                PF400.send(bytes(command.encode('ascii')))
-                robot_state = PF400.recv(4096).decode("utf-8")
-                self.logger.info(robot_state)
+                cmd += ' ' + str(value)
+            cmd += '\n'
 
-            except socket.error as err:
-                self.logger.error('Failed to set motion profile 1: {}'.format(err))
-
-            else:
-                self.disconnect_robot(PF400)  
-
-            PF400 = self.connect_robot()
-            command = 'Profile 2'
+            cmd2 = 'Profile 2'
             for key, value in self.motion_profile[1].items():
-                command += ' ' + str(value)
-            command += '\n'
-            
-            try:
-                PF400.send(bytes(command.encode('ascii')))
-                robot_state = PF400.recv(4096).decode("utf-8")
-                self.logger.info(robot_state)
+                cmd2 += ' ' + str(value)
+            cmd2 += '\n'
 
-            except socket.error as err:
-                self.logger.error('Failed to set motion profile 2: {}'.format(err))
+            ini_msg = "Setting defult values to the motion profile 1"
+            ini_msg2 = "Setting defult values to the motion profile 2"
+            err_msg = 'Failed to set profile 1: '
+            err_msg2 = 'Failed to set profile 2: '
 
-            else:
-                self.disconnect_robot(PF400)  
+            out_msg = self.send_command(cmd, ini_msg, err_msg, wait)
+            out_msg2 = self.send_command(cmd, ini_msg2, err_msg2, wait)
+
+
 
         elif len(profile_dict) == 8:
 
-            self.logger.info("Setting new values to the motion profile 1")
+            ini_msg = "Setting new values to the motion profile 3"
+            err_msg = 'Failed to set profile 1: '
 
-            PF400 = self.connect_robot()
-            command = 'Profile 3'
+            cmd = 'Profile 3'
             for key, value in profile_dict.items():
-                command += ' ' + str(value)
-            command += '\n'
+                cmd += ' ' + str(value)
+            cmd += '\n'
+
+            out_msg = self.send_command(cmd, ini_msg, err_msg, wait)
             
-            try:
-                PF400.send(bytes(command.encode('ascii')))
-                robot_state = PF400.recv(4096).decode("utf-8")
-                self.logger.info(robot_state)
-
-            except socket.error as err:
-                self.logger.error('Failed to set motion profile: {}'.format(err))
-
-            else:
-                self.disconnect_robot(PF400)  
-        
         else:
             raise Exception("Motion profile takes 8 arguments, {} where given".format(len(profile_dict)))
 
+        return out_msg 
+
+
 
     
-    def set_motion_blend_tolerance(self, tolerance: int = 0):
+    def set_motion_blend_tolerance(self, tolerance: int = 0, wait:int = 0.1):
         """
         Description: Gets or sets the InRange property of the selected profile, which is a parameter to set tolorance between blended motions.
         
@@ -262,52 +247,36 @@ class PF400(object):
         """
         pass
 
-    def check_robot_heartbeat(self):
+    def check_robot_heartbeat(self, wait:int = 0.1):
 
-        PF400 = self.connect_robot()
+        cmd = 'nop\n'
+        
+        input_msg = 'Checking robot heartbeat:'
+        err_msg = 'Failed to check robot heartbeat:'
 
-        command = 'nop\n'
-        try:
-            PF400.send(bytes(command.encode('ascii')))
-            out_msg = PF400.recv(4096).decode("utf-8")
-            self.logger.info(out_msg)
+        out_msg = self.send_command(cmd, input_msg, err_msg, wait)
+        return out_msg
 
-            if out_msg != None:
-                self.logger.info("Robot is alive")
-            else:
-                self.logger.warning("Lost robot heartbeat")
 
-        except socket.error as err:
-            self.logger.error('Failed to check robot heartbeat: {}'.format(err))
-        else:
-            self.disconnect_robot(PF400)  
-
-    def stop_robot(self):
+    def stop_robot(self, wait:int = 0.1):
         """
         Stops the robot immediately but leaves power on.
         """
 
-        PF400 = self.connect_robot()
+        cmd =  'halt\n'
+        input_msg = 'Stopping robot:'
+        err_msg = 'Failed to stop robot:'
 
-        command = 'halt\n'
-        try:
-            PF400.send(bytes(command.encode('ascii')))
-            out = PF400.recv(4096).decode("utf-8")
-            self.logger.info(out)
+        out_msg = self.send_command(cmd, input_msg, err_msg, wait)
+        return out_msg        
 
-        except socket.error as err:
-            self.logger.error('Failed to stop robot : {}'.format(err))
-
-        else:
-            self.disconnect_robot(PF400)  
-
-    def wait_before_next_move(self):
+    def wait_before_next_move(self, wait:int = 0.1):
         """
         If you want to wait for the robot to stop moving, issue a waitForEom command
         """
         pass
 
-    def clear_programs(self):
+    def clear_programs(self, wait:int = 0.1):
         #TODO: CLEAR ROBOT MEMORY BEFORE STARTING A PROGRAM TO MAKE SURE THERE IS NO QUEUED PROGRAMS FROM PREVIOUS EXECUTION
         pass
 
@@ -336,7 +305,7 @@ class PF400(object):
         
         return robot_command
 
-    def pick_plate_ot2(self, ot2_ID , profile = 0):
+    def pick_plate_ot2(self, ot2_ID , profile = 0, wait:int = 0.1):
         
         # TODO:ADD Motion profile index
         
@@ -357,24 +326,20 @@ class PF400(object):
         front_with_plate = self.set_move_command("OT2_" + str(ot2_ID) + "_front", slow, True, False)
 
         pick_up_commands = [move_front, above_plate, approach_plate, pick_up_plate, above_with_plate, front_with_plate] 
-        for count, command in enumerate(pick_up_commands):
-            # time.sleep(1)
-            PF400 = self.connect_robot()
-            try:
-                PF400.send(bytes(command.encode('ascii')))
-                out_msg = PF400.recv(4096).decode("utf-8")
-                self.logger.info(out_msg)
+        move_msg = []
 
-                # TODO: CHECK FOR ERROR RETURN FORM ROBOT FIRST 
-                self.logger.info("[pick_plate_ot2 ID:{}] Robot is moved to the {}th location".format(str(ot2_ID), count+1))
+        for count, cmd in enumerate(pick_up_commands):
+                   
+            input_msg = "[pick_plate_ot2 ID:{}] Robot is moved to the {}th location".format(str(ot2_ID), count+1)
+            err_msg = 'Failed move the robot:'
 
-            except socket.error as err:
-                self.logger.error('Failed move the robot {}'.format(err))
-            else:
-                self.disconnect_robot(PF400)  
+            out_msg = self.send_command(cmd, input_msg, err_msg, wait)
+            move_msg.append(out_msg)
+              
+        return move_msg
 
 
-    def drop_plate_ot2(self, ot2_ID, profile = 0):
+    def drop_plate_ot2(self, ot2_ID, profile = 0, wait:int = 0.1):
 
         # Set movement commands to complete a drop_plate_ot2 operation
         if profile == 3: 
@@ -392,23 +357,17 @@ class PF400(object):
 
 
         drop_commands = [front_with_plate, above_with_plate, approach_with_plate, drop_plate, above_plate, front_plate]
+        
+        move_msg = []
+        for count, cmd in enumerate(drop_commands):
 
-        for count, command in enumerate(drop_commands):
-            # time.sleep(1)
+            input_msg = "[pick_plate_ot2 ID:{}] Robot is moved to the {}th location".format(str(ot2_ID), count+1)
+            err_msg = 'Failed move the robot:'
 
-            PF400 = self.connect_robot()
-            try:
-                PF400.send(bytes(command.encode('ascii')))
-                out_msg = PF400.recv(4096).decode("utf-8")
-                self.logger.info(out_msg)
-
-                # TODO: CHECK FOR ERROR RETURN FORM ROBOT FIRST 
-                self.logger.info("[pick_plate_ot2 ID:{}] Robot is moved to the {}th location".format(str(ot2_ID), count+1))
-
-            except socket.error as err:
-                self.logger.error('Failed move the robot {}'.format(err))
-            else:
-                self.disconnect_robot(PF400)  
+            out_msg = self.send_command(cmd, input_msg, err_msg, wait)
+            move_msg.append(out_msg)
+              
+        return move_msg
                 
     def pick_plate_from_rack(self, ot2_ID, profile = 0):
         
@@ -620,12 +579,10 @@ class PF400(object):
 
 if __name__ == "__main__":
     robot = PF400()
-    # robot.initialize_robot()
+    robot.initialize_robot()
     # robot.pick_plate_ot2(1)
     # robot.load_robot_data()
-    robot.attach_robot()
-    robot.enable_power()
-    robot.check_robot_state()
+
     #TODO: Return out msg and error code
 
 

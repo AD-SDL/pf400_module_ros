@@ -1,5 +1,18 @@
+
 # PF400_cobot
 A repository for PF400 Collaborative Robot Arm documentation, including user manuals and remote control interfaces.
+## Remote client `/PF400_cobot/pf400_client/pf400_client.py`
+    
+    - Python interface that allows remote commands to be executed using simple string messages over TCP/IP on PF400 cobot. 
+    - PF400 is the main object that will be used for operations such as remote connection as well as sending movement commands.
+    - Programs are sent to the 192.168.0.1 IP address and 10x00 port numbers (first robot port number: 10100). 
+    - Robot data will be loaded from `/PF400_cobot/utils/robot_data.json` which contains motion profiles and joint locations.
+    - A program sent to robot will be executed immediately unless there is a prior operation running on the robot. 
+    - If a second motion command is sent while the referenced robot is moving, the second command is blocked and will not reply until the first motion is complete.
+
+# Development
+## Enable remote connections on PF400
+- Enter IP address of the PF400 (192.168.0.1) in an web browser and then clink on Admin.
 
 ## Install
 
