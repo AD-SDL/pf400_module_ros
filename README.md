@@ -15,8 +15,13 @@ Python interface that allows remote commands to be executed using simple string 
 ## Enable remote connections on PF400
 - Enter IP address of the PF400 (192.168.0.1) in a web browser and then clink on Admin.
 - Go to startup configuration under wizards and setup tools. Make sure that "Tcp_cmd_server" project is loaded to be automatically compiled when the run is turned on.
-- Go to Control Panels and then Operator Control panel. Verify that TCP Command Server is running (see the image). 
-![Control Panel](https://github.com/AD-SDL/PF400_cobot/blob/master/resources/diagrams-figures/operator-control.PNG)
+- Go to Control Panels and then Operator Control panel. Verify that TCP Command Server is running (see the image below). 
+
+![Control Panel](https://github.com/AD-SDL/PF400_cobot/blob/master/resources/diagrams-figures/operator-control.png)
+
+- To free the robot joints manualy stop the TCP server and go to Virtual Panel and choose free all joints, click plus.
+
+![Free Joints](https://github.com/AD-SDL/PF400_cobot/blob/master/resources/diagrams-figures/free-joint-mode.png)
 
 ## Install
 
