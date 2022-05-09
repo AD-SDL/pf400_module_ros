@@ -11,6 +11,16 @@ Python interface that allows remote commands to be executed using simple string 
 - A program sent to robot will be executed immediately unless there is a prior operation running on the robot. 
 - If a second motion command is sent while the referenced robot is moving, the second command is blocked and will not reply until the first motion is complete.
 
+### Current features
+* Robot initilazation (enable power, home robot joints, attach robot to the software and check robot state)
+* Set motion profile
+* Locate current location
+* Stop movement
+* Move to one location
+* Perform pick up and drop off plate operations from the OT2s 
+* Send complex programs such as transfer plate between two robots or execute full plate transfer between each robot. 
+
+
 # Development
 ## Enable remote connections on PF400
 - Enter IP address of the PF400 (192.168.0.1) in a web browser and then clink on Admin.
@@ -41,7 +51,7 @@ Better to install in develop-mode while the config is still changing
 
 ## Logging
 
-Logs go to the "running" PC `~/.logs_pf400/logs_date.txt`
+Logs go to the "running" PC `/pf400_logs/robot_client_logs.log`
 
 ## Resources
 
