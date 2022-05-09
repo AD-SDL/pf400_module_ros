@@ -16,7 +16,7 @@ Python interface that allows remote commands to be executed using simple string 
 - Enter IP address of the PF400 (192.168.0.1) in a web browser and then clink on Admin.
 - Go to startup configuration under wizards and setup tools. Make sure that "Tcp_cmd_server" project is loaded to be automatically compiled when the run is turned on.
 - Go to Control Panels and then Operator Control panel. Verify that TCP Command Server is running (see the image). 
-(https://raw.githubusercontent.com/AD-SDL/PF400_cobot/blob/master/resources/diagrams-figures/operator-control.PNG)
+![Control Panel](https://raw.githubusercontent.com/AD-SDL/PF400_cobot/blob/master/resources/diagrams-figures/operator-control.PNG)
 
 ## Install
 
