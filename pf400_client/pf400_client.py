@@ -120,7 +120,7 @@ class PF400(object):
         else:
             self.disconnect_robot(PF400_sock)
             # Returning the output message as a list             
-            return(robot_output.split())
+            return(robot_output)
 
 
     def check_robot_state(self, wait:int = 0.1):
@@ -186,7 +186,7 @@ class PF400(object):
         else:    
             self.logger.info("Robot initialization failed!")
 
-        return power, attach, profile, home, rState
+        return power + attach + profile + home + rState
 
         
     ##create "profile section" apart from the "command section"
@@ -210,7 +210,7 @@ class PF400(object):
             err_msg2 = 'Failed to set profile 2: '
 
             out_msg = self.send_command(cmd, ini_msg, err_msg, wait)
-            out_msg2 = self.send_command(cmd, ini_msg2, err_msg2, wait)
+            out_msg2 = self.send_command(cmd2, ini_msg2, err_msg2, wait)
 
 
 
@@ -462,7 +462,7 @@ class PF400(object):
             self.disconnect_robot(PF400)  
 
 
-    def program_robot_target(self, job:str, robot_ID_list: list = [0,0]):
+    def program_robot_target(self, job:str, robot_ID_1: int = 0, robot_ID_2:int = 0):
         """
             Programs the robot to execute sequance of movements from its' current location to a given target location
         """
@@ -472,10 +472,10 @@ class PF400(object):
 
         if job.upper() == "TRANSFER":
 
-            self.logger.info("Executing plate transfer between OT2 ID: {} and OT2 ID: {}".format(robot_ID_list[0],robot_ID_list[1]))
+            self.logger.info("Executing plate transfer between OT2 ID: {} and OT2 ID: {}".format(robot_ID_1, robot_ID_2))
             self.move_single("HomeALL", 2)
-            self.pick_plate_ot2(robot_ID_list[0])
-            self.drop_plate_ot2(robot_ID_list[1])
+            self.pick_plate_ot2(robot_ID_1)
+            self.drop_plate_ot2(robot_ID_2)
             
 
         elif job.upper() == "FULL_TRANSFER":

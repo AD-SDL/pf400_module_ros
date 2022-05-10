@@ -29,7 +29,7 @@ Python interface that allows remote commands to be executed using simple string 
 
 ![Control Panel TCP Server](https://github.com/AD-SDL/PF400_cobot/blob/master/resources/diagrams-figures/control-panel.png)
 
-- To free the robot joints manualy stop the TCP server and go to Virtual Panel and choose free all joints, click plus.
+- To free the robot joints manualy, stop the TCP server and go to Virtual Panel and choose free all joints, click plus.
 
 ![Free Joints](https://github.com/AD-SDL/PF400_cobot/blob/master/resources/diagrams-figures/free-joint-mode.png)
 
