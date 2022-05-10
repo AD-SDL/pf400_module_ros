@@ -326,7 +326,6 @@ class PF400(object):
         front_with_plate = self.set_move_command("OT2_" + str(ot2_ID) + "_front", slow, True, False)
 
         pick_up_commands = [move_front, above_plate, approach_plate, pick_up_plate, above_with_plate, front_with_plate] 
-        move_msg = []
 
         for count, cmd in enumerate(pick_up_commands):
                    
@@ -334,9 +333,8 @@ class PF400(object):
             err_msg = 'Failed move the robot:'
 
             out_msg = self.send_command(cmd, input_msg, err_msg, wait)
-            move_msg.append(out_msg)
               
-        return move_msg
+        return out_msg
 
 
     def drop_plate_ot2(self, ot2_ID, profile = 0, wait:int = 0.1):
@@ -358,16 +356,14 @@ class PF400(object):
 
         drop_commands = [front_with_plate, above_with_plate, approach_with_plate, drop_plate, above_plate, front_plate]
         
-        move_msg = []
         for count, cmd in enumerate(drop_commands):
 
             input_msg = "[pick_plate_ot2 ID:{}] Robot is moved to the {}th location".format(str(ot2_ID), count+1)
             err_msg = 'Failed move the robot:'
 
             out_msg = self.send_command(cmd, input_msg, err_msg, wait)
-            move_msg.append(out_msg)
               
-        return move_msg
+        return out_msg
                 
     def pick_plate_from_rack(self, ot2_ID, profile = 0):
         
@@ -382,8 +378,6 @@ class PF400(object):
         pick_plate = self.set_move_command("OT2_" + str(ot2_ID) + "_plate_rack", slow, True, False)
         front_with_plate = self.set_move_command("OT2_" + str(ot2_ID) + "_front_plate_rack", slow, True, False)
         approach_rack_back = self.set_move_command("OT2_" + str(ot2_ID) + "_approach_plate_rack", slow, True, False)
-       
-
 
         drop_commands = [approach_plate_rack, front_rack, plate_rack, pick_plate, front_with_plate, approach_rack_back]
 
@@ -403,6 +397,7 @@ class PF400(object):
                 self.logger.error('Failed move the robot {}'.format(err))
             else:
                 self.disconnect_robot(PF400)  
+                return out_msg
 
     def drop_complete_plate(self, profile = 0):
         
@@ -437,6 +432,8 @@ class PF400(object):
                 self.logger.error('Failed move the robot {}'.format(err))
             else:
                 self.disconnect_robot(PF400)  
+                return out_msg
+
 
 
     def move_single(self, target_location, profile = 0, grap: bool = False, release: bool = False):
@@ -460,6 +457,8 @@ class PF400(object):
             self.logger.error('Failed move the robot {}'.format(err))
         else:
             self.disconnect_robot(PF400)  
+            return out_msg
+
 
 
     def program_robot_target(self, job:str, robot_ID_1: int = 0, robot_ID_2:int = 0):

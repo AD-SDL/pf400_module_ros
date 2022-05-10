@@ -802,3 +802,119 @@
 [INFO] [2022-05-09 20:26:36] [PF400_Client] MoveJ 1 774.343 -38.579 119.211 6.105 120.0 510.411
 
 [INFO] [2022-05-09 20:26:36] [PF400_Client] [pick_plate_from_rack ID:1] Robot is moved to the 6th location
+[WARNING] [2022-05-09 20:30:54] [PF400_listen] Shutting down socket
+[INFO] [2022-05-09 20:31:20] [PF400_listen] Starting the command transfer listener
+[INFO] [2022-05-09 20:31:27] [PF400_Client] Robot created. Robot ID: 1 ~ Host: 192.168.1.81 ~ Port: 10100
+[INFO] [2022-05-09 20:31:27] [PF400_Client] Enabling power on the robot
+[INFO] [2022-05-09 20:31:27] [PF400_Client] hp 1
+
+[INFO] [2022-05-09 20:31:32] [PF400_Client] Attaching the robot
+[INFO] [2022-05-09 20:31:32] [PF400_Client] attach 1
+
+[INFO] [2022-05-09 20:31:37] [PF400_Client] Homing the robot
+[INFO] [2022-05-09 20:31:37] [PF400_Client] home
+
+[INFO] [2022-05-09 20:31:52] [PF400_Client] Setting defult values to the motion profile 1
+[INFO] [2022-05-09 20:31:52] [PF400_Client] Profile 1 30 0 100 100 0.1 0.1 0 -1
+
+[INFO] [2022-05-09 20:31:57] [PF400_Client] Setting defult values to the motion profile 2
+[INFO] [2022-05-09 20:31:57] [PF400_Client] Profile 2 50 0 100 100 0.1 0.1 60 0
+
+[INFO] [2022-05-09 20:32:02] [PF400_Client] Checking robot state:
+[INFO] [2022-05-09 20:32:02] [PF400_Client] sysState
+
+[INFO] [2022-05-09 20:32:02] [PF400_Client] Robot initialization is successfully completed!
+[INFO] [2022-05-09 20:32:02] [PF400_Client] MoveJ 2 774.343 -38.579 119.211 6.105 127 510.411
+
+[INFO] [2022-05-09 20:32:02] [PF400_Client] [pick_plate_from_rack ID:1] Robot is moved to the 1th location
+[INFO] [2022-05-09 20:32:02] [PF400_Client] MoveJ 1 774.343 -6.413 99.779 -9.019 127 509.288
+
+[INFO] [2022-05-09 20:32:02] [PF400_Client] [pick_plate_from_rack ID:1] Robot is moved to the 2th location
+[INFO] [2022-05-09 20:32:02] [PF400_Client] MoveJ 1 770 10.428 82.322 -8.404 127 509.286
+
+[INFO] [2022-05-09 20:32:02] [PF400_Client] [pick_plate_from_rack ID:1] Robot is moved to the 3th location
+[INFO] [2022-05-09 20:32:02] [PF400_Client] MoveJ 1 770 10.428 82.322 -8.404 120.0 509.286
+
+[INFO] [2022-05-09 20:32:02] [PF400_Client] [pick_plate_from_rack ID:1] Robot is moved to the 4th location
+[INFO] [2022-05-09 20:32:02] [PF400_Client] MoveJ 1 774.343 -6.413 99.779 -9.019 120.0 509.288
+
+[INFO] [2022-05-09 20:32:02] [PF400_Client] [pick_plate_from_rack ID:1] Robot is moved to the 5th location
+[INFO] [2022-05-09 20:32:02] [PF400_Client] MoveJ 1 774.343 -38.579 119.211 6.105 120.0 510.411
+
+[INFO] [2022-05-09 20:32:02] [PF400_Client] [pick_plate_from_rack ID:1] Robot is moved to the 6th location
+[INFO] [2022-05-09 20:32:13] [PF400_Client] Robot created. Robot ID: 1 ~ Host: 192.168.1.81 ~ Port: 10100
+[INFO] [2022-05-09 20:32:13] [PF400_Client] Enabling power on the robot
+[INFO] [2022-05-09 20:32:13] [PF400_Client] hp 1
+
+[INFO] [2022-05-09 20:32:18] [PF400_Client] Attaching the robot
+[INFO] [2022-05-09 20:32:18] [PF400_Client] attach 1
+
+[INFO] [2022-05-09 20:32:23] [PF400_Client] Homing the robot
+[INFO] [2022-05-09 20:32:24] [PF400_Client] home
+
+[INFO] [2022-05-09 20:32:39] [PF400_Client] Setting defult values to the motion profile 1
+[INFO] [2022-05-09 20:32:39] [PF400_Client] Profile 1 30 0 100 100 0.1 0.1 0 -1
+
+[INFO] [2022-05-09 20:32:44] [PF400_Client] Setting defult values to the motion profile 2
+[INFO] [2022-05-09 20:32:44] [PF400_Client] Profile 2 50 0 100 100 0.1 0.1 60 0
+
+[INFO] [2022-05-09 20:32:49] [PF400_Client] Checking robot state:
+[INFO] [2022-05-09 20:32:49] [PF400_Client] sysState
+
+[INFO] [2022-05-09 20:32:49] [PF400_Client] Robot initialization is successfully completed!
+[INFO] [2022-05-09 20:32:49] [PF400_Client] MoveJ 2 774.343 -38.579 119.211 6.105 127 510.411
+
+[INFO] [2022-05-09 20:32:49] [PF400_Client] [pick_plate_from_rack ID:1] Robot is moved to the 1th location
+[INFO] [2022-05-09 20:32:49] [PF400_Client] MoveJ 1 774.343 -6.413 99.779 -9.019 127 509.288
+
+[INFO] [2022-05-09 20:32:49] [PF400_Client] [pick_plate_from_rack ID:1] Robot is moved to the 2th location
+[INFO] [2022-05-09 20:32:49] [PF400_Client] MoveJ 1 770 10.428 82.322 -8.404 127 509.286
+
+[INFO] [2022-05-09 20:32:49] [PF400_Client] [pick_plate_from_rack ID:1] Robot is moved to the 3th location
+[INFO] [2022-05-09 20:32:49] [PF400_Client] MoveJ 1 770 10.428 82.322 -8.404 120.0 509.286
+
+[INFO] [2022-05-09 20:32:49] [PF400_Client] [pick_plate_from_rack ID:1] Robot is moved to the 4th location
+[INFO] [2022-05-09 20:32:49] [PF400_Client] MoveJ 1 774.343 -6.413 99.779 -9.019 120.0 509.288
+
+[INFO] [2022-05-09 20:32:49] [PF400_Client] [pick_plate_from_rack ID:1] Robot is moved to the 5th location
+[INFO] [2022-05-09 20:32:49] [PF400_Client] MoveJ 1 774.343 -38.579 119.211 6.105 120.0 510.411
+
+[INFO] [2022-05-09 20:32:49] [PF400_Client] [pick_plate_from_rack ID:1] Robot is moved to the 6th location
+[INFO] [2022-05-09 20:55:11] [PF400_Client] Robot created. Robot ID: 1 ~ Host: 192.168.1.81 ~ Port: 10100
+[INFO] [2022-05-09 20:55:11] [PF400_Client] Enabling power on the robot
+[INFO] [2022-05-09 20:55:11] [PF400_Client] hp 1
+
+[INFO] [2022-05-09 20:55:16] [PF400_Client] Attaching the robot
+[INFO] [2022-05-09 20:55:16] [PF400_Client] attach 1
+
+[INFO] [2022-05-09 20:55:21] [PF400_Client] Homing the robot
+[INFO] [2022-05-09 20:55:21] [PF400_Client] home
+
+[INFO] [2022-05-09 20:55:36] [PF400_Client] Setting defult values to the motion profile 1
+[INFO] [2022-05-09 20:55:36] [PF400_Client] Profile 1 30 0 100 100 0.1 0.1 0 -1
+
+[INFO] [2022-05-09 20:55:41] [PF400_Client] Setting defult values to the motion profile 2
+[INFO] [2022-05-09 20:55:41] [PF400_Client] Profile 2 50 0 100 100 0.1 0.1 60 0
+
+[INFO] [2022-05-09 20:55:46] [PF400_Client] Checking robot state:
+[INFO] [2022-05-09 20:55:46] [PF400_Client] sysState
+
+[INFO] [2022-05-09 20:55:46] [PF400_Client] Robot initialization is successfully completed!
+[INFO] [2022-05-09 20:55:46] [PF400_Client] MoveJ 2 774.343 -38.579 119.211 6.105 127 510.411
+
+[INFO] [2022-05-09 20:55:46] [PF400_Client] [pick_plate_from_rack ID:1] Robot is moved to the 1th location
+[INFO] [2022-05-09 20:55:46] [PF400_Client] MoveJ 1 774.343 -6.413 99.779 -9.019 127 509.288
+
+[INFO] [2022-05-09 20:55:46] [PF400_Client] [pick_plate_from_rack ID:1] Robot is moved to the 2th location
+[INFO] [2022-05-09 20:55:46] [PF400_Client] MoveJ 1 770 10.428 82.322 -8.404 127 509.286
+
+[INFO] [2022-05-09 20:55:46] [PF400_Client] [pick_plate_from_rack ID:1] Robot is moved to the 3th location
+[INFO] [2022-05-09 20:55:46] [PF400_Client] MoveJ 1 770 10.428 82.322 -8.404 120.0 509.286
+
+[INFO] [2022-05-09 20:55:46] [PF400_Client] [pick_plate_from_rack ID:1] Robot is moved to the 4th location
+[INFO] [2022-05-09 20:55:46] [PF400_Client] MoveJ 1 774.343 -6.413 99.779 -9.019 120.0 509.288
+
+[INFO] [2022-05-09 20:55:46] [PF400_Client] [pick_plate_from_rack ID:1] Robot is moved to the 5th location
+[INFO] [2022-05-09 20:55:46] [PF400_Client] MoveJ 1 774.343 -38.579 119.211 6.105 120.0 510.411
+
+[INFO] [2022-05-09 20:55:46] [PF400_Client] [pick_plate_from_rack ID:1] Robot is moved to the 6th location

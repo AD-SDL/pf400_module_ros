@@ -27,19 +27,16 @@ def pf400_transfer_command(job:str, robot_1:str = None, robot_2:str = None):
         time.sleep(1)
         msg = msg.split('@')
         # msg_output, msg_error, msg_errorcode = msg[0], msg[1], msg[2]
-        if  msg:
+        if msg:
             print("Client recived the output message from the completed protocol. Sending message to the ROS Arm node")
             return msg
     sock.close()
         
-
-    sock.close
-
-    
+  
     
 
 def main_null():
     print("This function is not meant to have a main function")
 
 if __name__ == '__main__':
-    pf400_transfer_command("rack", "bob")
+    pf400_transfer_command("transfer", "bob", "alex")

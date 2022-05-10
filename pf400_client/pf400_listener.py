@@ -28,7 +28,19 @@ class PF400_listen(object):
         self.OT2_ID = {"bob":1, "alex":2, "jack":3}
         self.listener(host, port)
         
-        
+    def command_handler(self, msg):
+        robot = PF400()
+
+        msg = msg.split("@")
+        output = robot.initialize_robot()
+
+        if len(msg) == 3 and msg[0].lower() == "transfer":
+            output = robot.program_robot_target(msg[0],self.OT2_ID[msg[1]],self.OT2_ID[msg[2]])
+        elif len(msg) == 2 and msg[0].lower() == "rack":
+            output = robot.pick_plate_from_rack(self.OT2_ID[msg[1]])
+
+        return output
+   
 
     def listener(self, host, port):
         
@@ -59,18 +71,6 @@ class PF400_listen(object):
             sock.close()
             exit()
 
-    def command_handler(self, msg):
-        robot = PF400()
-
-        msg = msg.split("@")
-        output = robot.initialize_robot()
-
-        if len(msg) == 3 and msg[0].lower() == "transfer":
-            output = robot.program_robot_target(msg[0],self.OT2_ID[msg[1]],self.OT2_ID[msg[2]])
-        elif len(msg) == 2 and msg[0].lower() == "rack":
-            output = robot.pick_plate_from_rack(self.OT2_ID[msg[1]])
-
-        return output
 
 
 if __name__ == "__main__":
