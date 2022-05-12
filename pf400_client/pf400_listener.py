@@ -38,6 +38,8 @@ class PF400_listen(object):
             output = robot.program_robot_target(msg[0],self.OT2_ID[msg[1]],self.OT2_ID[msg[2]])
         elif len(msg) == 2 and msg[0].lower() == "rack":
             output = robot.pick_plate_from_rack(self.OT2_ID[msg[1]])
+        elif len(msg) == 2 and msg[0].lower() == "complete":
+            output = robot.drop_complete_plate()
 
         return output
    
