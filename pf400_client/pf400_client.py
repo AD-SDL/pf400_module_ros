@@ -247,6 +247,16 @@ class PF400(object):
         """
         pass
 
+    def set_comm_mode(self):
+        
+        cmd = 'mode 0\n'
+        
+        input_msg = 'Setting communication mode to 0:'
+        err_msg = 'Failed to set communication mode to 0'
+
+        out_msg = self.send_command(cmd, input_msg, err_msg)
+        return out_msg
+
     def check_robot_heartbeat(self, wait:int = 0.1):
 
         cmd = 'nop\n'
@@ -257,6 +267,34 @@ class PF400(object):
         out_msg = self.send_command(cmd, input_msg, err_msg, wait)
         return out_msg
 
+    def check_general_state(self, wait:int = 0.1):
+
+        cmd1 = "hp\n"
+        cmd2 = "attach\n"
+        cmd3 = "sysState\n"
+
+        power_msg = self.send_command(cmd1)
+        power_msg = power_msg.split(" ")
+
+        attach_msg = self.send_command(cmd2)
+        attach_msg = attach_msg.split(" ")
+
+        state_msg = self.send_command(cmd3)
+        state_msg = state_msg.split(" ")
+
+        power ,attach, state = 0, 0, 0
+
+        if len(power_msg) == 1 or power_msg[0].find("-") != -1:
+            power = -1
+        if attach_msg[1].find("0") != -1 or attach_msg[0].find("-") != -1:
+            attach = -1
+        if state_msg[1].find("7") != -1 or state_msg[0].find("-") != -1:
+            state = -1
+        
+        if power == -1 or attach == -1 or state == -1:
+            return -1
+        else: 
+            return 0
 
     def stop_robot(self, wait:int = 0.1):
         """
@@ -379,25 +417,13 @@ class PF400(object):
         front_with_plate = self.set_move_command("OT2_" + str(ot2_ID) + "_front_plate_rack", slow, True, False)
         approach_rack_back = self.set_move_command("OT2_" + str(ot2_ID) + "_approach_plate_rack", slow, True, False)
 
-        drop_commands = [approach_plate_rack, front_rack, plate_rack, pick_plate, front_with_plate, approach_rack_back]
+        pick_rack_commands = [approach_plate_rack, front_rack, plate_rack, pick_plate, front_with_plate, approach_rack_back]
 
-        for count, command in enumerate(drop_commands):
-            # time.sleep(1)
+        for count, commands in enumerate(pick_rack_commands):
+            out_msg = self.send_command(commands)
+            self.logger.info("[drop_complete_plate] Robot is moved to the {}th location".format(count+1))
 
-            PF400 = self.connect_robot()
-            try:
-                PF400.send(bytes(command.encode('ascii')))
-                out_msg = PF400.recv(4096).decode("utf-8")
-                self.logger.info(out_msg)
-
-                # TODO: CHECK FOR ERROR RETURN FORM ROBOT FIRST 
-                self.logger.info("[pick_plate_from_rack ID:{}] Robot is moved to the {}th location".format(str(ot2_ID), count+1))
-
-            except socket.error as err:
-                self.logger.error('Failed move the robot {}'.format(err))
-            else:
-                self.disconnect_robot(PF400)  
-                return out_msg
+        return out_msg
 
     def drop_complete_plate(self, profile = 0):
         
@@ -415,24 +441,11 @@ class PF400(object):
        
 
         drop_commands = [completed_plate_above, drop_with_plate, drop_plate, completed_plate]
+        for count, commands in enumerate(drop_commands):
+            out_msg = self.send_command(commands)
+            self.logger.info("[drop_complete_plate] Robot is moved to the {}th location".format(count+1))
 
-        for count, command in enumerate(drop_commands):
-            # time.sleep(1)
-
-            PF400 = self.connect_robot()
-            try:
-                PF400.send(bytes(command.encode('ascii')))
-                out_msg = PF400.recv(4096).decode("utf-8")
-                self.logger.info(out_msg)
-
-                # TODO: CHECK FOR ERROR RETURN FORM ROBOT FIRST 
-                self.logger.info("[drop_complete_plate] Robot is moved to the {}th location".format(count+1))
-
-            except socket.error as err:
-                self.logger.error('Failed move the robot {}'.format(err))
-            else:
-                self.disconnect_robot(PF400)  
-                return out_msg
+        return out_msg
 
 
 
@@ -578,7 +591,8 @@ class PF400(object):
 
 if __name__ == "__main__":
     robot = PF400()
-    robot.initialize_robot()
+    robot.pick_plate_from_rack(1)
+    # robot.initialize_robot()
     # robot.pick_plate_ot2(1)
     # robot.load_robot_data()
 

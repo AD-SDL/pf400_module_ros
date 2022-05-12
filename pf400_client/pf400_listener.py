@@ -30,16 +30,24 @@ class PF400_listen(object):
         
     def command_handler(self, msg):
         robot = PF400()
-
+        robot.set_comm_mode()
         msg = msg.split("@")
-        output = robot.initialize_robot()
+
+        # Check robot state 
+        while robot.check_general_state() == -1:
+
+            self.logger.warn("Robot is not intilized! Intilizing now...")
+            output = robot.initialize_robot()
 
         if len(msg) == 3 and msg[0].lower() == "transfer":
             output = robot.program_robot_target(msg[0],self.OT2_ID[msg[1]],self.OT2_ID[msg[2]])
         elif len(msg) == 2 and msg[0].lower() == "rack":
             output = robot.pick_plate_from_rack(self.OT2_ID[msg[1]])
-        elif len(msg) == 2 and msg[0].lower() == "complete":
+        elif len(msg) == 1 and msg[0].lower() == "complete":
             output = robot.drop_complete_plate()
+        else:
+            self.logger.error("User sent invalid command")
+            return "Invalid command requested by the client!!!"    
 
         return output
    
