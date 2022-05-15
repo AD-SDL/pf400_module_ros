@@ -1,0 +1,3534 @@
+#Region "Module PARobot"
+' Copyright (c) 2012-2021 by Precise Automation Inc.  All rights reserved.
+' =======================================================================
+' Permission is granted to customers of Precise Automation to use this
+' software for any purpose, including commercial applications, and to
+' alter it and redistribute it freely, so long as this notice is included
+' with any modified or unmodified version of this software.
+'
+' This software is provided "as is," without warranty of any kind, express or
+' implied.  In no event shall Precise Automation be held liable for any
+' direct, indirect, incidental, special or consequential damages arising
+' out of the use of or inability to use this software.
+' =======================================================================
+
+Module PARobot ' PARobot Robot Command Implementation Module
+
+    Private Const Version As String = "PARobot Module 3.0C1 05-27-2021"
+
+    'Customization
+
+    ' Set the following to True to use the Precise force gripper
+    ' during PickPlate and PlacePlate commands.
+    ' Set to False to use a simple electric gripper with no force control
+
+    Private Const USE_FORCE_GRIPPER As Boolean = True
+
+    'PARobot error strings
+
+    Public Const EcInvPARobotGrp As String = "-2850 *Invalid Gripper Type*"
+''  EcInvPARobotInvSta moved to Globals.gpl
+''  Public Const EcInvPARobotInvSta As String = "-2852 *Invalid robot state to execute command*"
+    Public Const EcInvPARobotRailBad As String = "-2853 *Rail not at correct station*"
+    Public Const EcInvPARobotStaType As String = "-2854 *Invalid Station type*"
+    Public Const EcInvPARobotNoSnsr As String = "-2855 *No gripper close sensor*"
+
+    ' Const for PF400/PP100 Robot types.  Extracted from DataID 2007
+    ' Be sure to update PARobot_auto_center if any are added.
+
+    Public Const PP100 As Integer = 200
+    Public Const PF400 As Integer = 400
+    Public Const PF300 As Integer = 800
+    Public Const PAVP6 As Integer = 2000
+
+' Variable Definition Specific to Precise Automation Robots
+
+' Motion Variables for Precise Automation Robots
+' Profiles
+    Public moderate_ji As New Profile
+    Public moderate_sl As New Profile
+    Public fast_ji As New Profile
+    Public fast_sl As New Profile
+
+' Locations
+    Public SafeLoc(N_ROB) As Location
+    Public Park_j(N_ROB) As Location
+    Public Righty_j(N_ROB) As  Location
+    Public Lefty_j(N_ROB) As Location
+
+' Private Data Member for Servo Gripper - Multiple robots included
+    Private GRIP_OPEN(N_ROB) As Double  ' Gripper open position
+    Private GRIP_CLOSE(N_ROB) As Double ' Gripper close position
+    Private GRASP_WIDTH(N_ROB) As Double ' Plate width for grasping, in mm
+    Private GRASP_SPEED(N_ROB) As Double ' Finger speed during grasping, in %
+    Private GRASP_FORCE(N_ROB) As Double ' Force for grasping, in Nt.
+
+' DIO Gripper Constants
+    Private GRIP_OPEN_DIO(N_ROB) As Integer '= 13  ' Pneumatic gripper DOUT signal
+    Private GRIP_DIO_WAIT(N_ROB) As Integer '= 500 ' Pneumatic gripper actuation delay
+
+' Private data for linear rail
+
+    Private Rail_mode(N_ROB) As Integer ' Rail move mode, one of RAIL_MODE_*
+    Private Const RAIL_MODE_CHECK As Integer = 0 ' Check if at station
+    Private Const RAIL_MODE_MOVE As Integer = 1 ' Move now
+    Private Const RAIL_MODE_PEND As Integer = 2 ' Move during next pick/place
+    Private Rail_dir_sin(N_ROB) As Double ' Sin of rail direction
+    Private Rail_dir_cos(N_ROB) As Double ' Cosine of rail direction
+
+' Robot Location Constants
+    Const Z_CLEARANCE As Double = 50    ' Z Clearance - Approach Distance for Nest in mm
+                                        ' May be overridden by StationType command
+    Const RAIL_TOLERANCE As Double = 10 ' Tolerance for rail check, in mm
+#End Region
+
+#Region "Init"
+' Init -- Perform one-time initialization for this module when the project is started
+
+   Public Sub Init()  ' Initialize Routine
+       ' Variable Declaration
+       Dim inti As Integer
+
+       ' ************* Profile Definition *********************
+
+       ' Joint Mode - Moderate Speed
+       moderate_ji.Accel = 50
+       moderate_ji.Decel = 50
+       moderate_ji.Speed = 50
+       moderate_ji.AccelRamp = 0.1
+       moderate_ji.DecelRamp = 0.1
+       moderate_ji.InRange = -1
+       moderate_ji.Straight = False
+
+       ' Joint Mode - Fast Speed
+       fast_ji.Accel = 100
+       fast_ji.Decel = 100
+       fast_ji.Speed = 100
+       fast_ji.AccelRamp = 0.1
+       fast_ji.DecelRamp = 0.1
+       fast_ji.InRange = -1
+       fast_ji.Straight = False
+
+       ' Straight Line Mode - Moderate Speed
+       moderate_sl.Accel = 50
+       moderate_sl.Decel = 50
+       moderate_sl.Speed = 50
+       moderate_sl.AccelRamp = 0.1
+       moderate_sl.DecelRamp = 0.1
+       moderate_sl.InRange = 0
+       moderate_sl.Straight = True
+
+       ' Straight Line Mode - Fast Speed
+       fast_sl.Accel = 70
+       fast_sl.Decel = 70
+       fast_sl.Speed = 75
+       fast_sl.AccelRamp = 0.1
+       fast_sl.DecelRamp = 0.1
+       fast_sl.InRange = -1
+       fast_sl.Straight = True
+
+       ' Define Gripper for Multiple Robots
+       For intI = 1 To N_ROB
+''         GRIP_OPEN(intI)  = 100       ' Gripper open pos - Defined in Hook_initCommand
+''         GRIP_CLOSE(intI)  = 75.5     ' Gripper close pos
+
+           ' Grasp parameters
+           GRASP_WIDTH(intI) = 80       ' Plate width for grasping, in mm
+           GRASP_FORCE(intI) = 10       ' Force for grasping, in Nt.
+           GRASP_SPEED(intI) = 50       ' Finger speed during grasping, in %
+
+           ' DIO Gripper Constants
+           GRIP_OPEN_DIO(intI)= 13     ' Pneumatic gripper DOUT signal
+           GRIP_DIO_WAIT(intI) = 500   ' Pneumatic gripper actuation delay
+       Next
+
+       ' ************* Location Definition *********************
+       ' General Robot Locations - Should be changed to adopt to a work
+       ' Cell configuration.  [Defined below in Hook_InitCommand]
+''     For intI = 1 To N_ROB
+''         SafeLoc(IntI) = New Location
+''         SafeLoc(IntI).Angles(170,0,180,-180,GRIP_CLOSE(intI)) ' Predefined Safe Location
+''
+''         park_J(intI) = New Location
+''         park_j(IntI) = SafeLoc(IntI).clone ' Tucked in position
+''
+''         ' Joint Location that Defines Entry points for Righty & Lefty
+''         Righty_j(intI)= New Location
+''         Righty_j(intI).Angles(170,10, 120,-130,GRIP_CLOSE(intI) ) ' Righty
+''         Lefty_j(intI) = New Location
+''         Lefty_j(intI).Angles (170,-20, 240, -225, GRIP_CLOSE(intI))   ' Lefty
+''     Next
+
+       ' Setup to call Sub NewCommand when command object created
+
+       Command.AddPlugin(Version, "PARobot")
+
+    End Sub              ' Initalization Routine
+#End Region
+
+#Region "Hook_InitCommand"
+' Hook_InitCommand -- Initialization rtn called whenever a new command object is created
+'
+' ABSTRACT:  This routine is called after a new command object is created for a
+'       robot.  It modifies the command object and builts local data structures.
+'
+'       If the robot is of type "PF400" or "PF300" or "PP100" or "PAVP6":
+'
+'       -   the GripAxis, RailAxis and ThetaAxis properties are set equal to
+'           the number of the  appropriate axis or left 0 if not configured.
+'       -   The module globals such as the default locations and gripper
+'           positions are defined as appropriate.
+'       -   If the robot has a rail, the rail orientation is computed.
+'   
+' INPUTS:   Cmd     Is the new Command object, filled in by the command New sub.
+'
+' OUTPUTS:  Reply   A dummy string, not used.
+
+    Public Sub Hook_InitCommand(ByVal Cmd As Command, ByRef Reply As String)
+
+        Dim axisMask, axis, rb, rbType, numaxes As Integer
+        Dim angle As Double
+
+        rb = Cmd.Rob.RobNum
+        If rb = 0 Then
+            Goto _exit                      ' No robot
+        End If
+
+        rbType = Cmd.Rob.RobType
+        axisMask = Controller.PDbNum(2003, rb, 0, 1)
+        numaxes = Cmd.Rob.RobNumAxes
+        
+        Select rbType
+        
+        ' For a PF400/PF300, set globals for Theta, servo gripper, and rail.
+        Case PF400, PF300
+            axis = 4                        ' First optional axis
+            If (axisMask And &H8) <> 0 Then ' Theta axis?
+                Cmd.Rob.ThetaAxis = axis
+                axis += 1
+            End If  
+            If (axisMask And &H20) <> 0 Then' Has servo gripper?
+                Cmd.Rob.GripAxis = axis
+                axis += 1
+            End If
+            If (axisMask And &H40) <> 0 Then' Has linear rail?
+                Cmd.Rob.RailAxis = axis
+                axis += 1
+            End If
+            If (axisMask And &H80) <> 0 Then' Has second gripper axis?
+                Cmd.Rob.InactiveGripAxis = axis
+                axis += 1
+            End If
+            ' Initialize module globals.
+            
+            SafeLoc(rb) = New Location      ' Predefined Safe Location
+            Righty_j(rb)= New Location      ' Righty/Lefty entry points
+            Lefty_j(rb) = New Location
+            
+            If (rbType = PF400) Then        ' PF400
+                GRIP_OPEN(rb) = 100         ' Gripper open position
+                GRIP_CLOSE(rb) = 75.5       ' Gripper close position
+            'POSITIONS
+            
+                If Cmd.Rob.InactiveGripAxis <> 0 Then
+                    'Positions for dual gripper
+                    SafeLoc(rb).Angles( 170,0,180,-90,GRIP_CLOSE(rb) )
+                    Park_j(rb) = SafeLoc(rb).clone' Tucked in position
+                    ' Joint Location that Defines Entry points for Righty & Lefty
+                    Righty_j(rb).Angles( 170,10,140,-60,GRIP_CLOSE(rb) )
+                    Lefty_j(rb).Angles( 170,-10,220,-120,GRIP_CLOSE(rb) )
+                
+                Else
+                    'Positions for non dual gripper
+                    SafeLoc(rb).Angles( 170,0,180,-180,GRIP_CLOSE(rb) )
+                    Park_j(rb) = SafeLoc(rb).clone' Tucked in position
+                    ' Joint Location that Defines Entry points for Righty & Lefty
+                    Righty_j(rb).Angles( 170,10,120,-130,GRIP_CLOSE(rb) )
+                    Lefty_j(rb).Angles( 170,-20,240,-225,GRIP_CLOSE(rb) )
+            
+                End If
+            
+            Else                            ' PF300
+                GRIP_OPEN(rb) = 45          ' Gripper open position
+                GRIP_CLOSE(rb) = 10         ' Gripper close position
+
+                SafeLoc(rb).Angles( 170,0,180,GRIP_CLOSE(rb) )
+                Park_j(rb) = SafeLoc(rb).clone' Tucked in position
+                ' Joint Location that Defines Entry points for Righty & Lefty
+                Righty_j(rb).Angles( 170,10,120,GRIP_CLOSE(rb) )
+                Lefty_j(rb).Angles( 170,-20,240,GRIP_CLOSE(rb) )
+            End If
+
+        ' For a PP100, check for servo gripper and optional Theta axis.
+
+        Case PP100
+            axis = numaxes                  ' Last axis
+            If (axisMask And &H10) <> 0 Then' Has servo gripper?
+                Cmd.Rob.GripAxis = axis
+                axis -= 1
+            End If
+            If (axisMask And &H8) <> 0 Then ' Has Theta?
+                Cmd.Rob.ThetaAxis = axis
+            End If
+            GRIP_OPEN(rb) = 100             ' Gripper open position
+            GRIP_CLOSE(rb) = 75.5           ' Gripper close position
+
+        ' For the PAVP6, no servo gripper or rail but it has a Theta.
+        
+        Case PAVP6
+            Cmd.Rob.ThetaAxis = numaxes-1   ' Theta axis
+            GRIP_OPEN(rb) = 100             ' Fill in for completeness
+            GRIP_CLOSE(rb) = 75.5
+        
+        ' Unknown robot, generate an error.
+        
+        Case Else
+            Goto _exit                      ' Not PF400, PF300, PP100 or PAVP6
+            
+        End Select
+        
+        ' If a rail is configured, compute sine and cosine of direction
+
+        If Cmd.Rob.RailAxis Then
+            angle = Controller.PdbNum(16050, rb, 0, 5) * (Math.Pi/180.0)
+            Rail_dir_sin(rb) = Math.Sin(angle)
+            Rail_dir_cos(rb) = Math.Cos(angle)
+        End If
+
+    _exit:
+        Return
+    End Sub
+
+#End Region
+
+#Region "Get_Station"
+' Get_Station - Helper to validate a station index and get the station
+'
+' ABSTRACT:  This routine validates a station index range, verifies that
+'       the station, location, and frame are defined appropriately
+'
+' INPUTS:   Cmd         is the Command object containing the robot data.
+'
+'           Index       The station index to check
+'
+' OUTPUTS:  Reply       If no error, unchanged from input.
+'                       If error, contains a reply error string
+'
+' RETURNS:  If error, Nothing,  Otherwise the station object.
+'
+    Public Function Get_Station(ByVal Cmd As Command, _
+           ByVal Index As Integer, _
+           ByRef Reply As String) As Station
+        Dim sta As Station
+
+        If index < 1 Then
+            Reply = EcInvStaIdx         'Invalid station index
+            sta = Nothing
+        ElseIf index >= Cmd.Rob.RobSta.Length Then
+            Reply = EcUndefSta      'Undefined station
+        Else
+            sta = Cmd.Rob.RobSta(index)
+            If sta Is Nothing Then
+                Reply = EcUndefSta      'Undefined station
+            ElseIf sta.loc Is Nothing Then
+                Reply = EcUndefLoc      'Undefined location
+                sta = Nothing
+            ElseIf (sta.flags And STA_FL_PAL) _
+                   AndAlso (sta.frame Is Nothing) Then
+                Reply = EcUndefPal      'Undefined pallet
+                sta = Nothing
+            End If
+        End If
+
+        Return sta
+
+    End Function
+
+#End Region
+
+#Region "CheckRail"
+' CheckRail -- Helper to check and optionally move the linear rail.
+'
+' ABSTRACT: This routine checks if the robot linear rail is at or
+'       moving to the proper location for the specified station.
+'
+'       If not, it can take one of several actions.
+'
+'           1. Issue an error.
+'           2. Move the rail to the desired location immediately.
+'           3. Return the desired rail position for a future move.
+'
+'       Assumes the RailAxis is non-zero
+'
+' INPUTS:   Cmd     is the Command object for the current command.
+'
+'           Sta     Station object to which we are moving.
+'           
+' OUTPUTS:  Rail   The Rail position to which we should move.
+'
+'           Reply   Reply string containing the error, otherwise
+'                   unchanged from input.
+' 
+' RETURNS:  0 if success, -1 if error
+
+    Public Function CheckRail(ByVal Cmd As Command, _
+        ByVal Sta As Station, _
+        ByRef Rail As Double, _
+        ByRef Reply As String) As Integer
+
+        Dim stt As Integer
+        Dim rail_current As Double
+        Dim rail_target As Double
+        Dim rail_axis As Integer = Cmd.Rob.RailAxis
+        Dim traj_mode As Integer
+        Dim rb As Integer = Cmd.Rob.Robnum
+
+        rail_target = Sta.rail
+        
+        traj_mode = Controller.PDbNum(3520, rb) ' Get traj state
+        If traj_mode <= 1 Then           ' If stopped, get current axis
+            rail_current = Robot.WhereAngles.Angle(rail_axis)
+        Else                            ' Else get destination axis
+            rail_current = Robot.DestAngles.Angle(rail_axis)
+        End If
+
+        Rail = rail_current           ' Assume return current
+
+' If pending move, return the target location
+
+        If Rail_mode(rb) = RAIL_MODE_PEND Then
+            Rail = rail_target            ' Return the target
+            Rail_mode(rb) = RAIL_MODE_CHECK ' Reset mode
+
+' Otherwise verify that we are at the target already
+
+        Else
+            If Math.Abs(rail_target - rail_current) > RAIL_TOLERANCE Then
+                Reply = EcInvPARobotRailBad 'Rail not at correct station
+                stt = -1                ' Return error
+                Goto _exit
+            End If
+        End If
+
+    _exit:
+        Return stt
+
+    End Function
+#End Region
+
+#Region "Cmd_MoveToSafe"
+' Cmd_MoveToSafe -- Move robot to a safe postion
+'
+' ABSTRACT: Command to Move a Robot to Safe Position
+'           Function applicable only to PF400/PF300 Robots with a Precise
+'           Servo or Pneumatic Gripper
+'
+'           This routine doesn't includes check for collision inside
+'           Work volume of the robot and can be customized by user for their
+'           workcell configuration
+'
+' No parameters
+'
+    Public Sub Cmd_MoveToSafe(ByVal Cmd As Command, ByRef Reply As String)
+        Dim CurConfig As Integer
+        Dim safetmp As Location
+        Dim ex As Exception
+
+        CurConfig = Robot.Where.config
+
+        If (Cmd.Rob.RobType <> PF400) AndAlso (Cmd.Rob.RobType <> PF300) Then
+            Reply =  EcInvRobType       ' Invalid Robot Type
+            Goto _exit
+        End If
+
+        ' Make sure the Gripper is closed
+
+        If Cmd.Rob.GripAxis Then
+            Move.OneAxis(Cmd.Rob.GripAxis, GRIP_CLOSE(Cmd.Rob.RobNum), False, moderate_ji)
+            Move.WaitForEOM
+        End If
+
+        ' Get robot to safe position from which we can move to park
+
+        If (Math.Abs(Robot.WhereAngles.Angle(2)) > 5) Then
+            Move.OneAxis(2, 5*Math.Sign(Robot.WhereAngles.Angle(2)), False, moderate_ji)
+        End If
+
+        If Robot.TrajState = 10 Then    ' WaitForEom may hang if jog mode
+            ex = New Exception
+            ex.RobotError = True
+            ex.ErrorCode = -1017        ' Not in position control mode
+            ex.RobotNum = cmd.Rob.RobNum
+            Throw ex
+        End If
+        Move.WaitForEOM
+
+        ' Move Robot
+        If (Robot.WhereAngles.angle(3) < 180) Then
+            Move.OneAxis(3, 180-65, False, moderate_ji)
+        Else
+            Move.OneAxis(3, 180+65, False, moderate_ji)
+        End If
+
+        Move.WaitForEOM
+        If (Cmd.Rob.ThetaAxis <> 0) Then
+            If Cmd.Rob.InactiveGripAxis <> 0 Then
+                If CurConfig And GPL_Righty Then ' In Righty changing to Lefty
+                    Move.OneAxis(4,  -90+45, False, moderate_ji)
+                Else
+                    Move.OneAxis(4,  -90-45, False, moderate_ji)
+                End If
+            Else
+                Move.OneAxis(4, -180, False, moderate_ji)
+            End If
+           
+        End If
+        Move.WaitForEOM
+
+        ' Move Robot to Safe
+        safetmp = SafeLoc(Cmd.Rob.RobNum).Clone
+        ' Do not move rail
+        If Cmd.Rob.RailAxis <> 0 Then
+            safetmp.Angle(Cmd.Rob.RailAxis) = Robot.WhereAngles.Angle(Cmd.Rob.RailAxis)
+        End If
+        ' Do not move dual gripper
+        If Cmd.Rob.InactiveGripAxis <> 0 Then
+            safetmp.Angle(Cmd.Rob.InactiveGripAxis) = Robot.WhereAngles.Angle(Cmd.Rob.InactiveGripAxis)
+        End If
+        Move.Loc (safetmp, moderate_ji)
+        Move.WaitForEOM
+
+    _exit:
+        Return
+
+    End Sub
+#End Region
+
+#Region "Cmd_ChangeConfig"
+' Cmd_ChangeConfig -- Change robot configuration between right and lefty
+'
+' ABSTRACT: Command to change Robot configuration between Righty and Lefty
+'           Function applicable only to PF400/PF300 Robots with a Precise
+'           Servo & Pneumatic Gripper
+'
+'           This routine doesn't includes check for collision inside
+'           Work volume of the robot and can be customized by user for their
+'           workcell configuration
+'
+' Parameter 1:  The gripper mode.
+'               0 to not change the gripper.
+'               1 to open the gripper,
+'               2 to close the gripper
+
+    Public Sub Cmd_ChangeConfig(ByVal Cmd As Command, ByRef Reply As String)
+
+    ' Variable Declaration
+        Dim CurConfig As Integer
+        Dim GripMode As Integer         ' Gripper Mode
+        Dim safe_tmp As New Location    ' Park Position
+        Dim righty_tmp As New Location  ' Righty Config Point
+        Dim lefty_tmp As New Location   ' Left Config Point
+        Dim grip_pos As Double
+        Dim grip As Integer = Cmd.Rob.GripAxis
+        Dim rb As Integer = Cmd.Rob.RobNum
+        Dim ex As Exception
+
+        If (Cmd.Rob.RobType <> PF400) AndAlso (Cmd.Rob.RobType <> PF300) Then
+            Reply =  EcInvRobType       ' Invalid Robot Type
+            Goto _exit
+        End If
+
+        Cmd.StringToDouble(0)
+
+        If Cmd.Nparm <> 1 Then
+            Reply = EcNoParm
+            Goto _exit
+        End If
+
+        ' Get Current Configuration
+
+        If Robot.TrajState = 10 Then   ' WaitForEom may hang if jog mode
+            ex = New Exception
+            ex.RobotError = True
+            ex.ErrorCode = -1017        ' Not in position control mode
+            ex.RobotNum = cmd.Rob.RobNum
+            Throw ex
+        End If
+        Move.WaitForEOM
+        CurConfig = Robot.Where.config
+
+        ' Get Gripper mode
+
+        GripMode = Cmd.cData(1)
+
+        ' Set Tmp Locations so we change the gripper based on Gripper Mode
+        ' Tmp Locations are used only in this routine
+
+        safe_tmp = SafeLoc(rb).Clone
+        righty_tmp = Righty_j(rb).Clone
+        lefty_tmp = Lefty_j(rb).Clone
+
+        ' Do not move rail
+
+        If Cmd.Rob.RailAxis <> 0 Then
+            Dim rail_tmp As Double
+            rail_tmp = Robot.WhereAngles.Angle(Cmd.Rob.RailAxis)
+            safe_tmp.Angle(Cmd.Rob.RailAxis) = rail_tmp
+            righty_tmp.Angle(Cmd.Rob.RailAxis) = rail_tmp
+            lefty_tmp.Angle(Cmd.Rob.RailAxis) = rail_tmp
+        End If
+        
+        'Modify Positions for Dual Gripper
+        If Cmd.Rob.InactiveGripAxis <> 0 Then
+            'Never modify the inactive gripper
+            Dim grp_tmp As Double           
+            grp_tmp = Robot.WhereAngles.Angle(Cmd.Rob.InactiveGripAxis)
+            safe_tmp.Angle(Cmd.Rob.InactiveGripAxis) = grp_tmp
+            righty_tmp.Angle(Cmd.Rob.InactiveGripAxis) = grp_tmp
+            lefty_tmp.Angle(Cmd.Rob.InactiveGripAxis) = grp_tmp
+            
+        End If
+
+        ' Change gripper position based upon Gripper Mode.
+
+        If grip <> 0 Then
+            Select GripMode
+            Case 0  ' Do not change gripper
+                grip_pos = Robot.DestAngles.Angle(grip)
+            Case 1  ' Open Gripper Mode
+                grip_pos = GRIP_OPEN(rb)
+            Case 2  ' Close Gripper
+                grip_pos = GRIP_CLOSE(rb)
+            Case Else
+                Reply = EcPmm               ' Parameter MisMatch
+                Goto _exit
+            End Select
+    
+            Move.OneAxis(grip, grip_pos, False, moderate_ji)
+            safe_tmp.Angle(grip) = grip_pos
+            righty_tmp.Angle(grip) = grip_pos
+            lefty_tmp.Angle(grip) = grip_pos
+        End If
+        
+        ' Get robot to safe position from which we can move to park
+        
+        If (Math.Abs(Robot.WhereAngles.Angle(2)) > 15) Then
+            Move.OneAxis(2, 15*Math.Sign(Robot.WhereAngles.Angle(2)), False, moderate_ji)
+        End If
+
+        ' Move Robot
+        If (Robot.WhereAngles.angle(3) < 180) Then
+            Move.OneAxis(3, 180-65, False, moderate_ji)
+        Else
+            Move.OneAxis(3, 180+65, False, moderate_ji)
+        End If
+
+        ' Reset J4
+        If (Cmd.Rob.ThetaAxis <> 0) Then
+            If (Cmd.Rob.InactiveGripAxis <> 0) Then
+                If (Robot.WhereAngles.angle(3) < 180) Then
+                    Move.OneAxis(4, -90+45, False, moderate_ji)
+                Else
+                    Move.OneAxis(4, -90-45, False, moderate_ji)
+                End If
+            Else
+                Move.OneAxis(4, -180, False, moderate_ji)
+            End If
+        End If
+
+        ' Move Robot to Safe position and then move beyond to change configuration.
+        Move.Loc (safe_tmp, fast_ji)
+
+        If ((CurConfig = GPL_Righty)) Then  ' Change Righty to Lefty?
+            Move.Loc(lefty_tmp, fast_ji)    ' Lefty Zone Point
+        Else                                ' Change Lefty to Righty
+            Move.Loc(righty_tmp, fast_ji)
+        End If
+        Move.WaitForEOM
+
+    _exit:
+        Return
+    End Sub
+#End Region
+
+#Region "Cmd_ChangeConfig2"
+' Cmd_ChangeConfig2 -- Change robot configuration between right and lefty
+'
+' ABSTRACT: Command to change Robot configuration between Righty and Lefty
+'           Function applicable only to PF400/PF300 Robots with a Precise
+'           Servo & Pneumatic Gripper
+'
+'           This routine doesn't includes check for collision inside
+'           Work volume of the robot and can be customized by user for their
+'           workcell configuration
+'
+'           Alternate routine does not move to safe location.
+'           Attempts to minimize extra moves.
+'
+' Parameter 1:  The gripper mode.
+'               0 to not change the gripper.
+'               1 to open the gripper,
+'               2 to close the gripper
+
+    Public Sub Cmd_ChangeConfig2(ByVal Cmd As Command, ByRef Reply As String)
+
+    ' Variable Declaration
+        Dim CurConfig As Integer
+        Dim GripMode As Integer             ' Gripper Mode
+        Dim righty_tmp As New Location      ' Righty Config Point
+        Dim lefty_tmp As New Location       ' Left Config Point
+        Dim grip As Integer = Cmd.Rob.GripAxis
+        Dim rb As Integer = Cmd.Rob.RobNum
+        Dim ex As Exception
+        Dim angles As Location
+        Dim cloc As Location
+        Dim j4 As Double
+        Dim delta As Double
+
+        If (Cmd.Rob.RobType <> PF400) AndAlso (Cmd.Rob.RobType <> PF300) Then
+            Reply =  EcInvRobType ' Invalid Robot Type
+            Goto _exit
+        End If
+
+        Cmd.StringToDouble(0)
+
+        If Cmd.Nparm <> 1 Then
+            Reply = EcNoParm
+            Goto _exit
+        End If
+
+        ' Get Current Configuration
+
+        If Robot.TrajState <= 1 Then
+            CurConfig = Robot.Where.config
+            angles = Robot.WhereAngles
+            cloc = Robot.Where
+        Else
+            CurConfig = Robot.Dest.config
+            angles = Robot.DestAngles
+            cloc = Robot.Dest
+        End If
+
+        ' Get Gripper mode
+
+        GripMode = Cmd.cData(1)
+
+        ' Set Tmp Locations so we change the gripper based on Gripper Mode
+        ' Tmp Locations are used only in this routine
+
+        ' Do not move rail
+
+''      If Cmd.Rob.RailAxis <> 0 Then
+''          Dim rail_tmp As Double
+''          rail_tmp = angles.Angle(Cmd.Rob.RailAxis)
+''      End If
+
+
+        ' Change gripper based upon GripMode.
+
+        If grip <> 0 Then
+            Select GripMode
+            Case 0  ' Do not change gripper
+            Case 1  ' Open Gripper Mode
+                Move.OneAxis(grip, GRIP_OPEN(rb), False, moderate_ji)
+                angles.Angle(grip) = GRIP_OPEN(rb)
+            Case 2  ' Close Gripper
+                Move.OneAxis(grip, GRIP_CLOSE(rb), False, moderate_ji)
+                angles.Angle(grip) = GRIP_CLOSE(rb)
+            Case Else
+                Reply = EcPmm               ' Parameter MisMatch
+                Goto _exit
+            End Select
+        End If
+        
+        ' Get robot to safe position from which we can move to switch config
+
+        If (Math.Abs(angles.Angle(2)) > 5) Then
+            delta = 5*Math.Sign(angles.Angle(2)) - angles.Angle(2)
+            angles.Angle(2) = angles.Angle(2) + delta
+            ' Check if there is enough clearance to move J3
+            If Math.Abs(cloc.Y) > 300 Then
+                angles.Angle(3) = angles.Angle(3) - delta  ' Move J3 the opposite of J2
+            End If
+            Move.Loc(angles, moderate_ji) ' Move J2 and J3
+        End If
+        
+        
+        ' Depending on the J4 angle, we can either move directly to -180 or
+        ' we may need to unwind back to -180.
+        ' Before we can unwind, need to move J3 for clearance.
+                
+        'If there is a dual gripper attached
+        If (Cmd.Rob.InactiveGripAxis <> 0) Then
+            j4 = angles.Angle(4)
+            ' In Righty changing to Lefty
+            If CurConfig And GPL_Righty Then
+                ' Need to move J3
+                If angles.Angle(3) > (180-65) Then
+                    Move.OneAxis(3, 180-65, False, moderate_ji)
+                End If
+                ' Reset J4 if too far from -45
+                Move.OneAxis(4,  -90+45, False, moderate_ji)
+                
+                ' In Lefty changing to Righty
+            Else
+                ' Need to move J3
+                If angles.Angle(3) < (180+65) Then
+                    Move.OneAxis(3, 180+65, False, moderate_ji)
+                End If
+                ' Reset J4 if too far from -135
+                Move.OneAxis(4, -90-45, False, moderate_ji)
+            End If
+            Move.WaitForEOM
+            
+        Else    'Standard Servo Gripper
+            If (Cmd.Rob.ThetaAxis <> 0) Then
+                j4 = angles.Angle(4)
+                
+                ' In Righty changing to Lefty
+                
+                If CurConfig And GPL_Righty Then
+                    If j4 > 0 OrElse j4 < -270 Then ' Need to move J3
+                        If angles.Angle(3) > (180-65) Then
+                            Move.OneAxis(3, 180-65, False, moderate_ji)
+                        End If
+                    End If
+                    
+                    ' In Lefty changing to Righty
+                    
+                Else
+                    If j4 < -360 OrElse j4 > -90 Then ' Need to move J3
+                        If angles.Angle(3) < (180+65) Then
+                            Move.OneAxis(3, 180+65, False, moderate_ji)
+                        End If
+                    End If
+                End If
+                
+                ' Reset J4 if too far from -180
+                
+                If Math.Abs(j4+180) > 30 Then
+                    Move.OneAxis(4, -180, False, moderate_ji)
+                    
+                End If
+            End If
+        End If
+        
+        ' Move J3 to change config
+        ' Robot is degenerate at 180 +/- 10 degrees
+        If CurConfig And GPL_Righty Then ' In Righty changing to Lefty
+            Move.OneAxis(3, 180+25, False, moderate_ji)
+            If Cmd.Rob.InactiveGripAxis <> 0 Then
+                Move.ForceOverlap(0, 100)
+                Move.OneAxis(4, -90, True, moderate_ji)
+            End If
+        Else                            ' In Lefty changing to Righty
+            Move.OneAxis(3, 180-25, False, moderate_ji)
+            If Cmd.Rob.InactiveGripAxis <> 0 Then
+                Move.ForceOverlap(0, 100)
+                Move.OneAxis(4, 90, True, moderate_ji)
+            End If
+        End If
+        Move.WaitForEOM
+        
+    _exit:
+        Return
+    End Sub
+#End Region
+
+#Region "Cmd_PickPlate"
+' Cmd_PickPlate -- Pick up a plate   %%%%BES NOT UPDATED%%%%
+'
+' ABSTRACT: Command that goes to a nest position and picks up
+'       a plate.  If the arm must change configuration, it automatically
+'       goes through the Park position.
+'
+'       At the conclusion of this routine, the arm is left gripping the
+'       plate and stopped at the nest approach position.
+'
+'       The pick position of the plate is obtained from the indicated station.
+'       The ZClearance should be set to the distance required to withdraw the
+'       gripper at the height of the plate pick up position.  The Config bits
+'       must be set properly for the desired RIGHTY / LEFTY configuration.
+'
+'       If this operation is for a PF400 for stacks or hotels (STA_FL_VERT = 0),
+'       an extra World Z motion lifts the grasped plate by z_above before the
+'       depart motion is performed.
+'
+'       After the plate is grasped, z_grasp_offset is added to the ZClearance
+'       to determine the depart location.
+'
+' Parameter 1:  The pick station ID, from 1 to N
+'
+' Parameter 2:  Optional.  If specified and value 1, enable horizontal
+'               compliance during the gripper close operation.
+'               Otherwise do not use compliance.
+' Parameter 3:  Optional.  The % of the orginal horizontal holding torque
+'               to be applied during compliance, from 0 to 100.  If
+'               omitted, 0 is assumed, resulting in no horizontal holding
+'               torque.
+'
+' RETURNS:  True (-1) if a plate has been grasped (as determined by the final
+'   gripper motor torque level) else False (0).
+
+    Public Sub Cmd_PickPlate(ByVal Cmd As Command, ByRef Reply As String)
+
+    ' Variable Declaration
+        Dim park_j_loc As Location
+        Dim nest_high As Location
+        Dim appro_loc As Location
+        Dim Plate_Loc_Cart As Location
+        Dim rail As Double
+        Dim grasp_ok As Boolean
+        Dim tmploc As Location
+        Dim rb As Integer = Cmd.Rob.RobNum
+        Dim retexc As Exception
+        Dim horiz_compliance As Boolean
+        Dim horiz_pct As Double
+        Dim theta As Integer
+        Dim is_pf400, is_pf300 As Boolean
+        Dim sta As Station
+
+        Select Cmd.Rob.RobType
+        Case PF400
+            is_pf400 = True
+        Case PF300
+            is_pf300 = True
+        Case PP100, PAVP6
+        Case Else
+            Reply =  EcInvRobType       ' Invalid Robot Type
+            Goto _exit
+        End Select
+
+        theta = Cmd.Rob.ThetaAxis       ' Robot has Theta axis?
+        
+        Cmd.StringToDouble(3)           ' Default optional parameters to 0
+
+        If Cmd.Nparm = 0 Then
+            Reply = EcNoParm
+            Goto _exit
+        End If
+
+        sta = Get_Station(Cmd, Cmd.cData(1), Reply) ' Get station
+        If sta Is Nothing Then Goto _exit
+
+        horiz_compliance = (Cmd.cData(2) = 1)
+        horiz_pct = Math.Max(Math.Min(Cmd.cData(3),100),0) ' Clip to 0-100
+
+    ' Verify that Location is Cartesian
+
+        If sta.loc.Type <> 0 Then
+            Reply = EcInvJa             '-2803 *Warning Invalid joint angles*
+            Goto _exit
+        End If
+
+    ' Verify that ZClearance is defined
+
+        If sta.loc.ZClearance > 1E30 Then
+            retexc = New Exception
+            retexc.ErrorCode = -794     ' ZClearance property not set
+            Throw retexc
+        End If
+
+    ' Check the rail
+
+        If Cmd.Rob.RailAxis <> 0 Then
+            If CheckRail(Cmd, sta, rail, Reply) Then Goto _exit
+        End If
+
+    ' Main Pick Routine
+
+        ' Get Location based on Station ID.  This location includes
+        ' any reference frame including pallet positions.
+
+        Plate_Loc_Cart = sta.loc.clone
+        Plate_Loc_Cart.RefFrame = Nothing
+        Plate_Loc_Cart.PosWrtRef = sta.loc.Pos
+
+        ' Compute the Cartesian approach position based on the Station Type
+        ' (Horizontal or Vertical access), the robot type and ZClearance.
+
+        If (sta.flags And STA_FL_VERT) = 0 Then
+            ' Horizontal access station Like a Stocker/ Hotel
+            ' Compute approach point in joint angles to force wrist to always
+            ' be rotated away from the column.
+            If is_pf400 Then
+                tmploc = Plate_Loc_Cart.Mul(Location.XYZValue(0,0,-Plate_Loc_Cart.ZClearance))
+            Else
+                Reply = EcInvPARobotStaType '*Invalid Station type*
+                Goto _exit
+            End If
+
+        Else
+            ' Vertical access station like a deck plate
+            ' Compute approach point in joint angles to force wrist to always
+            ' be rotated away from the column.
+            If is_pf400 Then
+                tmploc = Plate_Loc_Cart.Mul(Location.XYZValue(Plate_Loc_Cart.ZClearance,0,0))
+            Else
+                tmploc = Plate_Loc_Cart.Mul(Location.XYZValue(0,0,-Plate_Loc_Cart.ZClearance))
+            End If
+        End If
+
+        ' Adjust XY for rail.  Then call Kinsol to compute approach point joint angles.
+
+        If Cmd.Rob.RailAxis <> 0 Then   ' Compensate for rail
+            tmploc.X += rail*Rail_dir_sin(rb)
+            tmploc.Y -= rail*Rail_dir_cos(rb)
+        End If
+        
+        appro_loc = tmploc.Kinesol(1)   ' Get appro jt angles
+
+        If theta <> 0 Then              ' Force Single
+            appro_loc.Angle(theta) = (appro_loc.Angle(theta) Mod 360)
+            If (appro_loc.Angle(theta) > 180) Then
+                appro_loc.Angle(theta) -= 360
+            ElseIf (appro_loc.Angle(theta) < -180) Then
+                appro_loc.Angle(theta) += 360
+            End If
+        End If
+        
+        ' For the PF400/PF300, if there is a Righty/Lefty change, move robot to
+        ' the Park position.
+
+        If is_pf400 Or is_pf300 Then
+            If (theta <> 0) AndAlso ((Plate_Loc_Cart.config And GPL_Righty) = 0) Then
+                appro_loc.Angle(theta) -= 360   ' Force -180 to -540
+            End If
+
+            ' Move to the park position if we are changing RIGHTY / LEFTY arm
+            ' configurations.  Adjust Z height of park to be midway between
+            ' where we are and were we are going.
+
+            If ((Robot.Where.Config Xor Plate_Loc_Cart.Config) And GPL_Righty) Then
+                park_j_loc = Park_j(rb).Clone
+                park_j_loc.Angle(1) = (Robot.DestAngles.Angle(1)+appro_loc.Angle(1))/2
+                If Cmd.Rob.GripAxis <> 0 Then
+                    park_j_loc.Angle(Cmd.Rob.GripAxis) = GRIP_OPEN(rb)
+                End If
+                
+                ' Move rail
+                If Cmd.Rob.RailAxis <> 0 Then
+                    park_j_loc.Angle(Cmd.Rob.RailAxis) = rail
+                End If
+    
+                Move.Loc(park_j_loc, moderate_ji)
+            End If
+        End If
+
+        ' Move to the approach point in front of or above the nest and open gripper
+
+        If Cmd.Rob.GripAxis <> 0 Then
+            appro_loc.Angle(Cmd.Rob.GripAxis) = GRIP_OPEN(rb)
+        End If
+        If Cmd.Rob.RailAxis <> 0 Then   ' Move rail
+            appro_loc.Angle(Cmd.Rob.RailAxis) = rail
+        End If
+
+        Move.Loc(appro_loc, moderate_ji)
+        Signal.DIO(GRIP_OPEN_DIO(rb)) = True
+
+        ' Move to the grip location
+
+        Move.Loc(Plate_Loc_Cart, moderate_sl)
+        Move.WaitForEOM
+
+        ' Enable horizontal compliance during grip
+
+        If horiz_compliance Then
+            retexc = AC_HorizCompliance2(rb, True, horiz_pct)
+            If retexc.ErrorCode <> 0 Then
+                Throw retexc
+            End If
+        End If
+
+        ' Grip the plate
+
+        If Cmd.Rob.GripAxis Then
+            If USE_FORCE_GRIPPER Then
+                grasp_ok = GraspPlate(rb, Cmd.Rob.GripAxis, _
+                    GRASP_WIDTH(rb), GRASP_SPEED(rb), GRASP_FORCE(rb))
+                ' Sample the gripper position to prevent opening the
+                ' gripper during intermediate angles moves
+                GRIP_CLOSE(rb) = Robot.DestAngles.Angle(Cmd.Rob.GripAxis)
+            Else
+                Move.OneAxis(Cmd.Rob.GripAxis, GRIP_CLOSE(rb), False, moderate_ji)
+                Move.WaitForEOM
+                grasp_ok = True
+            End If
+        Else
+            Signal.DIO(GRIP_OPEN_DIO(rb)) = False
+            Thread.Sleep(GRIP_DIO_WAIT(rb))
+            grasp_ok = True
+        End If
+
+        ' Adjust target pickup location for compliance and disable compliance.
+        
+        If horiz_compliance Then
+            tmploc = Robot.Where
+            Plate_Loc_Cart.X = tmploc.X
+            Plate_Loc_Cart.Y = tmploc.Y
+            AC_HorizCompliance2(rb, False, 0) ' Disable compliance
+        End If      
+
+        ' If PF400 and picking up from stack or hotel, lift off in Z by z_above.
+    
+        nest_high = Plate_Loc_Cart.clone    ' Position above nest
+        If (sta.flags And STA_FL_VERT) = 0 Then
+            nest_high.XYZInc(0,0,sta.z_above)       
+            Move.Loc(nest_high, moderate_sl) ' Small Z Move
+        End If
+        
+        ' Perform depart to position that is dependent upon the Station Type,
+        ' the robot type, ZClearance and z_grasp_offset.
+
+        nest_high.ZWorld = False                ' Always do tool relative depart
+        If (sta.flags And STA_FL_VERT) = 0 Then ' PF400 operating on stack or hotel
+            nest_high.ZClearance += sta.z_grasp_offset ' Increase due to plate in hand
+        Else                                    ' Deck plate
+            If is_pf400 Then
+                nest_high = nest_high.Mul(Location.XYZValue( _
+                                        nest_high.ZClearance+sta.z_grasp_offset,0,0))
+                nest_high.ZClearance = 0
+            Else
+                nest_high.ZClearance += sta.z_grasp_offset ' Increase due to plate in hand
+            End If
+        End If
+
+        Move.Approach(nest_high, moderate_sl)
+        Move.WaitForEOM
+    
+        ' Return reply
+
+        If bTelnetMode Then
+            If grasp_ok Then
+                Reply = "Plate grasped"
+            Else
+                Reply = "Plate not grasped"
+            End If
+        Else
+            If grasp_ok Then
+                Reply = "0 -1"
+            Else
+                Reply = "0 0"
+            End If
+        End If
+
+    _exit:
+        Return
+
+    End Sub
+#End Region
+
+#Region "Cmd_PlacePlate"
+' Cmd_PlacePlate -- Place a plate      %%%%BES NOT UPDATED%%%%
+'
+' ABSTRACT: Command that goes to a nest position and places a
+'       plate that is initially held in the gripper.  If the arm must
+'       change configuration, it automatically goes through the Park position.
+'
+'       The place position of the plate is obtained from the indicated station.
+'       The ZClearance should be set to the distance required to withdraw the
+'       gripper at the height of the plate place position or the required
+'       height above the place position with no part in hand.  The Config bits
+'       must be set properly for the desired RIGHTY / LEFTY configuration.
+'
+'       The approach position is computed based upon sum of the ZClearance
+'       property and an extra z_grasp_offset that accounts for the size of
+'       part being held in the hand.
+'
+'       If this operation is for a PF400 for stacks or hotels (STA_FL_VERT = 0),
+'       the approach position is positioned z_above distance higher in Z
+'       than the place position.  And, an extra move to z_above the place
+'       position is performed after the approach and before the move to the
+'       final placement position.
+'
+'       At the conclusion of this routine, the arm is left with the gripper
+'       open, not gripping a plate, and stopped at the nest approach
+'       ZClearance position.
+'
+' Parameter 1:  The place station ID, from 1 to n
+'
+' Parameter 2:  Optional.  If specified and value 1, enable horizontal
+'               compliance during the placment move.
+'               Otherwise do not use compliance.
+' Parameter 3:  Optional.  The % of the orginal horizontal holding torque
+'               to be applied during compliance, from 0 to 100.  If
+'               omitted, 0 is assumed, resulting in no horizontal holding
+'               torque.
+'
+    Public Sub Cmd_PlacePlate(ByVal Cmd As Command, ByRef Reply As String)
+
+    ' Variable Declaration
+        Dim park_j_loc As Location
+        Dim nest_high As Location
+        Dim appro_loc As Location
+        Dim Plate_Loc_Cart As Location
+        Dim rail As Double
+        Dim appro_offset As Double
+        Dim tmploc As Location
+        Dim rb As Integer = Cmd.Rob.RobNum
+        Dim retexc As Exception
+        Dim horiz_compliance As Boolean
+        Dim horiz_pct As Double
+        Dim theta As Integer
+        Dim is_pf400, is_pf300 As Boolean
+        Dim sta As Station
+
+        Select Cmd.Rob.RobType
+        Case PF400
+            is_pf400 = True
+        Case PF300
+            is_pf300 = True
+        Case PP100, PAVP6
+        Case Else
+            Reply =  EcInvRobType       ' Invalid Robot Type
+            Goto _exit
+        End Select
+
+        theta = Cmd.Rob.ThetaAxis       ' Robot has Theta axis?
+        
+        Cmd.StringToDouble(3)           ' Default optional parameters to 0
+
+        If Cmd.Nparm = 0 Then
+            Reply = EcNoParm
+            Goto _exit
+        End If
+
+        sta = Get_Station(Cmd, Cmd.cData(1), Reply) ' Get station
+        If sta Is Nothing Then Goto _exit
+
+        horiz_compliance = (Cmd.cData(2) = 1)
+        horiz_pct = Math.Max(Math.Min(Cmd.cData(3),100),0) ' Clip to 0-100
+
+    ' Verify that Location is Cartesian
+
+        If sta.loc.Type <> 0 Then
+            Reply = EcInvJa             '-2803 *Warning Invalid joint angles*
+            Goto _exit
+        End If
+
+    ' Verify that ZClearance is defined
+
+        If sta.loc.ZClearance > 1E30 Then
+            retexc = New Exception
+            retexc.ErrorCode = -794     ' ZClearance property not set
+            Throw retexc
+        End If
+
+    ' Check the rail
+
+        If Cmd.Rob.RailAxis <> 0 Then
+            If CheckRail(Cmd, sta, rail, Reply) Then Goto _exit
+        End If
+
+    ' Get Location to Place the plate
+
+        ' Get Location based on Station ID.  This location includes
+        ' any reference frame including pallet positions.
+
+        Plate_Loc_Cart = sta.loc.clone
+        Plate_Loc_Cart.RefFrame = Nothing
+        Plate_Loc_Cart.PosWrtRef = sta.loc.Pos
+
+        ' Compute the Cartesian approach position based on the Station Type
+        ' (Horizontal or Vertical access), the robot type and ZClearance.
+        
+        nest_high = Plate_Loc_Cart.clone    ' Position above nest
+        appro_offset = Plate_Loc_Cart.ZClearance + sta.z_grasp_offset
+                                            ' Allow space for part held in hand
+        If (sta.flags And STA_FL_VERT) = 0 Then
+            ' Horizontal access station Like a Stocker/ Hotel
+            ' Compute approach point in joint angles to force wrist to always
+            ' be rotated away from the column.
+            If is_pf400 Then
+                nest_high.XYZInc(0,0,sta.z_above)' Move slighty above horizontal nest
+                tmploc = nest_high.Mul(Location.XYZValue(0,0,-appro_offset))
+            Else
+                Reply = EcInvPARobotStaType '*Invalid Station type*
+                Goto _exit
+            End If
+
+        Else
+            ' Vertical access station like a deck plate
+            ' Compute approach point in joint angles to force wrist to always
+            ' be rotated away from the column.
+            If is_pf400 Then
+                tmploc = nest_high.Mul(Location.XYZValue(appro_offset,0,0))
+            Else
+                tmploc = nest_high.Mul(Location.XYZValue(0,0,-appro_offset))
+            End If
+        End If
+
+        ' Adjust XY for rail.  Then call Kinsol to compute approach point joint angles.
+
+        If Cmd.Rob.RailAxis <> 0 Then   ' Compensate for rail
+            tmploc.X += rail*Rail_dir_sin(rb)
+            tmploc.Y -= rail*Rail_dir_cos(rb)
+        End If
+        
+        appro_loc = tmploc.Kinesol(1)   ' Get appro jt angles
+
+        If theta <> 0 Then              ' Force Single
+            appro_loc.Angle(theta) = (appro_loc.Angle(theta) Mod 360)
+            If (appro_loc.Angle(theta) > 180) Then
+                appro_loc.Angle(theta) -= 360
+            ElseIf (appro_loc.Angle(theta) < -180) Then
+                appro_loc.Angle(theta) += 360
+            End If
+        End If
+        
+        ' For the PF400/PF300, if there is a Righty/Lefty change, move robot to
+        ' the Park position.
+
+        If is_pf400 Or is_pf300 Then
+            If (theta <> 0) AndAlso ((nest_high.config And GPL_Righty) = 0) Then
+                appro_loc.Angle(theta) -= 360   ' Force -180 to -540
+            End If
+
+            ' Move to the park position if we are changing RIGHTY / LEFTY arm
+            ' configurations.  Adjust Z height of park to be midway between
+            ' where we are and were we are going.
+
+            If ((Robot.Where.Config Xor nest_high.Config) And GPL_Righty) Then
+                park_j_loc = Park_j(rb).Clone
+                park_j_loc.Angle(1) = (Robot.DestAngles.Angle(1)+appro_loc.Angle(1))/2
+                If Cmd.Rob.GripAxis <> 0 Then
+                    park_j_loc.Angle(Cmd.Rob.GripAxis) = GRIP_CLOSE(rb)
+                End If
+                
+                ' Move rail
+                If Cmd.Rob.RailAxis <> 0 Then
+                    park_j_loc.Angle(Cmd.Rob.RailAxis) = rail
+                End If
+    
+                Move.Loc(park_j_loc, moderate_ji)
+            End If
+        End If
+
+        ' Move to the approach point in front of or above the nest and don't
+        ' drop the plate
+
+        If Cmd.Rob.GripAxis <> 0 Then
+            appro_loc.Angle(Cmd.Rob.GripAxis) = GRIP_CLOSE(rb)
+        End If
+        If Cmd.Rob.RailAxis <> 0 Then   ' Move rail
+            appro_loc.Angle(Cmd.Rob.RailAxis) = rail
+        End If
+
+        Move.Loc(appro_loc, moderate_ji)
+
+        ' For a PF400 and a stack or hotel, do an extra move to just above
+        ' the place location.
+
+        If (sta.flags And STA_FL_VERT) = 0 Then
+            Move.Loc(nest_high, moderate_sl)
+        End If
+        
+        ' Enable horizontal compliance and do final placement
+
+        If horiz_compliance Then
+            retexc = AC_HorizCompliance2(rb, True, horiz_pct)
+            If retexc.ErrorCode <> 0 Then
+                Throw retexc
+            End If
+        End If
+
+        Move.Loc(Plate_Loc_Cart, moderate_sl)
+        Move.WaitForEOM
+
+        ' Based on Gripper Type - open Gripper
+
+        If Cmd.Rob.GripAxis Then
+            If USE_FORCE_GRIPPER Then
+                ReleasePlate(rb, _
+                    Cmd.Rob.GripAxis, _
+                    GRIP_OPEN(rb), fast_ji.Speed, -1)
+                Move.WaitForEOM
+            Else
+                Move.OneAxis(Cmd.Rob.GripAxis, GRIP_OPEN(rb), False, fast_ji)
+                Move.WaitForEOM
+            End If
+        Else
+            Signal.DIO(GRIP_OPEN_DIO(rb)) = True
+            Thread.Sleep(GRIP_DIO_WAIT(rb))
+        End If
+
+        ' Adjust target place location for compliance and disable compliance.
+
+        If horiz_compliance Then
+            tmploc = Robot.Where
+            Plate_Loc_Cart.X = tmploc.X
+            Plate_Loc_Cart.Y = tmploc.Y
+            AC_HorizCompliance2(rb, False, 0) ' Disable compliance
+        End If
+
+        ' Change Depart Strategy based on Station type and robot type.
+
+        tmploc = Plate_Loc_Cart.Clone
+        tmploc.ZWorld = False               ' Always do tool relative depart
+        
+        If (sta.flags And STA_FL_VERT) = 0 Then
+            ' Horizontal access station
+            ' Gripper opened and plate has been dropped, so retract gripper
+            ' using standard approach motion.
+        Else
+            ' Deck or Vertical Stations
+            ' Nest Location Clearance
+            If is_pf400 Then
+                ' Set Z value for depart, no longer grasping part
+                tmploc = tmploc.Mul(Location.XYZValue(tmploc.ZClearance,0,0))
+                tmploc.ZClearance = 0
+            Else
+                ' Just do standard approach motion.
+            End If
+        End If
+        
+        ' Move to in front of or above the nest.
+        
+        Move.approach(tmploc, moderate_sl)
+        Move.WaitForEOM
+            
+    _exit:
+        Return
+
+    End Sub
+
+#End Region
+
+#Region "Cmd_TeachPlate"
+' Cmd_TeachPlate -- Teach a plate location
+'
+' ABSTRACT: Command to teach a Plate Location for a Precise Automation robot with
+'           a Servo Gripper.  This routine assumes the robot is at the location
+'           to be taught. Free Mode can be used to move the robot to the
+'           desired position.
+'
+' Parameter 1:  The station ID for the Plate location to be taught, 
+'               from 1 to n
+'
+' Parameter 2:  Optional.  The ZClearance value in millimeters for this station
+'               If omitted, the default value Z_CLEARANCE is used.
+'
+'               The ZClearance should be set to the distance required to
+'               withdraw the gripper at the height of the
+'               plate position.  The Config bits
+'               must be set properly for the desired RIGHTY /
+'               LEFTY configuration.
+'               Station ID locations are Cartesian Type
+'
+    Public Sub Cmd_TeachPlate(ByVal Cmd As Command, ByRef Reply As String)
+        Dim RobState As Integer
+        Dim sta As Station
+        Dim frm As RefFrame
+
+       ' Arguments
+
+        Dim ZClr As Double =  Z_CLEARANCE ' Default Value for Z Clearance
+
+        Select Cmd.Rob.RobType
+        Case PF400, PF300, PP100, PAVP6
+        Case Else
+            Reply =  EcInvRobType       ' Invalid Robot Type
+            Goto _exit
+        End Select
+
+        Cmd.StringToDouble(0)
+
+        If Cmd.Nparm = 0 Then
+            Reply = EcNoParm
+            Goto _exit
+        End If
+
+        sta = Get_Station(Cmd, Cmd.cData(1), Reply) ' Get station
+        If sta Is Nothing Then Goto _exit
+
+        ' Validate & Set Z Clearance
+        If Cmd.Nparm > 1 AndAlso Cmd.cData(2) <> 0 Then
+            ZClr = Cmd.cData(2)  ' ZClearance for Station ID
+        End If
+
+        ' Get Robot Trajectory State
+        RobState = Robot.TrajState(Cmd.Rob.RobNum, 0)
+
+        ' Check to see the State of the Robot.
+        ' Teach command is not allowed during Robot Motion in program control
+
+        If (RobState > 1) AndAlso (RobState < 10)Then
+            Reply = EcInvPARobotInvSta  ' Post Error
+            Goto _exit
+        End If
+
+        ' If pallet, must be at origin
+
+        If (sta.flags And STA_FL_PAL) <> 0 Then
+            frm = sta.frame
+            If (frm.PalletIndex(1) <> 1) _
+               OrElse (frm.PalletIndex(2) <> 1) _
+               OrElse (frm.PalletIndex(3) <> 1) Then
+                Reply = EcNotOrigin     ' *Not at pallet origin*
+                Goto _exit
+            End If
+        End If
+
+        ' Recorded current location in the station,
+        ' taking into account any pallet frame
+
+        sta.loc.Type = 0                ' Force Cartesian
+        sta.loc.Here                    ' Get current location and config
+        sta.loc.ZClearance = ZClr       ' Update Z clearance
+
+        ' Save current rail position
+
+        If Cmd.Rob.RailAxis <> 0 Then
+            sta.rail = Robot.WhereAngles.Angle(Cmd.Rob.RailAxis)
+        End If
+
+    _exit:
+        Return
+
+    End Sub
+#End Region
+
+#Region "Cmd_MoveRail"
+' Cmd_MoveRail -- Move the linear rail axis
+'
+' ABSTRACT: Command to move the linear rail axis to a station.
+'       The move may occur immediately or during the next pick or place.
+'
+' Parameter 1:  The destination station ID.
+' Parameter 2:  Optional.  The motion mode.
+'               If omitted or zero, do not move the rail.
+'                   Cancel any pending rail move.
+'               1 = Move the rail immediately.
+'               2 = Move the rail during the next pick or place.
+' Parameter 3:  Optional. If specified, move the rail axis to this
+'               position instead of the station location.
+
+    Public Sub Cmd_MoveRail(ByVal Cmd As Command, ByRef Reply As String)
+        Dim mode As Integer
+        Dim xpos As Double
+        Dim sta As Station
+
+        If Cmd.Rob.RailAxis = 0 Then
+            Reply =  EcInvRobType       ' Invalid Robot Type
+            Goto _exit
+        End If
+
+        If Cmd.Nparm = 0 Then
+            Reply = EcNoParm
+            Goto _exit
+        End If
+
+        Cmd.StringToDouble(0)
+
+        ' Get mode
+
+        If Cmd.Nparm > 1 Then
+            mode =  Cmd.cData(2)        ' Get optional mode
+        End If
+
+        If Cmd.Nparm > 2 Then
+            xpos = Cmd.cData(3)
+        Else
+            sta = Get_Station(Cmd, Cmd.cData(1), Reply) ' Get station
+            If sta Is Nothing Then Goto _exit
+
+            xpos = sta.rail             ' Get station rail position
+        End If
+
+        If mode = RAIL_MODE_MOVE Then  ' Move now
+            Move.OneAxis(Cmd.Rob.Railaxis, xpos, False, moderate_ji)
+        End If
+
+        If mode <> RAIL_MODE_PEND Then ' If not pending
+            mode = RAIL_MODE_CHECK     ' All others cause check
+        End If
+
+        Rail_mode(Cmd.Rob.RobNum) = mode   ' Save new mode
+
+    _exit:
+         Return
+
+    End Sub
+#End Region
+
+#Region "Cmd_Rail"
+' Cmd_Rail -- Gets or sets the linear rail value
+'
+'  ABSTRACT:  Gets or sets the specified the rail value for a station
+'
+'  Parameter 1: The station index from 1 to n.
+'
+'  Parameter 2: Optional.
+'               If omitted, this command returns specified rail value.
+'               If specified, this value becomes the new rail value.
+
+    Public Sub Cmd_Rail(ByVal Cmd As Command, ByRef Reply As String)
+        Dim StaID As Integer
+        Dim lcj As Location
+        Dim n As Integer
+        Dim ii As Integer
+        Dim sta As Station
+
+        If Cmd.Rob.RailAxis = 0 Then
+            Reply =  EcInvRobType       ' Invalid Robot Type
+            Goto _exit
+        End If
+
+        If Cmd.Nparm = 0  Then
+            Reply = EcNoParm
+            Goto _exit
+        End If
+
+        Cmd.StringToDouble(0)
+
+        StaID = Cmd.cData(1)
+        sta = Get_Station(Cmd, StaID, Reply)
+        If sta Is Nothing Then Goto _Exit
+
+        If Cmd.Nparm <= 1 Then
+            If bTelnetMode Then
+                Reply = "Station(" & CStr(StaID) & ") Rail = "
+            Else
+                Reply = "0 " & CStr(StaID) & " "
+            End If
+            Reply &= sFormat(sta.rail, 3)
+        Else
+            sta.rail = Cmd.cData(2)
+        End If
+
+    _exit:
+        Return
+
+    End Sub
+#End Region
+
+#Region "Cmd_Gripper"
+' Cmd_Gripper -- Open or close a gripper
+'
+' ABSTRACT: Command to open or close Gripper.
+'       Handles either a servoed electric gripper or a pnenumatic gripper.
+
+' Parameter 1: 1 - Open Gripper, 2 - Close Gripper
+'
+    Public Sub Cmd_Gripper(ByVal Cmd As Command, ByRef Reply As String)
+
+    ' Variable Declaration
+        Dim GripMode As Integer
+        Dim rb As Integer = Cmd.Rob.RobNum
+
+        Cmd.StringToDouble(0)
+
+        If Cmd.Nparm = 0 Then
+            Reply = EcNoParm
+            Goto _exit
+        End If
+
+        ' Get Gripper mode
+
+        GripMode = Cmd.cData(1)
+
+        Select GripMode
+        Case 1  ' Open Gripper
+            If Cmd.Rob.GripAxis Then
+                Move.OneAxis(Cmd.Rob.GripAxis, GRIP_OPEN(rb), False, moderate_ji)
+                Move.WaitForEOM
+            Else
+                Signal.DIO(GRIP_OPEN_DIO(rb)) = True
+                Thread.Sleep(GRIP_DIO_WAIT(rb))
+            End If
+        Case 2  ' Close Gripper
+            If Cmd.Rob.GripAxis Then
+                Move.OneAxis(Cmd.Rob.GripAxis, GRIP_CLOSE(rb), False, moderate_ji)
+                Move.WaitForEOM
+            Else
+                Signal.DIO(GRIP_OPEN_DIO(rb)) = False
+                Thread.Sleep(GRIP_DIO_WAIT(rb))
+            End If
+        Case Else                       ' Invalid Argument Error
+            Reply = EcPmm               ' Parameter MisMatch
+            Goto _exit
+        End Select
+
+    _exit:
+        Return
+    End Sub
+
+#End Region
+
+#Region "Cmd_FreeMode"
+' Cmd_FreeMode -- Free selected axes
+'
+' ABSTRACT: Command to Free all or one selected axis
+'       The eGripper, if any, is usually axis 5.
+'
+'       Requires robot to be attached to enter free mode.
+'
+' Parameter 1:  The axes selection to free.
+'                Axis = 0                   Free all axes
+'                Axis  = 1 to RobNumAxes    Free this axis only
+'                Axis = -1                  Turn off Free mode for all axes
+
+    Public Sub Cmd_FreeMode(ByVal Cmd As Command, ByRef Reply As String)
+
+        ' Variable Declaration
+
+        Dim FreeAxis As Integer = 0 ' Default is all axes
+        Dim RobState As Integer
+        Dim ax As Integer
+        Dim numAxes As Integer
+
+        If Cmd.Nparm = 0 Then
+            Reply = EcNoParm
+            Goto _exit
+        End If
+
+        ' Assign argument assigned to variable
+
+        Cmd.StringToDouble(0)
+
+        FreeAxis = Cmd.cData(1)
+
+        ' Check to see if Off request
+
+        If FreeAxis = -1 Then
+            If Robot.Attached <> 0 Then
+                Move.StopSpecialModes          ' Terminate jog mode
+            End If
+            Goto _exit
+        End If
+
+        numAxes = Cmd.Rob.RobNumAxes
+
+        ' Validate Free Axis
+
+        If (FreeAxis < 0) OrElse (FreeAxis > numAxes) Then
+            Reply = EcPmm ' Parameter mismatch
+            Goto _exit
+        End If
+
+        ' Get Robot Trajectory State
+        RobState = Robot.TrajState(Cmd.Rob.RobNum, 0)
+
+        If RobState <> 10 Then          ' Already in Jog Mode
+          ' Start Jog Mode
+            Move.StartJogMode()          ' Initiate jog control mode
+         End If
+
+      ' Based on the Axis & Mode
+         Select FreeAxis
+         Case 0  ' Free all axis
+             For ax = 1 To numAxes
+                 Move.SetJogCommand(4, ax, 50 ) ' Free Mode - All Axes
+                 Thread.Sleep(1000)
+             Next
+         Case Else ' Free Axis Number
+             Move.SetJogCommand(4, Freeaxis, 50 )' Free Mode - Selected Axis
+             Thread.Sleep(1000)
+         End Select
+
+    _exit:
+         Return
+
+    End Sub
+#End Region
+
+#Region "Cmd_GripOpenPos"
+' Cmd_GripOpenPos -- Set and get the gripper open position
+'
+' ABSTRACT: Command to Set & Get Gripper Open Position
+'       Used only for Servo Gripper. For Pneumatics Gripper - Adjust Hardware
+'
+' Parameter 1:  Optional.  If omitted, return the gripper open position.
+'               If specified, the new value for the gripper open position
+
+    Public Sub Cmd_GripOpenPos(ByVal Cmd As Command, ByRef Reply As String)
+
+        ' Check to see if Servo Gripper
+
+        If Cmd.Rob.GripAxis = 0 Then
+            Reply = EcInvPARobotGrp
+            Goto _exit
+        End If
+
+        Cmd.StringToDouble(0)
+
+        If Cmd.Nparm = 1 Then
+            GRIP_OPEN(Cmd.Rob.RobNum) = Cmd.cData(1) ' Set open position
+        Else
+            If bTelnetMode Then
+                Reply = "Gripper open(" & CStr(Cmd.Rob.RobNum) & ") = "
+            Else
+                Reply = "0 "
+            End If
+
+            Reply &= CStr(GRIP_OPEN(Cmd.Rob.RobNum)) ' Return Gripper Open value
+        End If
+
+    _exit:
+        Return
+
+    End Sub
+
+#End Region
+
+#Region "Cmd_GripClosePos"
+' Cmd_GripClosePos -- Set and get the gripper close position
+'
+' ABSTRACT: Command to Set & Get Gripper Close Position
+'       Used only for Servo Gripper. For Pneumatics Gripper - Adjust Hardware
+'
+' Parameter 1:  Optional.  If omitted, return the gripper close position.
+'               If specified, the new value for the gripper close position
+
+    Public Sub Cmd_GripClosePos(ByVal Cmd As Command, ByRef Reply As String)
+
+        ' Check to see if Servo Gripper
+
+        If Cmd.Rob.GripAxis = 0 Then
+            Reply = EcInvPARobotGrp
+            Goto _exit
+        End If
+
+        Cmd.StringToDouble(0)
+
+        If Cmd.Nparm = 1 Then
+            GRIP_CLOSE(Cmd.Rob.RobNum) = Cmd.cData(1) ' Set close position
+        Else
+            If bTelnetMode Then
+                Reply = "Gripper close(" & CStr(Cmd.Rob.RobNum) & ") = "
+            Else
+                Reply = "0 "
+            End If
+
+            Reply &= CStr(GRIP_CLOSE(Cmd.Rob.RobNum)) ' Return Gripper Close value
+        End If
+
+    _exit:
+        Return
+
+    End Sub
+
+#End Region
+
+#Region "Cmd_GraspData"
+' Cmd_GraspData -- Set and get the grasp data
+'
+' ABSTRACT: Command to Set & Get the grasp data used by PickPlate.
+'       Used only for Servo Gripper. For Pneumatic Gripper - Adjust Hardware
+'
+' Parameter 1:  Optional.  If omitted, return the parameter values
+'               If specified, this is the new value for the plate width.
+'               If specified, all remaining parameters must be specified.
+'
+' Parameter 2:  Optional. If specified, the new value for the finger speed
+'               during grasp, where 100 represents 100%.
+'
+' Parameter 3:  Optional. If specified, the new value for the gripper
+'               squeeze force, in Nt.  Positive values indicate that the
+'               fingers must squeeze close to grasp the plate.  Negative
+'               values indicate that the fingers must open to grasp.
+
+    Public Sub Cmd_GraspData(ByVal Cmd As Command, ByRef Reply As String)
+        Dim rb As Integer = Cmd.Rob.RobNum
+
+        ' Check to see if Servo Gripper
+
+        Cmd.StringToDouble(0)
+
+        If Cmd.Nparm = 0 Then
+            If bTelnetMode Then
+                Reply = "Width(" & CStr(rb) & ") = " & sFormat(GRASP_WIDTH(rb), 3) _
+                & ", Speed(" & CStr(rb) & ") = " & sFormat(GRASP_SPEED(rb), 3) _
+                & ", Force(" & CStr(rb) & ") = " & sFormat(GRASP_FORCE(rb), 3)
+            Else
+                Reply = "0 " & sFormat(GRASP_WIDTH(rb), 3) _
+                & " " & sFormat(GRASP_SPEED(rb), 3) _
+                & " " & sFormat(GRASP_FORCE(rb), 3)
+            End If
+        ElseIf Cmd.Nparm = 3 Then
+            GRASP_WIDTH(rb) = Cmd.cData(1) ' Plate width for grasping, in mm
+            GRASP_SPEED(rb) = Cmd.cData(2) ' Finger speed during grasping, in %
+            GRASP_FORCE(rb) = Cmd.cData(3) ' Force for grasping, in Nt.
+        Else
+            Reply = EcPmm ' Parameter mismatch
+        End If
+
+    _exit:
+        Return
+
+    End Sub
+
+#End Region
+
+#Region "Cmd_StationType"
+' Cmd_StationType -- Set and get the station type
+'
+' ABSTRACT: Command to Set & Get the station type and indexing type.
+'
+'       If parameters 2 - 5 are omitted, return the current types
+'
+' Parameter 1: The station index from 1 to n.
+'
+' Parameter 2: optional.  The station access code:
+'              -1 = Do not change
+'              0 = Horizontal access, from the side
+'              1 = Vertical access, from the top
+' Parameter 3: optional.  The station pallet type
+'              -1 = Do not change
+'              0 = Normal, single location.
+'              1 = Indexing pallet, 1,2,or 3 dimensional
+' Parameter 4: optional.  The Z-clearance value for this location
+' Parameter 5: optional.  The Z-above distance for robots using
+'              horizontal access.
+' Parameter 6: optional.  The Z grasp offset applied when grasping
+'              a part.
+
+    Public Sub Cmd_StationType(ByVal Cmd As Command, ByRef Reply As String)
+
+        Dim sta As Station
+        Dim staID As Integer
+        Dim flags As Integer
+        Dim tmpLoc As Location
+
+        Select Cmd.Rob.RobType
+        Case PF400, PF300, PP100, PAVP6
+        Case Else
+            Reply =  EcInvRobType ' Invalid Robot Type
+            Goto _exit
+        End Select
+
+        Cmd.StringToDouble(0)
+
+        If Cmd.Nparm < 1 Then
+            Reply = EcNoParm            ' Warning No Parameters
+            Goto _exit
+        End If
+
+        staID = Cmd.cData(1)            ' Get station index
+        If staID < 1 Then
+            Reply = EcInvStaIdx         'Invalid station index
+            Goto _exit
+        End If
+
+        If staID >= Cmd.Rob.RobSta.Length Then
+            Reply = EcUndefSta          'Undefined station
+            Goto _exit
+        End If
+
+        sta = Cmd.Rob.RobSta(staID)
+        If sta Is Nothing Then
+            Reply = EcUndefSta          'Undefined station
+            Goto _exit
+        End If
+
+        If sta.loc Is Nothing Then
+            Reply = EcUndefLoc          'Undefined location
+            Goto _exit
+        End If
+
+        flags = sta.flags
+
+        If Cmd.Nparm > 1 Then
+            sta.loc.Type = 0            ' Force to Cartesian
+
+            Select Cmd.cData(2)         ' Access direction
+            Case 0
+                flags = flags And (-STA_FL_VERT-1)
+            Case 1
+                flags = flags Or STA_FL_VERT
+            End Select
+
+            If Cmd.Nparm > 2 Then       ' Change frame type
+                Select Cmd.cData(3)
+                Case 0
+                    ' Setting to non-pallet.
+                    ' See if conversion is needed.
+                    If flags And STA_FL_PAL Then ' If is a pallet now
+                        If Not sta.loc.RefFrame Is Nothing Then
+                            ' Select first pallet location
+                            sta.loc.RefFrame.PalletRowColLay(1, 1, 1)
+                        End If
+                        tmpLoc = sta.loc.Pos
+                        sta.loc.RefFrame = Nothing
+                        sta.loc.pos = tmpLoc ' 
+                        flags = flags And (-STA_FL_PAL-1) ' Clear pallet flag
+                    End If
+                Case 1
+                    ' Setting to pallet.
+                    ' See if conversion is needed.
+                    If (flags And STA_FL_PAL) = 0 Then ' If is a location now
+                        sta.frame = New RefFrame ' Setup a new null frame
+                        sta.frame.type = 1 ' Set to pallet type
+                        sta.loc.RefFrame = sta.frame ' Link to the frame
+                        flags = flags Or STA_FL_PAL
+                    End If
+                End Select
+            End If
+
+            If Cmd.Nparm > 3 Then       ' Set z_clearance
+                sta.loc.ZClearance = Cmd.cData(4)
+            End If
+
+            If Cmd.Nparm > 4 Then       ' Set z_above
+                sta.z_above = Cmd.cData(5)
+            End If
+
+            If Cmd.Nparm > 5 Then       ' Set z_grasp_offset
+                sta.z_grasp_offset = Cmd.cData(6)
+            End If
+
+            sta.flags = flags           ' Save new flags
+
+        Else
+
+            ' Display the type
+
+            If bTelnetMode Then
+                Reply = "Station(" & CStr(staID) & ") "
+                If flags And STA_FL_VERT Then
+                    Reply &= "access=vertical"
+                Else
+                    Reply &= "access=horizontal"
+                End If
+                If flags And STA_FL_PAL Then
+                    Reply &= ", type=pallet"
+                Else
+                    Reply &= ", type=location"
+                End If
+                Reply &= ", zclearance=" & sFormat(sta.loc.ZClearance, 3)
+                Reply &= ", zabove=" & sFormat(sta.z_above, 3)
+                Reply &= ", zgrasp_offset=" & sFormat(sta.z_grasp_offset, 3)
+            Else
+                Reply = "0 " & CStr(staID) _
+                      & " " & CStr(-((flags And STA_FL_VERT) <> 0)) _
+                      & " " & CStr(-((flags And STA_FL_PAL) <> 0)) _
+                      & " " & sFormat(sta.loc.ZClearance, 3) _
+                      & " " & sFormat(sta.z_above, 3) _
+                      & " " & sFormat(sta.z_grasp_offset, 3)
+            End If
+
+        End If
+
+    _exit:
+        Return
+
+    End Sub
+
+#End Region
+
+#Region "Cmd_PalletOrigin"
+' Cmd_PalletOrigin -- Gets or sets the pallet origin value
+'
+'  ABSTRACT:  Gets or sets the specified the station pallet origin
+'
+'           If parameters 2-8 are omitted, returns the pallet origin info.
+'
+'           Until PalletX and PalletY are executed, the pallet is
+'           assumed to be in the X-Y plane.
+'
+'  Parameter 1:     The station index from 1 to n.
+'
+'  Parameters 2-7:  Optional.  The world location of the pallet orgin.
+'                   X Y Z yaw pitch roll
+'                   Corresponds to pallet index 1,1,1
+'
+'  Parameter 8:     Optional.  The configuration flags for this location
+'                   Assumed to be 0 if not specified.
+
+    Public Sub Cmd_PalletOrigin(ByVal Cmd As Command, ByRef Reply As String)
+        Dim StaID As Integer
+        Dim sta As Station
+        Dim loc As Location
+        Dim frm As RefFrame
+
+        If Cmd.Nparm = 0  Then
+            Reply = EcNoParm
+            Goto _exit
+        End If
+
+        Cmd.StringToDouble(8)
+
+        StaID = Cmd.cData(1)
+        sta = Get_Station(Cmd, StaID, Reply)
+        If sta Is Nothing Then Goto _Exit
+
+        If (sta.flags And STA_FL_PAL) = 0 Then
+            Reply = EcNotPallet         ' Not a pallet
+            Goto _exit
+        End If
+
+        ' Display values
+
+        If Cmd.Nparm < 2 Then
+            loc = sta.frame.Loc.Mul(sta.loc.PosWrtRef)
+            If bTelnetMode Then
+                Reply = "Station(" & CStr(StaID) & ") XYZypr = " _
+                      & sCartesian("", loc, 3) _
+                      & ", Config = " & CStr(sta.loc.config)
+            Else
+                Reply = "0 " & CStr(StaID) & " " _
+                      & " " & sCartesian("", loc, 3) _
+                      & " " & CStr(sta.loc.config)
+            End If
+            Goto _exit
+        End If
+
+        ' Set pallet origin
+
+        frm = New RefFrame
+        frm.Type = 1                    ' Pallet type
+        frm.loc = Location.XYZValue( _
+           CDbl(Cmd.cData(2)), _
+           CDbl(Cmd.cData(3)), _
+           CDbl(Cmd.cData(4)))
+
+        loc = sta.loc.Clone             ' Preserve data such as ZClearance
+        loc.XYZ(0, 0, 0, _
+           CDbl(Cmd.cData(5)), _
+           CDbl(Cmd.cData(6)), _
+           CDbl(Cmd.cData(7)))
+        loc.Config = CInt(Cmd.cData(8))
+        loc.RefFrame = frm
+        sta.frame = frm
+        sta.loc = loc
+
+    _exit:
+        Return
+
+    End Sub
+#End Region
+
+#Region "Cmd_PalletX"
+' Cmd_PalletX -- Gets or sets the pallet X value
+'
+'  ABSTRACT:  Gets or sets the specified the station pallet X direction,
+'           count, and pitch for a 1, 2, or 3-dimensional pallet.
+'           It must be called for all pallets.
+'
+'           PalletOrigin must be executed before this instruction.
+'
+'           If parameters 2-5 are omitted, returns the pallet X info.
+'
+'  Parameter 1:     The station index from 1 to n.
+'
+'  Parameter 2:     Optional.  The number of pallet index positions
+'                   in the X direction.
+'
+'  Parameters 3-5:  Optional.  The world location of maximum pallet
+'                   position: X Y Z.
+'                   Corresponds to pallet index n,1,1
+
+    Public Sub Cmd_PalletX(ByVal Cmd As Command, ByRef Reply As String)
+        Dim StaID As Integer
+        Dim sta As Station
+        Dim loc_new As Location
+        Dim loc_save As Location
+        Dim frm As RefFrame
+        Dim x_vec As Vector3
+        Dim x_vec_new As Vector3
+        Dim y_vec_new As Vector3
+        Dim z_vec_new As Vector3
+        Dim count_new As Integer
+        Dim x_pitch_new As Double
+
+        If Cmd.Nparm = 0  Then
+            Reply = EcNoParm
+            Goto _exit
+        End If
+
+        Cmd.StringToDouble(5)
+
+        StaID = Cmd.cData(1)
+        sta = Get_Station(Cmd, StaID, Reply)
+        If sta Is Nothing Then Goto _Exit
+
+        If (sta.flags And STA_FL_PAL) = 0 Then
+            Reply = EcNotPallet         ' Not a pallet
+            Goto _exit
+        End If
+
+        frm = sta.frame
+        If frm Is Nothing Then
+            Reply = EcUndefPal          ' Undefined pallet
+            Goto _exit
+        End If
+
+        If frm.loc Is Nothing Then
+            Reply = EcUndefPal          ' Undefined pallet
+            Goto _exit
+        End If
+
+        ' Display values
+
+        If Cmd.Nparm < 2 Then
+            ' Get X direction vector
+            x_vec = Vector3.UnitX(frm.loc).vScale(frm.PalletPitch(1) _
+                  * (frm.PalletMaxIndex(1)-1))
+            x_vec = x_vec.vAdd(Vector3.XYZ(frm.loc))
+            If bTelnetMode Then
+                Reply = "Station(" & CStr(StaID) & ") X count = " _
+                      & CStr(frm.PalletMaxIndex(1)) _
+                      & ", XYZ = " & sFormat(x_vec.X, 3) _
+                      & " " & sFormat(x_vec.Y, 3) _
+                      & " " & sFormat(x_vec.Z, 3)
+            Else
+                Reply = "0 " & CStr(StaID) & CStr(frm.PalletMaxIndex(1)) _
+                      & " " & sFormat(x_vec.X, 3) _
+                      & " " & sFormat(x_vec.Y, 3) _
+                      & " " & sFormat(x_vec.Z, 3)
+            End If
+            Goto _exit
+        End If
+
+        count_new = Cmd.cData(2)        ' Get new X count
+        If count_new < 1 Then
+            Reply = EcPmm               ' Parameter MisMatch
+        End If
+
+        ' Set pallet X
+
+        x_vec = Vector3.UnitX(frm.loc)   ' Get old frame X direction
+        ' Get new X max coordinate
+        x_vec_new = New Vector3( _
+                  CDbl(Cmd.cData(3)), _
+                  CDbl(Cmd.cData(4)), _
+                  CDbl(Cmd.cData(5)))
+        x_vec_new = x_vec_new.vSub(Vector3.XYZ(frm.loc)) ' Get new X wrt origin
+        If count_new = 1 Then
+            x_pitch_new = 1             ' Pitch does not matter if count is 1
+        Else
+            x_pitch_new = x_vec_new.vMag/(count_new-1)
+        End If
+
+        x_vec_new = x_vec_new.vNorm ' Get unit vector
+
+        If x_vec.vDot(x_vec_new) > .7 Then
+            y_vec_new = Vector3.UnitY(frm.loc)
+        Else
+            z_vec_new = x_vec.vCross(x_vec_new)
+            y_vec_new = z_vec_new.vCross(x_vec_new)
+        End If
+
+        x_vec_new = x_vec_new.vAdd(Vector3.XYZ(frm.loc)) ' Add origin to X
+        y_vec_new = y_vec_new.vAdd(Vector3.XYZ(frm.loc)) ' Add origin to Y
+
+        ' Compute new reference frame based on new X axis
+
+        loc_new = New Location
+        loc_new.Here3(frm.loc, x_vec_new.Loc, y_vec_new.Loc)
+
+        ' Set new pallet parameters
+
+        frm.PalletIndex(1) = 1          ' Reset pallet
+        frm.PalletIndex(2) = 1
+        frm.PalletIndex(3) = 1
+        frm.PalletMaxIndex(1) = count_new
+        frm.PalletPitch(1) = x_pitch_new
+
+        ' Preserve total location when updating reference frame
+
+        loc_save = sta.loc.Pos          ' Get total location using old frame
+        frm.loc = loc_new               ' Update frame info
+        sta.loc.Pos = loc_save          ' Restore total location
+
+    _exit:
+        Return
+
+    End Sub
+#End Region
+
+#Region "Cmd_PalletY"
+' Cmd_PalletY -- Gets or sets the pallet Y value
+'
+'  ABSTRACT:  Gets or sets the specified the station pallet Y direction,
+'           count, and pitch for a 2 or 3-dimensional pallet.
+'           It does not need to be called for 1-dimensional pallets.
+'
+'           It does not change the X direction of the pallet, only the
+'           Y direction.
+'
+'           PalletOrigin and PalletX must be called before this instruction.
+'
+'           If parameters 2-5 are omitted, returns the pallet Y info.
+'
+'  Parameter 1:     The station index from 1 to n.
+'
+'  Parameter 2:     Optional.  The number of pallet index positions
+'                   in the Y direction.
+'
+'  Parameters 3-5:  Optional.  The world location of maximum pallet
+'                   position: X Y Z.
+'                   Corresponds to pallet index 1,n,1
+
+    Public Sub Cmd_PalletY(ByVal Cmd As Command, ByRef Reply As String)
+        Dim StaID As Integer
+        Dim sta As Station
+        Dim loc_new As Location
+        Dim loc_save As Location
+        Dim frm As RefFrame
+        Dim x_vec As Vector3
+        Dim y_vec_new As Vector3
+        Dim count_new As Integer
+        Dim y_pitch_new As Double
+
+        If Cmd.Nparm = 0  Then
+            Reply = EcNoParm
+            Goto _exit
+        End If
+
+        Cmd.StringToDouble(5)
+
+        StaID = Cmd.cData(1)
+        sta = Get_Station(Cmd, StaID, Reply)
+        If sta Is Nothing Then Goto _Exit
+
+        If (sta.flags And STA_FL_PAL) = 0 Then
+            Reply = EcNotPallet         ' Not a pallet
+            Goto _exit
+        End If
+
+        frm = sta.frame
+        If frm Is Nothing Then
+            Reply = EcUndefPal          ' Undefined pallet
+            Goto _exit
+        End If
+
+        If frm.loc Is Nothing Then
+            Reply = EcUndefPal          ' Undefined pallet
+            Goto _exit
+        End If
+
+        ' Display values
+
+        If Cmd.Nparm < 2 Then
+            ' Get Y direction vector
+            y_vec_new = Vector3.UnitY(frm.loc).vScale(frm.PalletPitch(2) _
+                  * (frm.PalletMaxIndex(2)-1))
+            y_vec_new = y_vec_new.vAdd(Vector3.XYZ(frm.loc))
+            If bTelnetMode Then
+                Reply = "Station(" & CStr(StaID) & ") Y count = " _
+                      & CStr(frm.PalletMaxIndex(2)) _
+                      & " XYZ = " & sFormat(y_vec_new.X, 3) _
+                      & " " & sFormat(y_vec_new.Y, 3) _
+                      & " " & sFormat(y_vec_new.Z, 3)
+            Else
+                Reply = "0 " & CStr(StaID) & CStr(frm.PalletMaxIndex(2)) _
+                      & " " & sFormat(y_vec_new.X, 3) _
+                      & " " & sFormat(y_vec_new.Y, 3) _
+                      & " " & sFormat(y_vec_new.Z, 3)
+            End If
+            Goto _exit
+        End If
+
+        count_new = Cmd.cData(2)        ' Get new Y count
+        If count_new < 1 Then
+            Reply = EcPmm               ' Parameter MisMatch
+        End If
+
+        ' Set pallet Y
+
+        y_vec_new = New Vector3( _
+                  CDbl(Cmd.cData(3)), _
+                  CDbl(Cmd.cData(4)), _
+                  CDbl(Cmd.cData(5)))
+        y_vec_new = y_vec_new.vSub(Vector3.XYZ(frm.loc)) ' Get new Y wrt origin
+        If count_new = 1 Then
+            y_pitch_new = 1             ' Pitch does not matter if count is 1
+        Else
+            y_pitch_new = y_vec_new.vMag/(count_new-1)
+        End If
+
+        y_vec_new = y_vec_new.vAdd(Vector3.XYZ(frm.loc)) ' Add origin to Y
+
+        x_vec = Vector3.UnitX(frm.loc)  ' Get frame X direction
+        x_vec = x_vec.vAdd(Vector3.XYZ(frm.loc)) ' Add origin to X
+
+        ' Compute new reference frame based on old X and new Y axis
+
+        loc_new = New Location
+        loc_new.Here3(frm.loc, x_vec.Loc, y_vec_new.Loc)
+
+        ' Set new pallet parameters
+
+        frm.PalletIndex(1) = 1          ' Reset pallet
+        frm.PalletIndex(2) = 1
+        frm.PalletIndex(3) = 1
+        frm.PalletMaxIndex(2) = count_new
+        frm.PalletPitch(2) = y_pitch_new
+
+        ' Preserve total location when updating reference frame
+
+        loc_save = sta.loc.Pos          ' Get total location using old frame
+        frm.loc = loc_new               ' Update frame info
+        sta.loc.Pos = loc_save          ' Restore total location
+
+    _exit:
+        Return
+
+    End Sub
+#End Region
+
+#Region "Cmd_PalletZ"
+' Cmd_PalletZ -- Gets or sets the pallet Z value
+'
+'  ABSTRACT:  Gets or sets the specified the station pallet Z count
+'           and pitch for a 3-dimensional pallet.
+'           It does not need to be called for 1 or 2-dimensional pallets.
+'
+'           It does not change the orientation of the pallet.
+'           It only establishes the Z index pitch and count.
+'
+'           PalletOrigin, PalletX, and PalletZ must all be called
+'           before this instruction.
+'
+'           If parameters 2-5 are omitted, returns the pallet Z info.
+'
+'  Parameter 1:     The station index from 1 to n.
+'
+'  Parameter 2:     Optional.  The number of pallet index positions
+'                   in the Z direction.
+'
+'  Parameters 3-5:  Optional.  The world location of maximum pallet
+'                   position: X Y Z.
+'                   Corresponds to pallet index 1,1,n
+
+    Public Sub Cmd_PalletZ(ByVal Cmd As Command, ByRef Reply As String)
+        Dim StaID As Integer
+        Dim sta As Station
+        Dim frm As RefFrame
+        Dim z_vec_new As Vector3
+        Dim count_new As Integer
+        Dim z_pitch_new As Double
+
+        If Cmd.Nparm = 0  Then
+            Reply = EcNoParm
+            Goto _exit
+        End If
+
+        Cmd.StringToDouble(5)
+
+        StaID = Cmd.cData(1)
+        sta = Get_Station(Cmd, StaID, Reply)
+        If sta Is Nothing Then Goto _Exit
+
+        If (sta.flags And STA_FL_PAL) = 0 Then
+            Reply = EcNotPallet         ' Not a pallet
+            Goto _exit
+        End If
+
+        frm = sta.frame
+        If frm Is Nothing Then
+            Reply = EcUndefPal          ' Undefined pallet
+            Goto _exit
+        End If
+
+        If frm.loc Is Nothing Then
+            Reply = EcUndefPal          ' Undefined pallet
+            Goto _exit
+        End If
+
+        ' Display values
+
+        If Cmd.Nparm < 2 Then
+            ' Get Z direction vector
+            z_vec_new = Vector3.UnitZ(frm.loc).vScale(frm.PalletPitch(3) _
+                  * (frm.PalletMaxIndex(3)-1))
+            z_vec_new = z_vec_new.vAdd(Vector3.XYZ(frm.loc))
+            If bTelnetMode Then
+                Reply = "Station(" & CStr(StaID) & ") Z count = " _
+                      & CStr(frm.PalletMaxIndex(3)) _
+                      & " XYZ = " & sFormat(z_vec_new.X, 3) _
+                      & " " & sFormat(z_vec_new.Y, 3) _
+                      & " " & sFormat(z_vec_new.Z, 3)
+            Else
+                Reply = "0 " & CStr(StaID) & CStr(frm.PalletMaxIndex(3)) _
+                      & " " & sFormat(z_vec_new.X, 3) _
+                      & " " & sFormat(z_vec_new.Y, 3) _
+                      & " " & sFormat(z_vec_new.Z, 3)
+            End If
+            Goto _exit
+        End If
+
+        count_new = Cmd.cData(2)        ' Get new Z count
+        If count_new < 1 Then
+            Reply = EcPmm               ' Parameter MisMatch
+        End If
+
+        ' Set pallet Z
+
+        z_vec_new = New Vector3( _
+                  CDbl(Cmd.cData(3)), _
+                  CDbl(Cmd.cData(4)), _
+                  CDbl(Cmd.cData(5)))
+        z_vec_new = z_vec_new.vSub(Vector3.XYZ(frm.loc)) ' Get new Z wrt origin
+        If count_new = 1 Then
+            z_pitch_new = 1             ' Pitch does not matter if count is 1
+        Else
+            z_pitch_new = z_vec_new.vMag/(count_new-1)
+        End If
+
+        ' Set new pallet parameters
+
+        frm.PalletIndex(1) = 1          ' Reset pallet
+        frm.PalletIndex(2) = 1
+        frm.PalletIndex(3) = 1
+        frm.PalletMaxIndex(3) = count_new
+        frm.PalletPitch(3) = z_pitch_new
+
+    _exit:
+        Return
+
+    End Sub
+#End Region
+
+#Region "Cmd_PalletIndex"
+' Cmd_PalletIndex -- Gets or sets the pallet index value
+'
+'  ABSTRACT:  Gets or sets the specified the station pallet index
+'           positions.
+'
+'           If parameters 2-4 are omitted, returns current index values.
+'
+'  Parameter 1:     The station index from 1 to n.
+'
+'  Parameter 2-4:   Optional.  The X, Y, and X index values, from 1 to n.
+'                   If set to 0, the corresponding index is not changed.  
+'
+
+    Public Sub Cmd_PalletIndex(ByVal Cmd As Command, ByRef Reply As String)
+        Dim StaID As Integer
+        Dim sta As Station
+        Dim frm As RefFrame
+        Dim index As Integer
+        Dim ii As Integer
+
+        If Cmd.Nparm = 0  Then
+            Reply = EcNoParm
+            Goto _exit
+        End If
+
+        Cmd.StringToDouble(4)
+
+        StaID = Cmd.cData(1)
+        sta = Get_Station(Cmd, StaID, Reply)
+        If sta Is Nothing Then Goto _Exit
+
+        If (sta.flags And STA_FL_PAL) = 0 Then
+            Reply = EcNotPallet         ' Not a pallet
+            Goto _exit
+        End If
+
+        frm = sta.frame
+        If frm Is Nothing Then
+            Reply = EcUndefPal          ' Undefined pallet
+            Goto _exit
+        End If
+
+        ' Display values
+
+        If Cmd.Nparm < 2 Then
+            If bTelnetMode Then
+                Reply = "Station(" & CStr(StaID) & ") index = "
+            Else
+                Reply = "0 " & CStr(StaID) & " "
+            End If
+            Reply &= CStr(frm.PalletIndex(1)) _
+                  & " " & CStr(frm.PalletIndex(2)) _
+                  & " " & CStr(frm.PalletIndex(3))
+            Goto _exit
+        End If
+
+        For ii = 1 To 3
+            index = Cmd.cData(ii+1)
+            If index > 0 Then
+                frm.PalletIndex(ii) = index
+            End If
+        Next ii
+
+    _exit:
+        Return
+
+    End Sub
+#End Region
+
+End Module
+
+#Region "Module SSGrip"
+'Created: 8/26/2010 1:06:59 AM
+Module SSGrip
+'   Spring Servo Gripper Home/Grip/Release Software
+'
+'   Copyright (c) 2012-2015 by Precise Automation Inc.  All rights reserved.
+' =======================================================================
+' Permission is granted to customers of Precise Automation to use this
+' software for any purpose, including commercial applications, and to
+' alter it and redistribute it freely, so long as this notice is included
+' with any modified or unmodified version of this software.
+'
+' This software is provided "as is," without warranty of any kind, express or
+' implied.  In no event shall Precise Automation be held liable for any
+' direct, indirect, incidental, special or consequential damages arising
+' out of the use of or inability to use this software.
+' =======================================================================
+'
+'   This module contains sample software that demonstrates how to effectively
+'   operate the Precise Spring Servo Gripper especially in lab automation
+'   applications.  The top-level routines perform the following operations:
+'
+'    -  Enable motor power and home the robot only if a plate is not being
+'       held by the gripper.  This prevents plates from accidentally being
+'       dropped if AC power is cycled and the robot is restarted.  Note, "the
+'       plate held by gripper" test is only performed on PF400's since this
+'       is the only robot that contains a gripper closed sensor.
+'    -  Grip a plate of a specified width with a specified maximum grip
+'       force and signal if the grip was successful.  The grip can either be
+'       an open or close operation.
+'    -  Release a plate that is being gripped.
+'
+' ##################   GLOBAL VARIABLES AND DECLARATIONS   ###################
+
+    Private Const Version As String = "SSGrip Module 3.0A3 09-03-2015"
+    
+    'Customization
+
+    ' Set the following to True to use the Precise force gripper
+    ' during PickPlate and PlacePlate commands.
+    ' Set to False to use a simple electric gripper with no force control
+
+
+    ' Execution control switches and parameters.
+
+    ' The force threshold determines if a plate is being grasped.
+    ' It is specified as a fraction of the specified grip force.
+    ' Ranges from 0 to 1.
+    '   0 indicates any detected force means grasped.
+    '   1 means full force required.
+    ' Due to noise, friction and spring variability, this value
+    ' is usually 0.25 to 0.75.
+    
+    Private Const GRIP_TRQ_THRESHOLD As Double = 0.5 ' Force threshold
+
+    ' System configuration constants
+
+    Private CTL As Controller               ' Shorthand for Controller class
+    Private Const EOT_SENSOR_DIN As Integer = 210002' End-of-travel sensor.  High if
+                                            ' gripper within 2mm of being fully
+                                            ' closed.  (PF400 only)
+    Private Const EOT_SENSOR_DIN2 As Integer = 310002' End-of-travel sensor.  High if
+                                            ' gripper within 2mm of being fully
+                                            ' closed.  (Dual Gripper Only)                                      
+
+    ' Parameter Database (DataID) definitions
+
+    Private Const PDB_KP As Integer = 10331         ' Proportional gain
+    Private Const PDB_MAX_INTGR As Integer = 10334  ' Max tcnt generated by KI
+    Private Const PDB_INT_RATE_LIM As Integer = 10335' Integrator rate limit, ecnt
+    Private Const PDB_POSFF_GAIN As Integer = 10342 ' Sprg comp, ff gain
+    Private Const PDB_POSADJ_COEF0 As Integer = 10344'Sprg comp, coefficient 0
+    Private Const PDB_POSADJ_COEF1 As Integer = 10345'Sprg comp, coefficient 1
+    Private Const PDB_MAX_POS_PID As Integer = 10351' Limit on maximum positive or
+    Private Const PDB_MAX_NEG_PID As Integer = 10352'   negative PID torque that
+                                                    '   the servos can generate, tcnt.
+    Private Const PDB_MAX_AMP_CUR As Integer = 10610 ' Max amplifier current, amps
+    Private Const PDB_RATED_MOT_CUR As Integer = 10611 ' Rated motor current, amps
+    Private Const PDB_OUTPUT_TQE As Integer = 12304 ' Total output torque, tcnt.
+    Private Const PDB_FLT_FF As Integer = 12331     ' Filtered feedforward torque.
+                                                    ' Includes spring comp, tcnt.
+    Private Const PDB_MAX_SFTSTP As Integer = 16077 ' Maximum joint soft stop limit
+    Private Const PDB_MIN_SFTSTP As Integer = 16078 ' Minimum joint soft stop limit
+        Private Const MIN_SFTSTP_ADJ As Double = 4  ' Added to minimum soft stop
+                                                    ' to keep setpoint within
+                                                    ' the actual lower hardstop.
+
+    ' Global constants precomputed as a computational efficiency.
+
+    Private WIDTH_MIN As Double             ' Minimum and maximum gripper soft
+    Private WIDTH_MAX As Double             ' stop position reduced by 1 mm to
+                                            ' provide a small buffer.
+    Private NT_FORCE_TO_TCNT As Double      ' Scale factor to convert force in
+                                            ' units of Nt to torque counts (tcnt).
+                                            ' Ranges between +-32768.
+    Private SPRG_CMP_MM_TO_TCNT As Double   ' Scale factor for the gripper spring
+                                            ' compensation that converts from mm
+                                            ' to torque counts.
+    Private SPRG_CMP_TCNT_OFF As Double     ' Gripper spring compensation offset
+                                            ' in torque counts.
+    Private MM_TO_ECNT As Double            ' Conversion factor from mm to encoder
+                                            ' counts.
+    Private WIDTH_ADJ_C As Double           ' The amount that the fingers are
+    Private WIDTH_ADJ_O As Double           ' over closed (in mm) or over opened
+                                            ' during the grasping operation.  These
+                                            ' parameters are sized to generate
+                                            ' the maximum permitted gripper steady
+                                            ' state force if required.
+
+
+    ' Parameters for reset thread
+
+    Private ResetThreadRB As Integer        ' Robot number for reset
+    Private ResetThreadGRIP As Integer      ' Gripper axis for reset
+
+#End Region
+
+#Region "TEST_GRIPPER"
+' TEST_GRIPPER routine
+' ABSTRACT:  Main test program to exercise sample gripper functions.
+'
+' INPUTS:   None
+'
+' OUTPUTS:  None
+
+'    Public Sub TEST_GRIPPER()
+'
+'        Dim exc1 As Exception
+'
+'        ' Enable motor power and home the robot and gripper if no plate is being
+'        ' grasped.
+'
+'        exc1 = IfNoPlateEnbPwrHome()    ' Enable motor power and home
+'        Select exc1.ErrorCode
+'          Case 0                        ' Successful
+'            Console.WriteLine("No plate being grasped, homing successful")
+'          Case -1                       ' Plate in hand
+'            Console.WriteLine("Can't home, plate being held")
+'            Return                      ' Bail out
+'          Case Else
+'            Console.WriteLine("Enable power/home error: " & CStr(exc1.ErrorCode))
+'            Return
+'        End Select
+'
+'        ' Get control of the robot and move to plate position.
+'
+'        Robot.Attached = 1              ' Get control of robot
+'        Move.Loc(grasp_pos_high,to_appro)' Move to test position
+'        Move.Loc(grasp_pos,to_grasp)
+'        Move.WaitForEOM
+'
+'        ' Grasp and release the plate.
+'
+'        Thread.Sleep(1000)              ' Artificial wait to view motion
+'        Console.WriteLine("Grasp status " & CStr(GraspPlate(1, 5, 123.6, 20, 15)))
+'
+'        Thread.Sleep(1000)              ' Another unnecessary delay
+'        ReleasePlate(1, 5, 130, 75, 0)        ' Let go of plate, permit full grip force
+'        Move.Loc(grasp_pos_high,to_appro)
+'
+'        Robot.Attached = 0              ' Give up control of robot
+'
+'    End Sub
+#End Region
+
+#Region "SSGrip.Init"
+' Init -- Initialize this module
+'
+' ABSTRACT: This routine is automatically called when the project starts.
+'
+'       It computes key constants that are utilized by the other routines.
+'       This is done as a computational efficiency and for clarity.
+'
+' INPUTS:   None
+'
+' OUTPUTS:  None
+
+    Public Sub Init()
+        Command.AddPlugin(Version, "SSGrip")
+    End Sub
+#End Region
+
+#Region "InitVars"
+' InitVars -- Initialize variables for a robot
+'
+' ABSTRACT: This routine is called when a new robot is initialized.
+'
+'       It computes key constants that are utilized by the other routines.
+'       This is done as a computational efficiency and for clarity.
+'
+' INPUTS:   RB          The number of the robot being initialized.
+'
+'           GRIP        The number of the gripper axis.
+'                       If 0, this routine does nothing.
+'
+' OUTPUTS:  None
+'
+' RETURNS:  0 if success, -1 if failure.
+
+    Private Function InitVars(ByVal RB As Integer, ByVal GRIP As Integer) As Integer
+        Dim pos_mm(5), pos_enc(5), tmp_c, tmp_o As Double
+        Dim ex As Exception
+        Dim stt As Integer
+
+        Try
+            If GRIP = 0 Then Goto done  ' Do nothing if no gripper
+
+            WIDTH_MIN = CTL.PDbNum(PDB_MIN_SFTSTP,RB,0,GRIP)+MIN_SFTSTP_ADJ
+                                        ' Min soft stop limit beyond actual hardstop
+            WIDTH_MAX = CTL.PDbNum(PDB_MAX_SFTSTP,RB,0,GRIP)-1  ' Maximum position
+
+            NT_FORCE_TO_TCNT = (1.26/CTL.PDbNum(PDB_MAX_AMP_CUR,RB,0,GRIP))*32768/15
+                                        ' Conversion factor from Nt to motor
+                                        ' torque counts (tcnt).  The gripper
+                                        ' will generate 15Nt of force when
+                                        ' 1.26A of current is applied.
+
+            pos_mm(GRIP-1) = 1          ' Get conversion factor from mm to
+            Robot.JointToMotor(RB,pos_mm,pos_enc) 'encoder counts
+            MM_TO_ECNT = pos_enc(GRIP-1)
+
+            SPRG_CMP_MM_TO_TCNT = MM_TO_ECNT*CTL.PDbNum(PDB_POSADJ_COEF1,RB,0,GRIP) _
+                                *CTL.PDbNum(PDB_POSFF_GAIN,RB,0,GRIP)
+                                        ' Spring compensation conversion
+                                        ' factor from mm to torque counts
+            SPRG_CMP_TCNT_OFF = CTL.PDbNum(PDB_POSADJ_COEF0,RB,0,GRIP) _
+                                *CTL.PDbNum(PDB_POSFF_GAIN,RB,0,GRIP)
+                                        ' Spring compensation offset in tcnts.
+
+            ' Compute the worst case amount that the fingers must be over closed
+            ' or over opened beyond the plate width in order to generate the maximum
+            ' continuous steady-state force of the motor.
+    
+            tmp_c = (CTL.PDbNum(PDB_RATED_MOT_CUR,RB,0,GRIP)/ _
+                        CTL.PDbNum(PDB_MAX_AMP_CUR,RB,0,GRIP)) * 32768
+                                                ' Max continuous motor current, tcnt
+            tmp_c -= CTL.PDbNum(PDB_MAX_INTGR,RB,0,GRIP) ' Reduce by amount KI will generate
+            tmp_o = tmp_c
+                                                ' Width adjust for close grasp
+            tmp_c += WIDTH_MAX*SPRG_CMP_MM_TO_TCNT + SPRG_CMP_TCNT_OFF
+                                                ' Bias for spring compensation
+            tmp_c /= CTL.PDbNum(PDB_KP,RB,0,GRIP)   ' Poserr must generate this torque, ecnt
+            tmp_c = Math.Max(1.2*tmp_c,CTL.PDbNum(PDB_INT_RATE_LIM,RB,0,GRIP)) ' Ramp up
+                                                    ' integrator as fast as possible
+            WIDTH_ADJ_C = tmp_c/MM_TO_ECNT          ' Width adjustment with fudge factor
+                                                ' Width adjust for open grasp
+            tmp_o -= WIDTH_MIN*SPRG_CMP_MM_TO_TCNT + SPRG_CMP_TCNT_OFF
+                                                ' Bias for spring compensation
+            tmp_o /= CTL.PDbNum(PDB_KP,RB,0,GRIP)   ' Poserr must generate this torque, ecnt
+            tmp_o = Math.Max(1.2*tmp_o,CTL.PDbNum(PDB_INT_RATE_LIM,RB,0,GRIP)) ' Ramp up
+                                                    ' integrator as fast as possible
+            WIDTH_ADJ_O = tmp_o/MM_TO_ECNT          ' Width adjustment with fudge factor
+    done:
+            stt = 0
+        Catch ex
+            stt = -1
+        End Try
+
+        Return stt
+
+    End Function
+#End Region
+
+#Region "Hook_InitCommand"
+' Hook_InitCommand -- Init routine called when a new command object is created
+'
+' ABSTRACT:  This routine is called by RunPluginHook() after a new command
+'       object is created for a robot.  It modifies the command object and
+'       builts local data structures.
+'
+'       If the robot is of type "PF400", "PF300", "PP100" or "PAVP6", it checks
+'       the axis mask and sets Cmd.Rob.GripAxis appropriately
+'
+'       Only supports a single robot.
+'
+' INPUTS:   Cmd     is the new Command object, filled in by the command New sub.
+'
+' OUTPUTS:  Reply   A dummy string, not used.
+
+    Public Sub Hook_InitCommand(ByVal Cmd As Command, ByRef Reply As String)
+        Dim axisMask As Integer
+        Dim stt As Integer
+
+        axisMask = Controller.PDbNum(2003,Cmd.Rob.Robnum,0,1)
+        
+        Select Cmd.Rob.RobType
+        Case PF400
+            If (axisMask And &H20) <> 0 Then
+                Cmd.Rob.GripAxis = 5        ' Has servo gripper
+            End If
+        Case PF300
+            If (axisMask And &H20) <> 0 Then
+                Cmd.Rob.GripAxis = 4        ' Has servo gripper
+            End If              
+        Case PP100
+            If (axisMask And &H10) <> 0 Then
+                Cmd.Rob.GripAxis = Cmd.Rob.RobNumAxes   ' Has servo gripper
+            End If
+        Case Else
+        End Select
+
+        stt = InitVars(Cmd.Rob.RobNum, Cmd.Rob.GripAxis)
+        If stt <> 0 Then
+            Controller.SystemMessage("PARobot module, robot " _
+                & CStr(Cmd.Rob.RobNum) & " failed to initialize.")
+        End If
+
+        Return
+   End Sub
+
+#End Region
+
+#Region "PIDTrqResetThread"
+' PIDTrqResetThread -- Internal task to cancel torque restriction
+'
+' ABSTRACT:  This routine cancels the restriction on the maximum force
+'   that the gripper can generate.  It is executed in an independent
+'   thread and delays until the trajectory generator signals that the
+'   force restriction is to be cancelled.
+'
+' INPUTS:   None
+'
+' OUTPUTS:  None
+
+    Public Sub PIDTrqResetThread()
+        Thread.WaitEvent(&H1, -1)       ' Wait for trajectory gen signal
+        CTL.PDbNum(PDB_MAX_NEG_PID,ResetThreadRB,0,ResetThreadGRIP) = 0 ' Turn off force restriction
+        CTL.PDbNum(PDB_MAX_POS_PID,ResetThreadRB,0,ResetThreadGRIP) = 0 
+    End Sub
+#End Region
+
+#Region "IfNoPlateEnbPwrHome"
+' IfNoPlateEnbPwrHome -- Enable power and home if no plate
+'
+' ABSTRACT:  If the gripper's end-of-travel sensor indicates that the
+'   fingers are fully closed, we assume no plate is being held and
+'   motor power is enabled and the robot and gripper are homed.  If
+'   we suspect a plate is being held, this routine exits returning
+'   an exception without enabling power or homing.  Since homing
+'   the gripper opens it to its fully opened hardstop, homing will
+'   accidentally drop any plate that is being held.
+'
+' INPUTS:   None
+'
+' OUTPUTS:  None
+'
+' RETURNS:  Exception object whose error code is as follows:
+'               0   Indicates that enabling power and homing were
+'                   successfully executed
+'               -1  Indicates gripper might be holding a plate
+'               <0  Some other error code.
+
+    Public Function IfNoPlateEnbPwrHome() As Exception
+
+        Dim exc1 As New Exception
+        Const PWR_ENB_TIMEOUT As Integer = 30   ' Time out waiting for power enabled
+
+        exc1.ErrorCode = 0                  ' No error yet
+        If (Signal.DIO(EOT_SENSOR_DIN)) Then           ' Fingers fully closed?
+            Try                             '   Yes, no plate in hand
+                CTL.PowerEnabled(PWR_ENB_TIMEOUT) = True    ' Enable motor power
+                Robot.HomeAll               ' Home the robot and gripper
+            Catch exc1
+            End Try
+        Else
+            exc1.ErrorCode = -1             ' Might be holding an object, error
+        End If
+
+        Return exc1
+
+    End Function
+#End Region
+
+#Region "IfNoPlateEnbPwrHome_Dual"
+' IfNoPlateEnbPwrHome -- Enable power and home if no plate
+'
+' ABSTRACT:  If the gripper's end-of-travel sensor indicates that the
+'   fingers are fully closed, we assume no plate is being held and
+'   motor power is enabled and the robot and gripper are homed.  If
+'   we suspect a plate is being held, this routine exits returning
+'   an exception without enabling power or homing.  Since homing
+'   the gripper opens it to its fully opened hardstop, homing will
+'   accidentally drop any plate that is being held.
+'
+' INPUTS:   None
+'
+' OUTPUTS:  None
+'
+' RETURNS:  Exception object whose error code is as follows:
+'               0   Indicates that enabling power and homing were
+'                   successfully executed
+'               -1  Indicates gripper might be holding a plate
+'               <0  Some other error code.
+
+    Public Function IfNoPlateEnbPwrHome_Dual() As Exception
+
+        Dim exc1 As New Exception
+        Const PWR_ENB_TIMEOUT As Integer = 30   ' Time out waiting for power enabled
+
+        exc1.ErrorCode = 0                  ' No error yet
+        If (Signal.DIO(EOT_SENSOR_DIN) And Signal.DIO(EOT_SENSOR_DIN2)) Then ' Fingers fully closed?
+            Try                             '   Yes, no plate in hand
+                CTL.PowerEnabled(PWR_ENB_TIMEOUT) = True    ' Enable motor power
+                Robot.HomeAll               ' Home the robot and gripper
+            Catch exc1
+            End Try
+        Else
+            exc1.ErrorCode = -1             ' Might be holding an object, error
+        End If
+
+        Return exc1
+
+    End Function
+#End Region
+
+#Region "GraspPlate"
+' GraspPlate - Grasp a plate with limited force
+'
+' ABSTRACT:  This routine grasps a plate of a specified width at the
+'   defined speed and limits the maximum gripping force.  The width
+'   should be accurate to within approximately a mm since this routine
+'   closes the fingers narrower than this width.  The difference between
+'   the width of the plate and the commanded gripper position generates
+'   a position error that the PID servo loop converts into the gripping
+'   force.
+'
+'   A plate can be grasped by opening or closing the gripper.
+'
+'   At the end of the gripping motion, the gripper motor torque is
+'   tested to confirm that the grasping operation has been successful.
+'
+' INPUTS:   RB          The robot number
+'           GRIP        The gripper axis number
+'           Width       Width of the plate to be grasped in mm.  This
+'                       dimension does not need to be exact but should
+'                       be accurate to within a mm or so to ensure that
+'                       this routine generates a sufficiently large
+'                       gripping force.
+'           Speed       Speed at which the fingers are to close where
+'                       100 represents the 100% speed.
+'           Force       Maximum gripper squeeze force to be applied in
+'                       Nt.  Positive numbers indicate that the gripper
+'                       will be closed to grasp the plate.  Negative
+'                       numbers indicate that the gripper will be
+'                       opened.  Due to noise, friction, and variations
+'                       in the gripper spring force, the actual maximum
+'                       gripper force will have some variability.
+'
+' OUTPUTS:  None
+'
+' RETURNS:  True if a plate has been grasped (as determined by the final
+'   gripper motor torque level) else False.
+
+    Public Function GraspPlate( _
+        ByVal RB As Integer, ByVal GRIP As Integer, _
+        Width As Double, Speed As Double, Force As Double) As Boolean
+
+        Dim close_setpt, force_tcnt, width_adj As Double
+        Dim pdb_max_pid As Integer
+        Dim grip_pf As New Profile          ' Motion profile for gripping
+
+        grip_pf.Speed = Speed               ' Close at specified speed
+        grip_pf.InRange = 0                 ' Don't timeout nulling position errors
+
+        ' Define the process parameters as a function of whether we are
+        ' closing or opening to grasp the plate.
+        
+        If (Force >= 0) Then                ' Closing to grasp
+            width_adj = -WIDTH_ADJ_C        '   Over close set point
+            pdb_max_pid = PDB_MAX_NEG_PID   '   Limit closing force
+        Else                                ' Opening to grasp
+            width_adj = WIDTH_ADJ_O         '   Over open set point
+            pdb_max_pid = PDB_MAX_POS_PID   '   Limit opening force
+        End If
+        
+        ' Command gripper to close/open further than the specified width in
+        ' order for the PID loop to generate a sufficient gripping force.  The
+        ' PID loop generates the force as a result of the position error and
+        ' the integral of the position error.
+
+        close_setpt = Width + width_adj     ' Over close/open to generate grip force
+        close_setpt = Math.Max(close_setpt, WIDTH_MIN) ' Don't violate stop limits
+        close_setpt = Math.Min(close_setpt, WIDTH_MAX)
+        
+        ' Set maximum closing/opening force.  Adjust specified force since the
+        ' spring compensation is based upon the setpoint position and not the
+        ' actual position to avoid servo instabilities.
+
+        force_tcnt = Force*NT_FORCE_TO_TCNT ' Convert to torque counts
+        force_tcnt -= (Width - close_setpt)*SPRG_CMP_MM_TO_TCNT
+
+        CTL.PDbNum(pdb_max_pid,RB,0,GRIP) = -force_tcnt
+
+        ' Close the gripper.
+
+        Move.OneAxis(GRIP, close_setpt, False, grip_pf)
+                                            ' Close gripper and grasp plate
+        Move.WaitForEOM                     ' Wait until move completed
+
+        ' Test if gripper holding an object.  This tests for a force threshold.
+        ' However, this test can be changed to a comparison between "close_setpt"
+        ' or "Width" and Robot.WhereAngles(RB).Angle(GRIP) if a position comparison
+        ' would be more reliable.
+
+        If ((Force >= 0 AndAlso _
+                (CTL.PDbNum(PDB_OUTPUT_TQE,RB,0,GRIP)-CTL.PDbNum(PDB_FLT_FF,RB,0,GRIP)) _
+                    < -force_tcnt*GRIP_TRQ_THRESHOLD) _
+            OrElse (Force < 0 AndAlso _
+                (CTL.PDbNum(PDB_OUTPUT_TQE,RB,0,GRIP)-CTL.PDbNum(PDB_FLT_FF,RB,0,GRIP)) _
+                    > -force_tcnt*GRIP_TRQ_THRESHOLD)) Then
+            Return (True)                   ' Grasping plate
+        Else
+            CTL.PDbNum(pdb_max_pid,RB,0,GRIP) = 0   ' Turn off force limit
+            Return (False)                  ' Not grasping anything
+        End If
+
+    End Function
+#End Region
+
+#Region "ReleasePlate"
+' ReleasePlate -- Release a plate grasped by GraspPlate
+'
+' ABSTRACT:  This routine opens/closes the gripper to a specified width and
+'   turns off the restriction on the gripper's peak force.  The force limit
+'   is not eliminated until the plate is released to avoid applying an
+'   excessive force to the plate.  An independent thread cancels the force
+'   limit to prevent blocking execution of the main thread.
+'
+' INPUTS:   RB          The robot number
+'           GRIP        The gripper axis number
+'           Width_New   Distance to which the fingers are to open/close.
+'           Speed       Speed at which the fingers are to moved where
+'                       100 represents the 100% speed.
+'           InRange     Standard InRange profile parameter for the motion
+'                       of the gripper.  Permits the caller to have this
+'                       gripper motion blended or not blended with the
+'                       next motion.
+'
+' OUTPUTS:  None
+
+    Public Sub ReleasePlate( _
+        ByVal RB As Integer, ByVal GRIP As Integer, _
+        Width_New As Double, Speed As Double, InRange As Integer)
+
+        Dim width_setpt, width_act, dist_pct As Double
+        Dim Reset_Evt As New Thread("SSGrip.PIDTrqResetThread")
+        Dim grip_pf As New Profile
+
+        grip_pf.Speed = Speed               ' Motion speed for releasing
+        grip_pf.InRange = InRange           ' Blending specification
+
+        ResetThreadRB = RB                  ' Pass robot number to thread
+        ResetThreadGRIP = GRIP              ' Pass gripper axis to thread
+        Reset_Evt.Start                     ' Start thread to reset torque limit
+
+        ' Turn off force restriction when the gripper setpoint is wider (or
+        ' narrower) than the current actual gripper opening width.  Have the
+        ' trajectory generator automatically trigger the independent thread
+        ' to cancel the restriction.
+
+        width_setpt = Robot.DestAngles(RB).Angle(GRIP)
+        width_act = Robot.WhereAngles(RB).Angle(GRIP)
+        If (Width_New <> width_setpt) Then
+            dist_pct = 100*(width_act-width_setpt)/(Width_New-width_setpt)
+            dist_pct = Math.Min(Math.Max(dist_pct,0),100)
+            Move.Trigger(0, dist_pct, Reset_Evt, &H1)
+        Else
+            Move.Trigger(0, 0, Reset_Evt, &H1)
+        End If
+
+        Move.OneAxis(GRIP, Width_New, False, grip_pf)   ' Open the gripper
+
+    End Sub
+#End Region
+
+#Region "IsFullyClosed"
+' IsFullyClosed -- Test if gripper is fully closed
+'
+' ABSTRACT:  This routine tests if the gripper is fully closed to its
+'   lower hardstop by checking the end-of-travel sensor.  The end-of-travel
+'   sensor signal is high if the spring gripper is within 2 mm of being
+'   fully closed.
+'
+' INPUTS:   None
+'
+' OUTPUTS:  None
+'
+' RETURNS:  True if the gripper is closed to within 2 mm of its fully
+'   closed position, otherwise false.
+
+    Public Function IsFullyClosed(ByVal Cmd As Command) As Integer
+        Dim axisMask As Integer
+        Dim retMask As Integer
+        Dim ex As Exception
+        
+        If Cmd Is Nothing Then
+            Throw ex
+        Else
+            retMask = 0
+            If (Cmd.Rob.InactiveGripAxis <> 0) Then 'Is Dual Gripper
+                If Signal.DIO(EOT_SENSOR_DIN) Then
+                    retMask = (retMask Or &H1)  'Gripper 1 Sensor = Bit 1 of return value
+                End If
+                If Signal.DIO(EOT_SENSOR_DIN2) Then
+                    retMask = (retMask Or &H2)  'Gripper 2 Sensor = Bit 2 of return value
+                End If
+                Return retMask
+            Else
+                If Signal.DIO(EOT_SENSOR_DIN) Then
+                    Return -1   'Standard Gripper Closed
+                Else
+                    Return 0    'Standard Gripper Open
+                End If
+            
+            End If
+        End If
+    End Function
+#End Region
+
+#Region "Cmd_HomeAll_IfNoPlate"
+' Cmd_HomeAll_IfNoPlate -- Enable power and home if no plate
+'
+' ABSTRACT: Command to test if the gripper is holding a plate.
+'       If not, enable power and home all robots.
+'
+' No parameters
+'
+'       Returns value -1 if no plate and command succeeded
+'       Returns value 0 if a plate detected
+
+    Public Sub Cmd_HomeAll_IfNoPlate(ByVal Cmd As Command, ByRef Reply As String)
+        Dim ex As Exception
+
+        If Cmd.Rob.GripAxis = 0 Then
+            Reply = EcInvPARobotGrp
+            Goto _exit
+        End If
+
+        If Cmd.Rob.RobType <> PF400 Then
+            Reply = EcInvPARobotNoSnsr  ' No gripper close sensor
+            Goto _exit
+        End If
+        If Cmd.Rob.InactiveGripAxis <> 0 Then
+            ex = IfNoPlateEnbPwrHome_Dual()
+        Else
+            ex = IfNoPlateEnbPwrHome()
+        End If
+
+        If ex.ErrorCode = 0 Then
+            If bTelnetMode Then
+                Reply = "No plate detected"
+            Else
+                Reply = "0 -1"
+            End If
+        ElseIf ex.ErrorCode = -1 Then
+            If bTelnetMode Then
+                Reply = "Plate detected"
+            Else
+                Reply = "0 0"
+            End If
+        Else
+            Throw ex
+        End If
+
+    _exit:
+        Return
+    End Sub
+#End Region
+
+#Region "Cmd_GraspPlate"
+' Cmd_GraspPlate - Command to grasp a plate with limited force
+'
+' ABSTRACT:  This command grasps a plate of a specified width at the
+'   defined speed and limits the maximum gripping force.  The width
+'   should be accurate to within approximately a mm since this routine
+'   closes the fingers narrower than this width.  The difference between
+'   the width of the plate and the commanded gripper position generates
+'   a position error that the PID servo loop converts into the gripping
+'   force.
+'
+'   At the end of the gripping motion, the gripper motor torque is
+'   tested to confirm that the grasping operation has been successful.
+'
+' Paramter 1:           Width of the plate to be grasped in mm.  This
+'                       dimension does not need to be exact but should
+'                       be accurate to within a mm or so to ensure that
+'                       this routine generates a sufficiently large
+'                       gripping force.
+'
+' Parameter 2:          Speed at which the fingers are to close where
+'                       100 represents the 100% speed.
+'
+' Parameter 3:          Maximum gripper squeeze force to be applied in
+'                       Nt.  Positive numbers indicate that the gripper
+'                       will be closed to grasp the plate.  Negative
+'                       numbers indicate that the gripper will be
+'                       opened.  Due to noise, friction, and variations
+'                       in the gripper spring force, the actual maximum
+'                       gripper force will have some variability.
+'
+' OUTPUTS:  None
+'
+' RETURNS:  True (-1) if a plate has been grasped (as determined by the final
+'   gripper motor torque level) else False (0).
+
+    Public Sub Cmd_GraspPlate(ByVal Cmd As Command, ByRef Reply As String)
+        Dim btmp As Boolean
+
+        If Cmd.Rob.GripAxis = 0 Then
+            Reply = EcInvPARobotGrp
+            Goto _exit
+        End If
+
+        If Cmd.Nparm <> 3 Then
+            reply = EcPmm
+            Goto _exit
+        End If
+
+        Cmd.StringToDouble(0)
+
+        btmp = GraspPlate(Cmd.Rob.RobNum, Cmd.Rob.GripAxis, _
+            Cmd.cData(1), Cmd.cData(2), Cmd.cData(3))
+
+        If bTelnetMode Then
+            If btmp Then
+                Reply = "Plate grasped"
+            Else
+                Reply = "Plate not grasped"
+            End If
+        Else
+            If btmp Then
+                Reply = "0 -1"
+            Else
+                Reply = "0 0"
+            End If
+        End If
+
+    _exit:
+        Return
+    End Sub
+#End Region
+
+#Region "Cmd_ReleasePlate"
+' Cmd_ReleasePlate -- Command to release a plate after GraspPlate
+'
+' ABSTRACT:  This command opens the gripper to a specified width and turns
+'   off the restriction on the gripper's peak force.  The force limit
+'   is not eliminated until the plate is released to avoid applying
+'   an excessive force to the plate.  An independent thread cancels
+'   the force limit to prevent blocking execution of the main thread.
+'
+' Parameter 1           Distance in mm to which the fingers are to open.
+'
+' Parameter 2           Speed at which the fingers are to open where
+'                       100 represents the 100% speed.
+'
+' Parameter 3           Optional. Standard InRange profile parameter for the motion
+'                       to open the gripper.  Permits the caller to
+'                       have this gripper open motion blended or not blended
+'                       with the next motion.
+'                       If not specified, the value 0 is assumed
+
+    Public Sub Cmd_ReleasePlate(ByVal Cmd As Command, ByRef Reply As String)
+
+        If Cmd.Rob.GripAxis = 0 Then
+            Reply = EcInvPARobotGrp
+            Goto _exit
+        End If
+
+        If Cmd.Nparm < 2 Then
+            reply = EcPmm
+            Goto _exit
+        End If
+
+        Cmd.StringToDouble(3)           ' Default parameter 3 to 0
+
+        ReleasePlate(Cmd.Rob.Robnum, Cmd.Rob.GripAxis, _
+            Cmd.cData(1), Cmd.cData(2), Cmd.cData(3))
+
+    _exit:
+        Return
+    End Sub
+#End Region
+
+#Region "Cmd_IsFullyClosed"
+' Cmd_IsFullyClosed -- Command to test if gripper is fully closed
+'
+' ABSTRACT:  Command to test if the gripper is fully closed to its
+'   lower hardstop by checking the end-of-travel sensor.  The end-of-travel
+'   sensor signal is high if the spring gripper is within 2 mm of being
+'   fully closed.
+'
+' No parameters
+'
+' RETURNS:  
+'   If Standard Gripper:
+'           True (-1) If the gripper Is closed To within 2 mm of its fully
+'               closed position
+'           False (0) or error code and message.
+'   If Dual Gripper
+'           0, 1, 2, 3 = a bit mask where a bit set represents the 
+'               corresponding gripper being closed.
+'               gripper 1 is bit 0
+'               gripper 2 is bit 1
+
+    Public Sub Cmd_IsFullyClosed(ByVal Cmd As Command, ByRef Reply As String)
+        Dim bTmp As Integer
+  
+        If Cmd.Rob.RobType = PF400 Then
+            bTmp = IsFullyClosed(Cmd)
+            If (Cmd.Rob.InactiveGripAxis <> 0) Then 'Is Dual Gripper
+                If bTelnetMode Then
+                    If btmp=0 Then
+                        Reply = "Not Closed 1, Not Closed 2"
+                    ElseIf btmp=1 Then
+                        Reply = "Closed 1, Not Closed 2"
+                    ElseIf btmp=2 Then
+                        Reply = "Not Closed 1, Closed 2"
+                    ElseIf btmp=3 Then
+                        Reply = "Closed 1, Closed 2"
+                    End If
+                Else
+                    Reply = "0 " & CStr(btmp)
+                End If
+            Else    'Is Standard Gripper
+                
+                If bTelnetMode Then
+                    If Not btmp=0 Then
+                        Reply = "Closed"
+                    Else
+                        Reply = "Not closed"
+                    End If
+                Else
+                    If Not btmp=0 Then
+                        Reply = "0 -1"
+                    Else
+                        Reply = "0 0"
+                    End If
+                End If
+            End If
+            
+        Else
+            Reply = EcInvPARobotNoSnsr  ' No gripper close sensor
+        End If
+
+    End Sub
+#End Region
+
+#Region "Cmd_SetActiveGripper"
+    Public Sub Cmd_SetActiveGripper(ByVal Cmd As Command, ByRef Reply As String)
+        
+        ' Sets the grip axis value of the selected robot directly and
+        ' rotates the tool offset accordingly. Includes an option to 
+        ' physically rotate the gripper as well.
+        ' 
+        ' Arg 1: Which gripper to set as active. Expects 1 or 2 only
+        ' Arg 2: Optional Boolean for physical spin. If yes, wrist will spin
+        '        toward zero
+        ' Arg 3: Optional Integer for motion profile Index.
+        Dim exc1 As New Exception
+        Dim actvGrip As Integer
+        Dim newAxis As Integer
+        Dim spin As Integer = 0
+        Dim pfIdx As Integer
+        Dim final As Location
+        
+        Cmd.StringtoDouble(0)
+        
+        If Cmd.Nparm <> 1 And Cmd.Nparm <> 3 Then
+            reply = EcPmm
+            Goto _exit
+        End If
+        
+        actvGrip = Cmd.cData(1)-1
+        If Cmd.Rob.InactiveGripAxis = 0 Then    'If robot not dual gripper just return
+            If actvGrip <> 0 Then
+                Reply = EcInvPARobotInvSta
+            End If
+            Goto _exit
+        End If
+        
+        If actvGrip < 0 Or actvGrip > 1 Then    'ActiveGripper can only be 0 or 1
+            Reply = EcInvPARobotInvSta
+            Goto _exit
+        End If
+        
+        If Cmd.Nparm = 3 Then
+            spin = Cmd.cData(2)
+            pfIdx = Cmd.cData(3)
+        End If
+        
+        
+        If actvGrip <> Cmd.Rob.ActiveGripper Then   'If the gripper is being changed
+            'Set new Active Gripper
+            Cmd.Rob.ActiveGripper = actvGrip
+            
+            ' Swap GripAxis and InactiveGripAxis
+            Dim sTmp As Integer
+            sTmp = Cmd.Rob.InactiveGripAxis
+            Cmd.Rob.InactiveGripAxis = Cmd.Rob.GripAxis
+            Cmd.Rob.GripAxis = sTmp
+        End If
+            
+        
+        ' Rotate tool definition
+        Dim t As New Location
+        t = Robot.Tool
+        If (t.Z < 0) Then
+            t.Z *= -1
+        End If
+        If Cmd.Rob.ActiveGripper = 0 Then
+            Robot.Tool = Location.XYZValue(t.X, t.Y, t.Z, 0, 0, 0)
+        ElseIf Cmd.Rob.ActiveGripper = 1 Then
+            Robot.Tool = Location.XYZValue(t.X, t.Y, -t.Z, 0, 180, -180)
+        End If
+        
+        ' If requested, physically rotate the gripper
+        If spin = 1 Then
+            
+            'Wait until last move has been completed
+            Move.WaitForEOM
+            ' Get current angles
+            final = Robot.WhereAngles(Cmd.Rob.RobNum)
+            
+            ' Adjust by 180 toward zero
+            If final.Angle(4) > 0 Then
+                final.Angle(4) -= 180
+            Else
+                final.Angle(4) += 180
+            End If
+            
+            ' Perform the move
+            Move.Loc(final, Cmd.Rob.RobProf(pfIdx))
+            
+        End If
+        
+        If bTelnetMode Then
+            reply = "New grip axis set to " & CStr(Cmd.Rob.GripAxis) & ". "
+            reply &= "Active Gripper set to "& CStr(Cmd.Rob.ActiveGripper+1) & "."
+        Else
+            reply = "0"
+        End If
+        
+    _exit:
+        Return
+    End Sub
+    #End Region
+
+#Region "Cmd_GetActiveGripper"
+    Public Sub Cmd_GetActiveGripper(ByVal Cmd As Command, ByRef Reply As String)
+
+        ' No parameters
+        ' Returns the current active gripper (1 or 2)
+        
+        Cmd.StringtoDouble(0)
+        
+        If Cmd.Nparm <> 0 Then
+            reply = EcPmm
+            GoTo _exit
+        End If
+        
+        If bTelnetMode Then
+            If Cmd.Rob.ActiveGripper = 0 Then
+                reply &= "Gripper 1 is the active gripper"
+            ElseIf Cmd.Rob.ActiveGripper = 1 Then
+                reply &= "Gripper 2 is the active gripper"
+            End If
+        Else
+            reply = "0 " & CStr(Cmd.Rob.ActiveGripper+1)
+        End If
+
+    _exit:
+        Return
+    End Sub
+    #End Region
+          
+
+End Module

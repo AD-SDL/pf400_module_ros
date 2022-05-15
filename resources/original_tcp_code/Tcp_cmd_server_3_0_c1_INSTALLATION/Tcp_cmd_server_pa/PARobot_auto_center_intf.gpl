@@ -1,0 +1,143 @@
+#Region "Module PARobot_auto_center_intf"
+' Copyright (c) 2012-2015 by Precise Automation Inc.  All rights reserved.
+' =======================================================================
+' Permission is granted to customers of Precise Automation to use this
+' software for any purpose, including commercial applications, and to
+' alter it and redistribute it freely, so long as this notice is included
+' with any modified or unmodified version of this software.
+'
+' This software is provided "as is," without warranty of any kind, express or
+' implied.  In no event shall Precise Automation be held liable for any
+' direct, indirect, incidental, special or consequential damages arising
+' out of the use of or inability to use this software.
+' =======================================================================
+'
+' This file provides the interface between the Command Server and the
+' PreciseFlex 400 Auto Center routines.  Please see the documentation on
+' the Auto Center routines for specifics on the functions provided and the
+' routine calling sequences.
+
+Module PARobot_auto_center_intf
+  
+#End Region 
+#Region "Init"
+' Init -- Module Initialization
+'
+' ABSTRACT:  This routine is automatically executed by GPL whenever this
+'       module begins execution.  It registers the Auto Center plug-in
+'       module with the main TCP Command Server routines.
+'
+' INPUTS:   None
+'
+' OUTPUTS:  None
+
+    Public Sub Init()
+
+    ' Automatically call InitCommand routine when each TCP command object
+    ' is created.
+
+       Command.AddPlugin(PARobot_auto_center.Version, "PARobot_auto_center_intf")
+
+    End Sub
+    
+#End Region 
+#Region "Hook_InitCommand"
+' Hook_InitCommand -- Initialization routine called when a command object is created
+'
+' ABSTRACT:  This routine is called whenever a new TCP command server
+'       command object is created for a robot.  It performs any
+'       robot specific initialization required by the Auto Center
+'       routines.
+'
+' INPUTS:   Cmd         New Command object, filled in by the command New sub.
+'
+' OUTPUTS:  Reply       A dummy string, not used.
+
+    Public Sub Hook_InitCommand(ByVal Cmd As Command, ByRef Reply As String)
+
+        If Cmd.Rob.RobNum = 0 Then
+            Goto _exit                      ' No robot
+        End If
+        If (Cmd.Rob.RobType <> PF400) AndAlso (Cmd.Rob.RobType <> PF300) _
+            AndAlso (Cmd.Rob.RobType <> PP100) Then
+            Goto _exit                      ' Not supported robot
+        End If
+
+        AC_InitAutoCenter(Cmd.Rob.RobNum)   ' Init robot specific variables
+
+      _exit:
+        Return
+    End Sub
+    
+#End Region 
+#Region "Cmd_HeightDetect"
+' Cmd_HeightDetect -- Command handler for executing HeightDetect function
+'
+' ABSTRACT:  Executes the HeightDetect function that moves the gripper
+'       down and detects the height of a stack of plates or the height of a
+'       nest using motor force sensing.  Please see the documentation on
+'       this function for complete information.
+'
+'       Given the complexity of this function, this command does not return
+'       until the height detection operation has completed.
+'
+'       If no parameters are specified, they are all set to their default
+'       values.
+'
+' INPUTS:
+'
+'  Parameter 1: QuickMode - 1 for quick execution only and 2 for execution
+'               of the thorough mode.  Set to 2 by default
+'  Parameter 2: rXSearchLimit -  Maximum distance that the gripper is
+'               permitted to move down relative to the starting position,
+'               in mm.  Set to -1E6 by default.
+'  Parameter 3: XMaxForce - Maximum vertical force to be applied when searching
+'               for the stack height, in Nt.  Set to -15 by default.
+'           
+' OUPUTS:   If successful, returns the detected height in mm in absolute
+'           robot coordinates.
+    
+    Public Sub Cmd_HeightDetect(ByVal Cmd As Command, ByRef Reply As String)
+        Dim stack_top As Location
+        Dim QuickMode As Integer
+        Dim rXSearchLimit, XMaxForce As Double
+        Dim exc1 As New Exception
+        
+        If (Cmd.Rob.RobType <> PF400) AndAlso (Cmd.Rob.RobType <> PF300) Then
+            Reply =  EcInvRobType ' Invalid Robot Type
+            Goto _exit
+        End If
+        
+        If (Cmd.Nparm >= 1) Then            ' Parameters specfied?
+            Cmd.StringtoDouble(3)           ' Convert string parameters to numeric
+            QuickMode = Cmd.cData(1)
+            rXSearchLimit = Cmd.cData(2)
+            XMaxForce = Cmd.cData(3)
+        Else                                ' Use default parameters
+            QuickMode = 2
+            rXSearchLimit = -1e6
+            XMaxForce = -15
+        End If
+
+        exc1 = AC_HeightDetect(Cmd.Rob.RobNum, QuickMode, rXSearchLimit, _
+                                XMaxForce, stack_top)
+        If (exc1.ErrorCode >= 0) Then       ' No error, return detected height
+            If bTelnetMode Then
+                reply = "Detected height:  " & Format(stack_top.Z,"0.00")
+            Else
+                reply = "0 " & Format(stack_top.Z,"0.00")
+            End If
+        Else                                ' Return error code
+            If bTelnetMode Then
+                reply = AC_ErrorMessage(exc1)
+            Else
+                reply = CStr(exc1.ErrorCode)
+            End If
+        End If
+        
+    _exit:
+        Return
+        
+    End Sub
+#End Region
+End Module
