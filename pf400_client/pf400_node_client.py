@@ -16,7 +16,7 @@ def pf400_transfer_command(job:str, robot_1:str = None, robot_2:str = None):
 
     ctx = zmq.Context()
     sock = ctx.socket(zmq.REQ)
-    sock.connect("tcp://127.0.0.1:8085")
+    sock.connect("tcp://192.168.1.81:8085")
 
     print("Starting PF400 command transfer client ...")
     while True:
@@ -25,7 +25,7 @@ def pf400_transfer_command(job:str, robot_1:str = None, robot_2:str = None):
         sock.send_string(full_command)
         msg = sock.recv_string()
         time.sleep(1)
-        msg = msg.split('@')
+        # msg = msg.split('@')
         # msg_output, msg_error, msg_errorcode = msg[0], msg[1], msg[2]
         if msg:
             print("Client recived the output message from the completed protocol. Sending message to the ROS Arm node")

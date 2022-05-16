@@ -27,7 +27,12 @@ class PF400_listen(object):
         self.port = port    
         self.OT2_ID = {"bob":1, "alex":2, "jack":3}
         self.listener(host, port)
-        
+    
+    def is_robot_running(self, msg):
+        robot = PF400()
+        # Cehck heartbeat and state of the robot regurly                                                                                
+        output = robot.initialize_robot()
+
     def command_handler(self, msg):
         robot = PF400()
 
