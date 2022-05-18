@@ -1215,3 +1215,214 @@
 [INFO] [2022-05-16 14:17:16] [PF400_Client] Finding robot location:
 [INFO] [2022-05-16 14:17:16] [PF400_Client] wherej
 
+[INFO] [2022-05-18 10:24:21] [PF400_Client] Robot created. Robot ID: 1 ~ Host: 192.168.56.236 ~ Port: 10100
+[INFO] [2022-05-18 10:24:21] [PF400_Client] Finding robot location:
+[INFO] [2022-05-18 10:24:21] [PF400_Client] wherej
+
+[INFO] [2022-05-18 10:24:41] [PF400_Client] Robot created. Robot ID: 1 ~ Host: 192.168.56.236 ~ Port: 10100
+[INFO] [2022-05-18 10:24:41] [PF400_Client] Finding robot location:
+[INFO] [2022-05-18 10:24:41] [PF400_Client] wherej
+
+[INFO] [2022-05-18 10:26:59] [PF400_Client] Robot created. Robot ID: 1 ~ Host: 192.168.56.236 ~ Port: 10100
+[INFO] [2022-05-18 10:26:59] [PF400_Client] Finding robot location:
+[INFO] [2022-05-18 10:26:59] [PF400_Client] wherej
+
+[INFO] [2022-05-18 10:27:10] [PF400_Client] Robot created. Robot ID: 1 ~ Host: 192.168.56.236 ~ Port: 10100
+[INFO] [2022-05-18 10:27:10] [PF400_Client] Finding robot location:
+[INFO] [2022-05-18 10:27:10] [PF400_Client] wherej
+
+[INFO] [2022-05-18 10:27:25] [PF400_Client] Robot created. Robot ID: 1 ~ Host: 192.168.56.236 ~ Port: 10100
+[INFO] [2022-05-18 10:27:25] [PF400_Client] Finding robot location:
+[INFO] [2022-05-18 10:27:25] [PF400_Client] wherej
+
+[INFO] [2022-05-18 10:27:44] [PF400_Client] Robot created. Robot ID: 1 ~ Host: 192.168.56.236 ~ Port: 10100
+[INFO] [2022-05-18 10:30:47] [PF400_Client] Robot created. Robot ID: 1 ~ Host: 192.168.56.236 ~ Port: 10100
+[INFO] [2022-05-18 10:43:41] [PF400_Client] Robot created. Robot ID: 1 ~ Host: 192.168.56.236 ~ Port: 10100
+[INFO] [2022-05-18 10:43:41] [PF400_Client] Robot is moved to the Transfer_D location
+[INFO] [2022-05-18 10:43:41] [PF400_Client] MoveJ 2 0 0 0 0 0 0
+
+[INFO] [2022-05-18 10:44:12] [PF400_Client] Robot created. Robot ID: 1 ~ Host: 192.168.56.236 ~ Port: 10100
+[INFO] [2022-05-18 10:44:12] [PF400_Client] Robot is moved to the Transfer_D location
+[INFO] [2022-05-18 10:44:12] [PF400_Client] MoveJ 2 1 1 1 1 1 1
+
+[INFO] [2022-05-18 11:19:38] [PF400_Client] Robot created. Robot ID: 1 ~ Host: 192.168.56.236 ~ Port: 10100
+[INFO] [2022-05-18 11:19:38] [PF400_Client] Robot is moved to the Transfer_D location
+[INFO] [2022-05-18 11:19:38] [PF400_Client] MoveJ 2 1 1 1 1 1 1
+
+[INFO] [2022-05-18 11:19:52] [PF400_Client] Robot created. Robot ID: 1 ~ Host: 192.168.56.236 ~ Port: 10100
+[INFO] [2022-05-18 11:19:52] [PF400_Client] Robot is moved to the Transfer_D location
+[INFO] [2022-05-18 11:19:52] [PF400_Client] MoveJ 2 2 2 2 2 2 2
+
+[INFO] [2022-05-18 11:22:43] [PF400_Client] Robot created. Robot ID: 1 ~ Host: 192.168.56.236 ~ Port: 10100
+[INFO] [2022-05-18 11:22:43] [PF400_Client] Robot is moved to the Transfer_D location
+[INFO] [2022-05-18 11:22:43] [PF400_Client] MoveJ 2 2 2 2 2 2 2
+
+[INFO] [2022-05-18 11:36:25] [PF400_Client] Robot created. Robot ID: 1 ~ Host: 192.168.56.236 ~ Port: 10100
+[INFO] [2022-05-18 11:36:25] [PF400_Client] Robot is moved to the Transfer_D location
+[INFO] [2022-05-18 11:36:25] [PF400_Client] MoveJ 2 2 2 2 2 2 2
+
+[INFO] [2022-05-18 11:37:18] [PF400_Client] Robot created. Robot ID: 1 ~ Host: 192.168.56.236 ~ Port: 10100
+[INFO] [2022-05-18 11:37:18] [PF400_Client] Robot is moved to the Transfer_D location
+[INFO] [2022-05-18 11:37:18] [PF400_Client] MoveJ 2 2 2 2 2 2 2
+
+[INFO] [2022-05-18 11:37:18] [PF400_Client] Executing full transfer
+[INFO] [2022-05-18 11:37:18] [PF400_Client] Robot is moved to the homeall location
+[INFO] [2022-05-18 11:37:18] [PF400_Client] MoveJ 2 600 -62 143 -84 109 0
+
+[INFO] [2022-05-18 11:37:18] [PF400_Client] [pick_plate_from_rack ID:1] Robot is moved to the 1th location
+[INFO] [2022-05-18 11:37:18] [PF400_Client] MoveJ 2 774.343 -38.579 119.211 6.105 127 510.411
+
+[INFO] [2022-05-18 11:37:18] [PF400_Client] [pick_plate_from_rack ID:1] Robot is moved to the 2th location
+[INFO] [2022-05-18 11:37:18] [PF400_Client] MoveJ 1 774.343 -6.413 99.779 -9.019 127 509.288
+
+[INFO] [2022-05-18 11:37:18] [PF400_Client] [pick_plate_from_rack ID:1] Robot is moved to the 3th location
+[INFO] [2022-05-18 11:37:18] [PF400_Client] MoveJ 1 770 10.428 82.322 -8.404 127 509.286
+
+[INFO] [2022-05-18 11:37:18] [PF400_Client] [pick_plate_from_rack ID:1] Robot is moved to the 4th location
+[INFO] [2022-05-18 11:37:18] [PF400_Client] MoveJ 1 770 10.428 82.322 -8.404 120.0 509.286
+
+[INFO] [2022-05-18 11:37:19] [PF400_Client] [pick_plate_from_rack ID:1] Robot is moved to the 5th location
+[INFO] [2022-05-18 11:37:19] [PF400_Client] MoveJ 1 774.343 -6.413 99.779 -9.019 120.0 509.288
+
+[INFO] [2022-05-18 11:37:19] [PF400_Client] [pick_plate_from_rack ID:1] Robot is moved to the 6th location
+[INFO] [2022-05-18 11:37:19] [PF400_Client] MoveJ 1 774.343 -38.579 119.211 6.105 120.0 510.411
+
+[INFO] [2022-05-18 11:37:19] [PF400_Client] [pick_plate_ot2 ID:1] Robot is moved to the 1th location
+[INFO] [2022-05-18 11:37:19] [PF400_Client] MoveJ 1 265.684 -54.964 112.009 29.191 120.0 483.687
+
+[INFO] [2022-05-18 11:37:19] [PF400_Client] [pick_plate_ot2 ID:1] Robot is moved to the 2th location
+[INFO] [2022-05-18 11:37:19] [PF400_Client] MoveJ 1 192.641 -0.148 87.2 -0.363 120.0 479.571
+
+[INFO] [2022-05-18 11:37:19] [PF400_Client] [pick_plate_ot2 ID:1] Robot is moved to the 3th location
+[INFO] [2022-05-18 11:37:19] [PF400_Client] MoveJ 1 129.687 -0.148 87.2 -0.363 120.0 479.571
+
+[INFO] [2022-05-18 11:37:19] [PF400_Client] [pick_plate_ot2 ID:1] Robot is moved to the 4th location
+[INFO] [2022-05-18 11:37:19] [PF400_Client] MoveJ 1 129.687 -0.148 87.2 -0.363 127.0 479.571
+
+[INFO] [2022-05-18 11:37:19] [PF400_Client] [pick_plate_ot2 ID:1] Robot is moved to the 5th location
+[INFO] [2022-05-18 11:37:19] [PF400_Client] MoveJ 2 192.641 -0.148 87.2 -0.363 127 479.571
+
+[INFO] [2022-05-18 11:37:19] [PF400_Client] [pick_plate_ot2 ID:1] Robot is moved to the 6th location
+[INFO] [2022-05-18 11:37:19] [PF400_Client] MoveJ 2 265.684 -54.964 112.009 29.191 127 483.687
+
+[INFO] [2022-05-18 11:38:09] [PF400_Client] [pick_plate_ot2 ID:1] Robot is moved to the 1th location
+[INFO] [2022-05-18 11:38:09] [PF400_Client] MoveJ 2 265.684 -54.964 112.009 29.191 127 483.687
+
+[INFO] [2022-05-18 11:38:09] [PF400_Client] [pick_plate_ot2 ID:1] Robot is moved to the 2th location
+[INFO] [2022-05-18 11:38:09] [PF400_Client] MoveJ 2 192.641 -0.148 87.2 -0.363 127 479.571
+
+[INFO] [2022-05-18 11:38:10] [PF400_Client] [pick_plate_ot2 ID:1] Robot is moved to the 3th location
+[INFO] [2022-05-18 11:38:10] [PF400_Client] MoveJ 2 129.687 -0.148 87.2 -0.363 127 479.571
+
+[INFO] [2022-05-18 11:38:10] [PF400_Client] [pick_plate_ot2 ID:1] Robot is moved to the 4th location
+[INFO] [2022-05-18 11:38:10] [PF400_Client] MoveJ 1 129.687 -0.148 87.2 -0.363 120.0 479.571
+
+[INFO] [2022-05-18 11:38:10] [PF400_Client] [pick_plate_ot2 ID:1] Robot is moved to the 5th location
+[INFO] [2022-05-18 11:38:10] [PF400_Client] MoveJ 1 192.641 -0.148 87.2 -0.363 120.0 479.571
+
+[INFO] [2022-05-18 11:38:10] [PF400_Client] [pick_plate_ot2 ID:1] Robot is moved to the 6th location
+[INFO] [2022-05-18 11:38:10] [PF400_Client] MoveJ 1 265.684 -54.964 112.009 29.191 120.0 483.687
+
+[INFO] [2022-05-18 11:38:10] [PF400_Client] [pick_plate_ot2 ID:2] Robot is moved to the 1th location
+[INFO] [2022-05-18 11:38:10] [PF400_Client] MoveJ 1 265.684 -54.964 112.009 29.191 120.0 -446.523
+
+[INFO] [2022-05-18 11:38:10] [PF400_Client] [pick_plate_ot2 ID:2] Robot is moved to the 2th location
+[INFO] [2022-05-18 11:38:10] [PF400_Client] MoveJ 1 192.641 -0.256 85.369 1.821 120.0 -446.647
+
+[INFO] [2022-05-18 11:38:10] [PF400_Client] [pick_plate_ot2 ID:2] Robot is moved to the 3th location
+[INFO] [2022-05-18 11:38:10] [PF400_Client] MoveJ 1 130.707 -0.256 85.369 1.821 120.0 -446.647
+
+[INFO] [2022-05-18 11:38:10] [PF400_Client] [pick_plate_ot2 ID:2] Robot is moved to the 4th location
+[INFO] [2022-05-18 11:38:10] [PF400_Client] MoveJ 1 130.707 -0.256 85.369 1.821 127.0 -446.647
+
+[INFO] [2022-05-18 11:38:10] [PF400_Client] [pick_plate_ot2 ID:2] Robot is moved to the 5th location
+[INFO] [2022-05-18 11:38:10] [PF400_Client] MoveJ 2 192.641 -0.256 85.369 1.821 127 -446.647
+
+[INFO] [2022-05-18 11:38:11] [PF400_Client] [pick_plate_ot2 ID:2] Robot is moved to the 6th location
+[INFO] [2022-05-18 11:38:11] [PF400_Client] MoveJ 2 265.684 -54.964 112.009 29.191 127 -446.523
+
+[INFO] [2022-05-18 11:39:01] [PF400_Client] [pick_plate_ot2 ID:2] Robot is moved to the 1th location
+[INFO] [2022-05-18 11:39:01] [PF400_Client] MoveJ 2 265.684 -54.964 112.009 29.191 127 -446.523
+
+[INFO] [2022-05-18 11:39:01] [PF400_Client] [pick_plate_ot2 ID:2] Robot is moved to the 2th location
+[INFO] [2022-05-18 11:39:01] [PF400_Client] MoveJ 2 192.641 -0.256 85.369 1.821 127 -446.647
+
+[INFO] [2022-05-18 11:39:01] [PF400_Client] [pick_plate_ot2 ID:2] Robot is moved to the 3th location
+[INFO] [2022-05-18 11:39:01] [PF400_Client] MoveJ 2 130.707 -0.256 85.369 1.821 127 -446.647
+
+[INFO] [2022-05-18 11:39:01] [PF400_Client] [pick_plate_ot2 ID:2] Robot is moved to the 4th location
+[INFO] [2022-05-18 11:39:01] [PF400_Client] MoveJ 1 130.707 -0.256 85.369 1.821 120.0 -446.647
+
+[INFO] [2022-05-18 11:39:01] [PF400_Client] [pick_plate_ot2 ID:2] Robot is moved to the 5th location
+[INFO] [2022-05-18 11:39:01] [PF400_Client] MoveJ 1 192.641 -0.256 85.369 1.821 120.0 -446.647
+
+[INFO] [2022-05-18 11:39:01] [PF400_Client] [pick_plate_ot2 ID:2] Robot is moved to the 6th location
+[INFO] [2022-05-18 11:39:01] [PF400_Client] MoveJ 1 265.684 -54.964 112.009 29.191 120.0 -446.523
+
+[INFO] [2022-05-18 11:39:01] [PF400_Client] [pick_plate_ot2 ID:3] Robot is moved to the 1th location
+[INFO] [2022-05-18 11:39:01] [PF400_Client] MoveJ 1 265.636 -41.853 147.729 -20.043 120.0 -952.971
+
+[INFO] [2022-05-18 11:39:01] [PF400_Client] [pick_plate_ot2 ID:3] Robot is moved to the 2th location
+[INFO] [2022-05-18 11:39:01] [PF400_Client] MoveJ 1 192.983 6.602 116.191 -36.962 120.0 -952.97
+
+[INFO] [2022-05-18 11:39:01] [PF400_Client] [pick_plate_ot2 ID:3] Robot is moved to the 3th location
+[INFO] [2022-05-18 11:39:01] [PF400_Client] MoveJ 1 129.873 8.477 114.726 -36.823 120.0 -952.973
+
+[INFO] [2022-05-18 11:39:02] [PF400_Client] [pick_plate_ot2 ID:3] Robot is moved to the 4th location
+[INFO] [2022-05-18 11:39:02] [PF400_Client] MoveJ 1 129.873 8.477 114.726 -36.823 127.0 -952.973
+
+[INFO] [2022-05-18 11:39:02] [PF400_Client] [pick_plate_ot2 ID:3] Robot is moved to the 5th location
+[INFO] [2022-05-18 11:39:02] [PF400_Client] MoveJ 2 192.983 6.602 116.191 -36.962 127 -952.97
+
+[INFO] [2022-05-18 11:39:02] [PF400_Client] [pick_plate_ot2 ID:3] Robot is moved to the 6th location
+[INFO] [2022-05-18 11:39:02] [PF400_Client] MoveJ 2 265.636 -41.853 147.729 -20.043 127 -952.971
+
+[INFO] [2022-05-18 11:39:52] [PF400_Client] [pick_plate_ot2 ID:3] Robot is moved to the 1th location
+[INFO] [2022-05-18 11:39:52] [PF400_Client] MoveJ 2 265.636 -41.853 147.729 -20.043 127 -952.971
+
+[INFO] [2022-05-18 11:39:52] [PF400_Client] [pick_plate_ot2 ID:3] Robot is moved to the 2th location
+[INFO] [2022-05-18 11:39:52] [PF400_Client] MoveJ 2 192.983 6.602 116.191 -36.962 127 -952.97
+
+[INFO] [2022-05-18 11:39:52] [PF400_Client] [pick_plate_ot2 ID:3] Robot is moved to the 3th location
+[INFO] [2022-05-18 11:39:52] [PF400_Client] MoveJ 2 129.873 8.477 114.726 -36.823 127 -952.973
+
+[INFO] [2022-05-18 11:39:52] [PF400_Client] [pick_plate_ot2 ID:3] Robot is moved to the 4th location
+[INFO] [2022-05-18 11:39:52] [PF400_Client] MoveJ 1 129.873 8.477 114.726 -36.823 120.0 -952.973
+
+[INFO] [2022-05-18 11:39:52] [PF400_Client] [pick_plate_ot2 ID:3] Robot is moved to the 5th location
+[INFO] [2022-05-18 11:39:52] [PF400_Client] MoveJ 1 192.983 6.602 116.191 -36.962 120.0 -952.97
+
+[INFO] [2022-05-18 11:39:52] [PF400_Client] [pick_plate_ot2 ID:3] Robot is moved to the 6th location
+[INFO] [2022-05-18 11:39:52] [PF400_Client] MoveJ 1 265.636 -41.853 147.729 -20.043 120.0 -952.971
+
+[INFO] [2022-05-18 11:39:53] [PF400_Client] [drop_complete_plate] Robot is moved to the 1th location
+[INFO] [2022-05-18 11:39:53] [PF400_Client] MoveJ 1 68 -62.388 142.675 -84.751 120.0 975.395
+
+[INFO] [2022-05-18 11:39:53] [PF400_Client] [drop_complete_plate] Robot is moved to the 2th location
+[INFO] [2022-05-18 11:39:53] [PF400_Client] MoveJ 1 63.353 -58.618 130.758 -76.604 120.0 994.992
+
+[INFO] [2022-05-18 11:39:53] [PF400_Client] [drop_complete_plate] Robot is moved to the 3th location
+[INFO] [2022-05-18 11:39:53] [PF400_Client] MoveJ 1 63.353 -58.618 130.758 -76.604 127.0 994.992
+
+[INFO] [2022-05-18 11:39:53] [PF400_Client] [drop_complete_plate] Robot is moved to the 4th location
+[INFO] [2022-05-18 11:39:53] [PF400_Client] MoveJ 1 68 -62.388 142.675 -84.751 127 975.395
+
+[INFO] [2022-05-18 11:41:12] [PF400_Client] Robot created. Robot ID: 1 ~ Host: 192.168.56.236 ~ Port: 10100
+[INFO] [2022-05-18 11:44:33] [PF400_Client] Robot created. Robot ID: 1 ~ Host: 192.168.56.236 ~ Port: 10100
+[INFO] [2022-05-18 11:45:29] [PF400_Client] Robot created. Robot ID: 1 ~ Host: 192.168.56.236 ~ Port: 10100
+[INFO] [2022-05-18 11:50:17] [PF400_Client] Robot created. Robot ID: 1 ~ Host: 192.168.56.236 ~ Port: 10100
+[INFO] [2022-05-18 11:50:36] [PF400_Client] Robot created. Robot ID: 1 ~ Host: 192.168.56.236 ~ Port: 10100
+[INFO] [2022-05-18 11:50:50] [PF400_Client] Robot created. Robot ID: 1 ~ Host: 192.168.56.236 ~ Port: 10100
+[INFO] [2022-05-18 11:51:29] [PF400_Client] Robot created. Robot ID: 1 ~ Host: 192.168.56.236 ~ Port: 10100
+[INFO] [2022-05-18 11:53:51] [PF400_Client] Robot created. Robot ID: 1 ~ Host: 192.168.56.236 ~ Port: 10100
+[ERROR] [2022-05-18 11:53:51] [PF400_Client] given location doesn't exist in the location data
+[INFO] [2022-05-18 11:55:56] [PF400_Client] Robot created. Robot ID: 1 ~ Host: 192.168.56.236 ~ Port: 10100
+[INFO] [2022-05-18 11:58:22] [PF400_Client] Robot created. Robot ID: 1 ~ Host: 192.168.56.236 ~ Port: 10100
+[INFO] [2022-05-18 11:59:47] [PF400_Client] Robot created. Robot ID: 1 ~ Host: 192.168.56.236 ~ Port: 10100
+[INFO] [2022-05-18 12:00:18] [PF400_Client] Robot created. Robot ID: 1 ~ Host: 192.168.56.236 ~ Port: 10100
+[INFO] [2022-05-18 12:01:01] [PF400_Client] Robot created. Robot ID: 1 ~ Host: 192.168.56.236 ~ Port: 10100
+[INFO] [2022-05-18 12:03:19] [PF400_Client] Robot created. Robot ID: 1 ~ Host: 192.168.56.236 ~ Port: 10100
+[ERROR] [2022-05-18 12:03:19] [PF400_Client] Given location doesn't exist in the location data
+[INFO] [2022-05-18 12:03:21] [PF400_Client] Robot created. Robot ID: 1 ~ Host: 192.168.56.236 ~ Port: 10100
+[ERROR] [2022-05-18 12:03:21] [PF400_Client] Given location doesn't exist in the location data
+[INFO] [2022-05-18 12:03:43] [PF400_Client] Robot created. Robot ID: 1 ~ Host: 192.168.56.236 ~ Port: 10100

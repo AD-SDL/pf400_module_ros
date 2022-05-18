@@ -1,34 +1,34 @@
 {
-    "Robot_Data": [
+    "robot_data": [
         {
-            "ID": 1,
-            "Host": "192.168.56.236",
-            "Port": 10100,
+            "id": 1,
+            "host": "192.168.56.236",
+            "port": 10100,
             "motion_profile": [
                 {
-                    "Speed": 30,
-                    "Speed2": 0,
-                    "Acceleration": 100,
-                    "Deceleration": 100,
-                    "AccelRamp": 0.1,
-                    "DecelRamp": 0.1,
-                    "InRange": 0,
-                    "Straight": -1
+                    "speed": 30,
+                    "speed2": 0,
+                    "acceleration": 100,
+                    "deceleration": 100,
+                    "accelramp": 0.1,
+                    "decelramp": 0.1,
+                    "inrange": 0,
+                    "straight": -1
                 },
                 {
-                    "Speed": 50,
-                    "Speed2": 0,
-                    "Acceleration": 100,
-                    "Deceleration": 100,
-                    "AccelRamp": 0.1,
-                    "DecelRamp": 0.1,
-                    "InRange": 60,
-                    "Straight": 0
+                    "speed": 50,
+                    "speed2": 0,
+                    "acceleration": 100,
+                    "deceleration": 100,
+                    "accelramp": 0.1,
+                    "decelramp": 0.1,
+                    "inrange": 60,
+                    "straight": 0
                 }
             ],
             "locations": [
                 {
-                    "HomeALL": [
+                    "homeall": [
                         600,
                         -62,
                         143,
@@ -36,7 +36,7 @@
                         109,
                         0
                     ],
-                    "HomeArm": [
+                    "homearm": [
                         129.162,
                         -61.89,
                         143.007,
@@ -44,7 +44,7 @@
                         109.138,
                         479.581
                     ],
-                    "OT2_1_plate_rack": [
+                    "ot2_1_plate_rack": [
                         770,
                         10.428,
                         82.322,
@@ -52,7 +52,7 @@
                         127,
                         509.286
                     ],
-                    "OT2_2_plate_rack": [
+                    "ot2_2_plate_rack": [
                         63.353,
                         -58.618,
                         130.758,
@@ -60,7 +60,7 @@
                         127,
                         994.992
                     ],
-                    "OT2_3_plate_rack": [
+                    "ot2_3_plate_rack": [
                         63.353,
                         -58.618,
                         130.758,
@@ -68,7 +68,7 @@
                         127,
                         994.992
                     ],
-                    "OT2_4_plate_rack": [
+                    "ot2_4_plate_rack": [
                         63.353,
                         -58.618,
                         130.758,
@@ -76,7 +76,7 @@
                         127,
                         994.992
                     ],
-                    "OT2_1_front_plate_rack": [
+                    "ot2_1_front_plate_rack": [
                         774.343,
                         -6.413,
                         99.779,
@@ -84,7 +84,7 @@
                         127,
                         509.288
                     ],
-                    "OT2_1_approach_plate_rack": [
+                    "ot2_1_approach_plate_rack": [
                         774.343,
                         -38.579,
                         119.211,
@@ -92,7 +92,7 @@
                         127,
                         510.411
                     ],
-                    "OT2_2_approach_plate_rack": [
+                    "ot2_2_approach_plate_rack": [
                         68,
                         -62.388,
                         142.675,
@@ -100,7 +100,7 @@
                         127,
                         975.395
                     ],
-                    "OT2_3_approach_plate_rack": [
+                    "ot2_3_approach_plate_rack": [
                         68,
                         -62.388,
                         142.675,
@@ -108,7 +108,7 @@
                         127,
                         975.395
                     ],
-                    "OT2_4_approach_plate_rack": [
+                    "ot2_4_approach_plate_rack": [
                         68,
                         -62.388,
                         142.675,
@@ -116,7 +116,7 @@
                         127,
                         975.395
                     ],
-                    "OT2_1_above_plate": [
+                    "ot2_1_above_plate": [
                         192.641,
                         -0.148,
                         87.2,
@@ -124,7 +124,7 @@
                         127,
                         479.571
                     ],
-                    "OT2_2_above_plate": [
+                    "ot2_2_above_plate": [
                         192.641,
                         -0.256,
                         85.369,
@@ -132,7 +132,7 @@
                         127,
                         -446.647
                     ],
-                    "OT2_3_above_plate": [
+                    "ot2_3_above_plate": [
                         192.983,
                         6.602,
                         116.191,
@@ -140,7 +140,7 @@
                         127,
                         -952.97
                     ],
-                    "OT2_4_above_plate": [
+                    "ot2_4_above_plate": [
                         4,
                         0,
                         0,
@@ -148,7 +148,7 @@
                         0,
                         0
                     ],
-                    "OT2_1_pick_plate": [
+                    "ot2_1_pick_plate": [
                         129.687,
                         -0.148,
                         87.2,
@@ -156,7 +156,7 @@
                         127,
                         479.571
                     ],
-                    "OT2_2_pick_plate": [
+                    "ot2_2_pick_plate": [
                         130.707,
                         -0.256,
                         85.369,
@@ -164,7 +164,7 @@
                         127,
                         -446.647
                     ],
-                    "OT2_3_pick_plate": [
+                    "ot2_3_pick_plate": [
                         129.873,
                         8.477,
                         114.726,
@@ -172,7 +172,7 @@
                         127,
                         -952.973
                     ],
-                    "OT2_4_pick_plate": [
+                    "ot2_4_pick_plate": [
                         4,
                         0,
                         0,
@@ -180,7 +180,7 @@
                         0,
                         0
                     ],
-                    "OT2_1_front": [
+                    "ot2_1_front": [
                         265.684,
                         -54.964,
                         112.009,
@@ -188,7 +188,7 @@
                         127,
                         483.687
                     ],
-                    "OT2_2_front": [
+                    "ot2_2_front": [
                         265.684,
                         -54.964,
                         112.009,
@@ -196,7 +196,7 @@
                         127,
                         -446.523
                     ],
-                    "OT2_3_front": [
+                    "ot2_3_front": [
                         265.636,
                         -41.853,
                         147.729,
@@ -204,7 +204,7 @@
                         127,
                         -952.971
                     ],
-                    "OT2_4_front": [
+                    "ot2_4_front": [
                         4,
                         0,
                         0,
@@ -212,7 +212,7 @@
                         0,
                         0
                     ],
-                    "Transfer_A": [
+                    "transfer_a": [
                         0,
                         0,
                         0,
@@ -220,7 +220,7 @@
                         0,
                         0
                     ],
-                    "Transfer_B": [
+                    "transfer_b": [
                         0,
                         0,
                         0,
@@ -228,7 +228,7 @@
                         0,
                         0
                     ],
-                    "Transfer_C": [
+                    "transfer_c": [
                         0,
                         0,
                         0,
@@ -236,7 +236,15 @@
                         0,
                         0
                     ],
-                    "Transfer_D": [
+                    "transfer_d": [
+                        2,
+                        2,
+                        2,
+                        2,
+                        2,
+                        2
+                    ],
+                    "table_rack": [
                         0,
                         0,
                         0,
@@ -244,7 +252,7 @@
                         0,
                         0
                     ],
-                    "Table_rack": [
+                    "mobile_robot": [
                         0,
                         0,
                         0,
@@ -252,15 +260,7 @@
                         0,
                         0
                     ],
-                    "Mobile_robot": [
-                        0,
-                        0,
-                        0,
-                        0,
-                        0,
-                        0
-                    ],
-                    "Completed_plate_above": [
+                    "completed_plate_above": [
                         68,
                         -62.388,
                         142.675,
@@ -268,7 +268,7 @@
                         127,
                         975.395
                     ],
-                    "Completed_plate": [
+                    "completed_plate": [
                         63.353,
                         -58.618,
                         130.758,
@@ -276,7 +276,15 @@
                         127,
                         994.992
                     ],
-                    "Trash": "wherej\n"
+                    "trash": [
+                        0,
+                        0,
+                        0,
+                        0,
+                        0,
+                        0
+                    ]
+                  
                 }
             ]
         }

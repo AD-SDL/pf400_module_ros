@@ -28,10 +28,11 @@ class PF400(object):
         self.logger = logging.getLogger("PF400_Client")
         self.logger.addHandler(logging.StreamHandler())
         
-        robot1, motion_profile, locations = self.load_robot_data()
-        self.ID = robot1["ID"]
-        self.host = robot1["Host"]
-        self.port = robot1["Port"]
+        robot_data, robot1, motion_profile, locations = self.load_robot_data()
+        self.ID = robot1["id"]
+        self.host = robot1["host"]
+        self.port = robot1["port"]
+        self.robot_data = robot_data
        
         
         # Default Motion Profile Paramiters. Using two profiles for faster and slower movements
@@ -55,7 +56,7 @@ class PF400(object):
 
         f.close()
 
-        return data["Robot_Data"][0], data["Robot_Data"][0]["motion_profile"],data["Robot_Data"][0]["locations"][0]
+        return data, data["robot_data"][0], data["robot_data"][0]["motion_profile"],data["robot_data"][0]["locations"][0]
 
 
     #Connect the socket object to the robot
@@ -318,12 +319,12 @@ class PF400(object):
         # self.logger.info("Setting defult values to the motion profile")
 
         # Set movement commands to complete a pick_plate_ot2 operation
-        move_front = self.set_move_command("OT2_" + str(ot2_ID) + "_front",fast)
-        above_plate = self.set_move_command("OT2_" + str(ot2_ID) + "_above_plate",fast)
-        approach_plate = self.set_move_command("OT2_" + str(ot2_ID) + "_pick_plate",fast)
-        pick_up_plate = self.set_move_command("OT2_" + str(ot2_ID) + "_pick_plate", slow, True, False)
-        above_with_plate = self.set_move_command("OT2_" + str(ot2_ID) + "_above_plate", slow, True, False)
-        front_with_plate = self.set_move_command("OT2_" + str(ot2_ID) + "_front", slow, True, False)
+        move_front = self.set_move_command("ot2_" + str(ot2_ID) + "_front",fast)
+        above_plate = self.set_move_command("ot2_" + str(ot2_ID) + "_above_plate",fast)
+        approach_plate = self.set_move_command("ot2_" + str(ot2_ID) + "_pick_plate",fast)
+        pick_up_plate = self.set_move_command("ot2_" + str(ot2_ID) + "_pick_plate", slow, True, False)
+        above_with_plate = self.set_move_command("ot2_" + str(ot2_ID) + "_above_plate", slow, True, False)
+        front_with_plate = self.set_move_command("ot2_" + str(ot2_ID) + "_front", slow, True, False)
 
         pick_up_commands = [move_front, above_plate, approach_plate, pick_up_plate, above_with_plate, front_with_plate] 
 
@@ -346,19 +347,19 @@ class PF400(object):
             slow, fast = 1, 2
             
 
-        front_with_plate = self.set_move_command("OT2_" + str(ot2_ID) + "_front", slow, True, False)
-        above_with_plate = self.set_move_command("OT2_" + str(ot2_ID) + "_above_plate", slow, True, False)
-        approach_with_plate = self.set_move_command("OT2_" + str(ot2_ID) + "_pick_plate", slow, True, False)
-        drop_plate = self.set_move_command("OT2_" + str(ot2_ID) + "_pick_plate", slow, False, True)
-        above_plate = self.set_move_command("OT2_" + str(ot2_ID) + "_above_plate", fast)
-        front_plate = self.set_move_command("OT2_" + str(ot2_ID) + "_front", fast)
+        front_with_plate = self.set_move_command("ot2_" + str(ot2_ID) + "_front", slow, True, False)
+        above_with_plate = self.set_move_command("ot2_" + str(ot2_ID) + "_above_plate", slow, True, False)
+        approach_with_plate = self.set_move_command("ot2_" + str(ot2_ID) + "_pick_plate", slow, True, False)
+        drop_plate = self.set_move_command("ot2_" + str(ot2_ID) + "_pick_plate", slow, False, True)
+        above_plate = self.set_move_command("ot2_" + str(ot2_ID) + "_above_plate", fast)
+        front_plate = self.set_move_command("ot2_" + str(ot2_ID) + "_front", fast)
 
 
         drop_to_ot2 = [front_with_plate, above_with_plate, approach_with_plate, drop_plate, above_plate, front_plate]
         
         for count, cmd in enumerate(drop_to_ot2):
 
-            input_msg = "[pick_plate_ot2 ID:{}] Robot is moved to the {}th location".format(str(ot2_ID), count+1)
+            input_msg = "[drop_plate_ot2 ID:{}] Robot is moved to the {}th location".format(str(ot2_ID), count+1)
             err_msg = 'Failed move the robot:'
 
             out_msg = self.send_command(cmd, input_msg, err_msg, wait)
@@ -372,12 +373,12 @@ class PF400(object):
         else:
             slow, fast = 1, 2
 
-        approach_plate_rack = self.set_move_command("OT2_" + str(ot2_ID) + "_approach_plate_rack", fast, False, False)
-        front_rack = self.set_move_command("OT2_" + str(ot2_ID) + "_front_plate_rack", slow, False, False)
-        plate_rack = self.set_move_command("OT2_" + str(ot2_ID) + "_plate_rack", slow, False, False)
-        pick_plate = self.set_move_command("OT2_" + str(ot2_ID) + "_plate_rack", slow, True, False)
-        front_with_plate = self.set_move_command("OT2_" + str(ot2_ID) + "_front_plate_rack", slow, True, False)
-        approach_rack_back = self.set_move_command("OT2_" + str(ot2_ID) + "_approach_plate_rack", slow, True, False)
+        approach_plate_rack = self.set_move_command("ot2_" + str(ot2_ID) + "_approach_plate_rack", fast, False, False)
+        front_rack = self.set_move_command("ot2_" + str(ot2_ID) + "_front_plate_rack", slow, False, False)
+        plate_rack = self.set_move_command("ot2_" + str(ot2_ID) + "_plate_rack", slow, False, False)
+        pick_plate = self.set_move_command("ot2_" + str(ot2_ID) + "_plate_rack", slow, True, False)
+        front_with_plate = self.set_move_command("ot2_" + str(ot2_ID) + "_front_plate_rack", slow, True, False)
+        approach_rack_back = self.set_move_command("ot2_" + str(ot2_ID) + "_approach_plate_rack", slow, True, False)
 
         pick_plate_rack = [approach_plate_rack, front_rack, plate_rack, pick_plate, front_with_plate, approach_rack_back]
        
@@ -398,10 +399,10 @@ class PF400(object):
         else:
             slow, fast = 1, 2
 
-        completed_plate_above = self.set_move_command("Completed_plate_above", slow, True, False)
-        drop_with_plate = self.set_move_command("Completed_plate", slow, True, False)
-        drop_plate = self.set_move_command("Completed_plate", slow, False, True)
-        completed_plate = self.set_move_command("Completed_plate_above", slow, False, False)
+        completed_plate_above = self.set_move_command("completed_plate_above", slow, True, False)
+        drop_with_plate = self.set_move_command("completed_plate", slow, True, False)
+        drop_plate = self.set_move_command("completed_plate", slow, False, True)
+        completed_plate = self.set_move_command("completed_plate_above", slow, False, False)
        
 
         complete_plate = [completed_plate_above, drop_with_plate, drop_plate, completed_plate]
@@ -420,7 +421,7 @@ class PF400(object):
         """
             Executes only one movement to the target location which is from the location dictionary
         """
-        single_move_commands = self.set_move_command(target_location, profile, grap, release)
+        single_move_commands = self.set_move_command(target_location.lower(), profile, grap, release)
 
         input_msg = "Robot is moved to the {} location".format(target_location)
         err_msg = 'Failed move the robot:'
@@ -441,7 +442,7 @@ class PF400(object):
         if job.upper() == "TRANSFER":
 
             self.logger.info("Executing plate transfer between OT2 ID: {} and OT2 ID: {}".format(robot_ID_1, robot_ID_2))
-            self.move_single("HomeALL", 2)
+            self.move_single("homeall", 2)
             self.pick_plate_ot2(robot_ID_1)
             self.drop_plate_ot2(robot_ID_2)
             
@@ -449,7 +450,7 @@ class PF400(object):
         elif job.upper() == "FULL_TRANSFER":
 
             self.logger.info("Executing full transfer")
-            self.move_single("HomeALL", 2)
+            self.move_single("homeall", 2)
             self.pick_plate_from_rack(1)
             self.drop_plate_ot2(1)
             time.sleep(50)
@@ -508,34 +509,46 @@ class PF400(object):
                                  and second contains gripper postion
         """       
         pass
-    
-    def modify_robot_data(self, location:str = None):
 
-        if location == None:
-            self.logger.error("[modify_robot_data] Location name was not provided by the user")
-            raise Exception("Please enter a location name to save the new joint values")
+    def check_loc_data(self, target_location):
+        loc_list = list(self.location_dictionary.keys())
+        try:
+            idx = loc_list.index(target_location)
+        except Exception:
+            self.logger.error("Given location doesn't exist in the location data")
+        else:
+            return True
+        finally:
+            return False
         
 
+
+    def rpl_teach_location(self, location:str = None):
+
+        if location == None:
+            self.logger.error("[rpl_teach_location] Location name was not provided by the user")
+            raise Exception("Please enter a location name to save the new joint values")
+
+        location = location.lower()
+        # TODO: Check if location exist in the robot data
+        if self.check_loc_data(location) == False:
+            return "Invalid location entered"
+        
         # Setting parent file directory 
         current_directory = os.path.dirname(__file__)
         parent_directory = os.path.split(current_directory)[0] 
         file_path = os.path.join(parent_directory + '/utils/robot_data.json')
 
-        with open(file_path, "r") as jsonFile:
-            data = json.load(jsonFile)
-
-        data["Robot_Data"][0]["locations"][0][location] = self.locate_robot()
-        with open(file_path, "w") as jsonFile:
-            json.dump(data, jsonFile, indent=4)
-
-        # self.location_dictionary[location] = self.locate_robot()
-        # print(self.location_dictionary)
-        ## Save our changes to JSON file
-        # with open (file_path, 'w') as jsonFile:
-        #     json.dump(self.location_dictionary[location], jsonFile)
-        # jsonFile = open(file_path, "w+")
-        # jsonFile.write(json.dumps(self.location_dictionary[location]))
-        # jsonFile.close()
+        # Save the current robot location to the given location
+        loc_list = list(map(int,"2 2 2 2 2 2".split(" ")))
+        self.location_dictionary[location]= [loc_list[0],loc_list[1], loc_list[2], loc_list[3], loc_list[4], loc_list[5]]
+    
+        # Write the new location the data file
+        try:
+            with open(file_path, "w") as jsonFile:
+                json.dump(self.robot_data, jsonFile, indent=4)
+        except IOError as err:
+            self.logger.error(err)
 
         return "Current location is saved to {}".format(location)
     
@@ -547,7 +560,7 @@ class PF400(object):
 
         pass   
 
-    def RPL_teach_location(self, location: str, robot_id:int = None):
+    def modify_robot_data(self, location: str, robot_id:int = None):
 
         current_location = self.locate_robot()
         location_data = self.modify_robot_data()
@@ -560,13 +573,13 @@ class PF400(object):
 
             elif robot_id != None:
                 if location.upper() == "FRONT":
-                    location_name = "OT2_" + str(robot_id) + "_front"
+                    location_name = "ot2_" + str(robot_id) + "_front"
                 elif location.upper() == "ABOVE_PLATE":
-                    location_name =  "OT2_" + str(robot_id) + "_above_plate"
+                    location_name =  "ot2_" + str(robot_id) + "_above_plate"
                 elif location.upper() == "PICK_PLATE":
-                    location_name = "OT2_" + str(robot_id) + "_pick_plate"
+                    location_name = "ot2_" + str(robot_id) + "_pick_plate"
                 elif location.upper() == "PLATE_RACK":
-                    location_name = "OT2_" + str(robot_id) + "_plate_rack"
+                    location_name = "ot2_" + str(robot_id) + "_plate_rack"
             else:
                 raise Exception("Please enter a valid location name!!! Format: location: str, robot_id:int = None ")
             
@@ -582,7 +595,8 @@ class PF400(object):
 if __name__ == "__main__":
     robot = PF400()
     ''' ---------------- TESTING -------------------'''
-    robot.modify_robot_data("Trash")
+    robot.rpl_teach_location("Transfer_D")
+    # robot.move_single("Transfer_D")
     # robot.updateJsonFile()
     # robot.move_single("HomeALL")
     # robot.set_speed(100)
@@ -598,7 +612,7 @@ if __name__ == "__main__":
 
 
     # robot.pick_plate_from_rack(1)
-    # robot.program_robot_target("full_transfer")
+    # robot.program_rpl_robot("full_transfer")
     # robot.move_single("HomeALL")
     # robot.pick_plate_ot2(1)
     # robot.drop_plate_ot2(2)
