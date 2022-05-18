@@ -5,7 +5,7 @@ import logging
 import zmq
 import struct
 
-import rpl_arm
+from rpl_arm import RPL_PF400
 
 def listener(host, port):
     
@@ -15,7 +15,7 @@ def listener(host, port):
         sock.bind("tcp://"+host+":"+ port)
         # logger.info("Starting the command transfer listener")
 
-        robot = rpl_arm()
+        robot = RPL_PF400()
         i = 1
         while True:
             msg = sock.recv_string()
