@@ -248,6 +248,16 @@ class PF400(object):
         """
         pass
 
+    def set_robot_mode(self):
+        
+        cmd = 'mode 0\n'
+        
+        input_msg = 'Setting communication mode to 0:'
+        err_msg = 'Failed to set communication mode to 0'
+
+        out_msg = self.send_command(cmd, input_msg, err_msg)
+        return out_msg
+
     def check_robot_heartbeat(self, wait:int = 0.1):
 
         cmd = 'nop\n'
@@ -258,6 +268,34 @@ class PF400(object):
         out_msg = self.send_command(cmd, input_msg, err_msg, wait)
         return out_msg
 
+    def check_general_state(self, wait:int = 0.1):
+
+        cmd1 = "hp\n"
+        cmd2 = "attach\n"
+        cmd3 = "sysState\n"
+
+        power_msg = self.send_command(cmd1)
+        power_msg = power_msg.split(" ")
+
+        attach_msg = self.send_command(cmd2)
+        attach_msg = attach_msg.split(" ")
+
+        state_msg = self.send_command(cmd3)
+        state_msg = state_msg.split(" ")
+
+        power ,attach, state = 0, 0, 0
+
+        if len(power_msg) == 1 or power_msg[0].find("-") != -1:
+            power = -1
+        if attach_msg[1].find("0") != -1 or attach_msg[0].find("-") != -1:
+            attach = -1
+        if state_msg[1].find("7") != -1 or state_msg[0].find("-") != -1:
+            state = -1
+        
+        if power == -1 or attach == -1 or state == -1:
+            return -1
+        else: 
+            return 0
 
     def stop_robot(self, wait:int = 0.1):
         """
@@ -406,7 +444,7 @@ class PF400(object):
        
 
         complete_plate = [completed_plate_above, drop_with_plate, drop_plate, completed_plate]
-
+       
         for count, cmd in enumerate(complete_plate):
                    
             input_msg = "[drop_complete_plate] Robot is moved to the {}th location".format(count+1)
