@@ -45,7 +45,7 @@ def main_null():
     print("This function is not meant to have a main function")
 
 if __name__ == '__main__':
-    pf400_transfer_command("rack","bob")
+    arm_transfer("rack","bob")
     # pf400_transfer_command("transfer","bob","alex")
     # pf400_transfer_command("complete")
 
