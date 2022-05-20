@@ -3,7 +3,7 @@ import socket
 import struct
 import time
 
-HOST = "192.168.56.236"  # Standard loopback interface address (localhost)
+HOST = "172.20.10.7"  # Standard loopback interface address (localhost)
 PORT = 10100  # Port to listen on (non-privileged ports are > 1023)
  
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
