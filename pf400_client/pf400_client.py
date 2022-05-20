@@ -9,7 +9,7 @@ file_path = os.path.join(os.path.split(os.path.dirname(__file__))[0]  + '/pf400_
 
 logging.basicConfig(filename = file_path, level=logging.DEBUG, format = '[%(levelname)s] [%(asctime)s] [%(name)s] %(message)s', datefmt = '%Y-%m-%d %H:%M:%S')
 
-class PF400(object):
+class PF400():
     """
     Description: 
                  - Python interface that allows remote commands to be executed using simple string messages over TCP/IP on PF400 cobot. 
@@ -23,31 +23,30 @@ class PF400(object):
                  - Responses begin with a "0" if the command was successful, or a negative error code number
 
     """
-    def __init__(self):
+    def __init__(self, data_file_path):
         
         self.logger = logging.getLogger("PF400_Client")
         self.logger.addHandler(logging.StreamHandler())
         
-        robot1, motion_profile, locations = self.load_robot_data()
-        self.ID = robot1["ID"]
-        self.host = robot1["Host"]
-        self.port = robot1["Port"]
+        robot_data, robot1, motion_profile, locations = self.load_robot_data(data_file_path)
+        self.ID = robot1["id"]
+        self.host = robot1["host"]
+        self.port = robot1["port"]
+        self.robot_data = robot_data
        
-        
         # Default Motion Profile Paramiters. Using two profiles for faster and slower movements
         self.motion_profile = motion_profile
-        # TODO: Use second motion prfile for slower movements 
 
         # Predefined locations for plate transferring oparetions
         self.location_dictionary = locations
 
         self.logger.info("Robot created. Robot ID: {} ~ Host: {} ~ Port: {}".format(self.ID, self.host, self.port))
     
-    def load_robot_data(self):
+    def load_robot_data(self, data_file_path):
         # Setting parent file directory 
         current_directory = os.path.dirname(__file__)
         parent_directory = os.path.split(current_directory)[0] 
-        file_path = os.path.join(parent_directory + '/utils/robot_data.json')
+        file_path = os.path.join(parent_directory + '/utils/'+ data_file_path)
 
         # load json file
         with open(file_path) as f:
@@ -55,7 +54,7 @@ class PF400(object):
 
         f.close()
 
-        return data["Robot_Data"][0], data["Robot_Data"][0]["motion_profile"],data["Robot_Data"][0]["locations"][0]
+        return data, data["robot_data"][0], data["robot_data"][0]["motion_profile"],data["robot_data"][0]["locations"][0]
 
 
     #Connect the socket object to the robot
@@ -247,7 +246,7 @@ class PF400(object):
         """
         pass
 
-    def set_comm_mode(self):
+    def set_robot_mode(self):
         
         cmd = 'mode 0\n'
         
@@ -318,8 +317,8 @@ class PF400(object):
         #TODO: CLEAR ROBOT MEMORY BEFORE STARTING A PROGRAM TO MAKE SURE THERE IS NO QUEUED PROGRAMS FROM PREVIOUS EXECUTION
         pass
 
-    def set_move_command(self, robot_location, profile, grab: bool = False, release: bool = False):
-        # TODO: FIND THE 5th JOINT VALUE FOR WHEN THE GRABBER IS CLOSE AND OPEN
+    def set_move_command(self, robot_location, profile:int = 2, gripper: bool = False, release: bool = False):
+        # TODO: FIND THE 5th JOINT VALUE FOR WHEN THE GRIPPER IS CLOSE AND OPEN
         if profile == 1:
             robot_command = "MoveJ 1" 
 
@@ -333,7 +332,7 @@ class PF400(object):
             raise Exception("Please enter a valid motion profiile! 1 for slower movement, 2 for faster movement profile, 3 for modified profile")
        
         for count, location in enumerate(self.location_dictionary[robot_location]):
-            if grab == True and count == 4:
+            if gripper == True and count == 4:
                 robot_command += " " + str(120.0)
             elif release == True and count == 4:
                 robot_command += " " + str(127.0)
@@ -343,170 +342,20 @@ class PF400(object):
         
         return robot_command
 
-    def pick_plate_ot2(self, ot2_ID , profile = 0, wait:int = 0.1):
-        
-        # TODO:ADD Motion profile index
-        
-        if profile == 3: 
-            slow, fast = 3, 3
-        else:
-            slow, fast = 1, 2
-            
-
-        # self.logger.info("Setting defult values to the motion profile")
-
-        # Set movement commands to complete a pick_plate_ot2 operation
-        move_front = self.set_move_command("OT2_" + str(ot2_ID) + "_front",fast)
-        above_plate = self.set_move_command("OT2_" + str(ot2_ID) + "_above_plate",fast)
-        approach_plate = self.set_move_command("OT2_" + str(ot2_ID) + "_pick_plate",fast)
-        pick_up_plate = self.set_move_command("OT2_" + str(ot2_ID) + "_pick_plate", slow, True, False)
-        above_with_plate = self.set_move_command("OT2_" + str(ot2_ID) + "_above_plate", slow, True, False)
-        front_with_plate = self.set_move_command("OT2_" + str(ot2_ID) + "_front", slow, True, False)
-
-        pick_up_commands = [move_front, above_plate, approach_plate, pick_up_plate, above_with_plate, front_with_plate] 
-
-        for count, cmd in enumerate(pick_up_commands):
-                   
-            input_msg = "[pick_plate_ot2 ID:{}] Robot is moved to the {}th location".format(str(ot2_ID), count+1)
-            err_msg = 'Failed move the robot:'
-
-            out_msg = self.send_command(cmd, input_msg, err_msg, wait)
-              
-        return out_msg
-
-
-    def drop_plate_ot2(self, ot2_ID, profile = 0, wait:int = 0.1):
-
-        # Set movement commands to complete a drop_plate_ot2 operation
-        if profile == 3: 
-            slow, fast = 3, 3
-        else:
-            slow, fast = 1, 2
-            
-
-        front_with_plate = self.set_move_command("OT2_" + str(ot2_ID) + "_front", slow, True, False)
-        above_with_plate = self.set_move_command("OT2_" + str(ot2_ID) + "_above_plate", slow, True, False)
-        approach_with_plate = self.set_move_command("OT2_" + str(ot2_ID) + "_pick_plate", slow, True, False)
-        drop_plate = self.set_move_command("OT2_" + str(ot2_ID) + "_pick_plate", slow, False, True)
-        above_plate = self.set_move_command("OT2_" + str(ot2_ID) + "_above_plate", fast)
-        front_plate = self.set_move_command("OT2_" + str(ot2_ID) + "_front", fast)
-
-
-        drop_commands = [front_with_plate, above_with_plate, approach_with_plate, drop_plate, above_plate, front_plate]
-        
-        for count, cmd in enumerate(drop_commands):
-
-            input_msg = "[pick_plate_ot2 ID:{}] Robot is moved to the {}th location".format(str(ot2_ID), count+1)
-            err_msg = 'Failed move the robot:'
-
-            out_msg = self.send_command(cmd, input_msg, err_msg, wait)
-              
-        return out_msg
-                
-    def pick_plate_from_rack(self, ot2_ID, profile = 0):
-        
-        if profile == 3: 
-            slow, fast = 3, 3
-        else:
-            slow, fast = 1, 2
-
-        approach_plate_rack = self.set_move_command("OT2_" + str(ot2_ID) + "_approach_plate_rack", fast, False, False)
-        front_rack = self.set_move_command("OT2_" + str(ot2_ID) + "_front_plate_rack", slow, False, False)
-        plate_rack = self.set_move_command("OT2_" + str(ot2_ID) + "_plate_rack", slow, False, False)
-        pick_plate = self.set_move_command("OT2_" + str(ot2_ID) + "_plate_rack", slow, True, False)
-        front_with_plate = self.set_move_command("OT2_" + str(ot2_ID) + "_front_plate_rack", slow, True, False)
-        approach_rack_back = self.set_move_command("OT2_" + str(ot2_ID) + "_approach_plate_rack", slow, True, False)
-
-        pick_rack_commands = [approach_plate_rack, front_rack, plate_rack, pick_plate, front_with_plate, approach_rack_back]
-
-        for count, commands in enumerate(pick_rack_commands):
-            out_msg = self.send_command(commands)
-            self.logger.info("[drop_complete_plate] Robot is moved to the {}th location".format(count+1))
-
-        return out_msg
-
-    def drop_complete_plate(self, profile = 0):
-        
-        if profile == 3: 
-            slow = 3
-            fast = 3
-        else:
-            slow = 1
-            fast = 2 
-
-        completed_plate_above = self.set_move_command("Completed_plate_above", slow, True, False)
-        drop_with_plate = self.set_move_command("Completed_plate", slow, True, False)
-        drop_plate = self.set_move_command("Completed_plate", slow, False, True)
-        completed_plate = self.set_move_command("Completed_plate_above", slow, False, False)
-       
-
-        drop_commands = [completed_plate_above, drop_with_plate, drop_plate, completed_plate]
-        for count, commands in enumerate(drop_commands):
-            out_msg = self.send_command(commands)
-            self.logger.info("[drop_complete_plate] Robot is moved to the {}th location".format(count+1))
-
-        return out_msg
-
-
-
-    def move_single(self, target_location, profile = 0, grap: bool = False, release: bool = False):
+    def move_single(self, target_location, profile = 2, grap: bool = False, release: bool = False, wait:int = 0.1):
 
         """
             Executes only one movement to the target location which is from the location dictionary
         """
-        PF400 = self.connect_robot()       
-        command = self.set_move_command(target_location, profile, grap, release)
+        single_move_commands = self.set_move_command(target_location.lower(), profile, grap, release)
 
+        input_msg = "Robot is moved to the {} location".format(target_location)
+        err_msg = 'Failed move the robot:'
 
-        try:
-            PF400.send(bytes(command.encode('ascii')))
-            out_msg = PF400.recv(4096).decode("utf-8")
-            self.logger.info(out_msg)
-
-            # TODO: CHECK FOR ERROR RETURN FORM ROBOT FIRST 
-            self.logger.info("Robot is moved to the {} location".format(target_location))
-
-        except socket.error as err:
-            self.logger.error('Failed move the robot {}'.format(err))
-        else:
-            self.disconnect_robot(PF400)  
-            return out_msg
-
-
-
-    def program_robot_target(self, job:str, robot_ID_1: int = 0, robot_ID_2:int = 0):
-        """
-            Programs the robot to execute sequance of movements from its' current location to a given target location
-        """
-        # TODO: Find current robot pose
-        # TODO: Find robot location in the operation environment and plan movements dependiging on the surrounding obstacles
-        # TODO: HOME the robot arm before starting a program & Plan different movements dependng of the current grabber state
-
-        if job.upper() == "TRANSFER":
-
-            self.logger.info("Executing plate transfer between OT2 ID: {} and OT2 ID: {}".format(robot_ID_1, robot_ID_2))
-            self.move_single("HomeALL", 2)
-            self.pick_plate_ot2(robot_ID_1)
-            self.drop_plate_ot2(robot_ID_2)
+        out_msg = self.send_command(single_move_commands, input_msg, err_msg, wait)
             
+        return out_msg
 
-        elif job.upper() == "FULL_TRANSFER":
-
-            self.logger.info("Executing full transfer")
-            self.move_single("HomeALL", 2)
-            self.pick_plate_from_rack(1)
-            self.drop_plate_ot2(1)
-            time.sleep(50)
-            self.pick_plate_ot2(1)
-            self.drop_plate_ot2(2)
-            time.sleep(50)
-            self.pick_plate_ot2(2)
-            self.drop_plate_ot2(3)
-            time.sleep(50)
-            self.pick_plate_ot2(3)
-            self.drop_complete_plate()
-
-            
 
     
     def manualy_move_cartesian(self, target_joint):
@@ -525,74 +374,100 @@ class PF400(object):
 
         pass
 
-    def set_speed(self, speed):
+    def set_speed(self, speed, wait:int = 0.1):
 
-        PF400 = self.connect_robot()
+        cmd = "mspeed " + str(speed) +"\n"
 
-        command = "mspeed" + str(speed) +"\n"
-        try:
-            PF400.send(bytes(command.encode('ascii')))
-            out_msg = PF400.recv(4096).decode("utf-8")
-            self.logger.info(out_msg)
-        except socket.error as err:
-            self.logger.error('Failed to send data: {}'.format(err))
-        else:
-            self.disconnect_robot(PF400) 
+        input_msg = "Settin new robot speed"
+        err_msg = 'Failed set the robot speed:'
 
-    def locate_robot(self):
+        out_msg = self.send_command(cmd, input_msg, err_msg, wait)
+        return out_msg
+            
+    def locate_robot(self, wait:int = 0.1):
         
-        PF400 = self.connect_robot()
+        location = 'wherej\n'
 
-        command = 'wherej\n'
-        # Add ASCII NULL character at the end of the cmd string
+        input_msg = "Finding robot location:"
+        err_msg = 'Failed to find robot location:'
+
+        out_msg = self.send_command(location, input_msg, err_msg, wait)
+        return out_msg
+   
+    def program_robot(self, location_list: list = []):
+        """
+        Description: A function to send multiple locations to the robot to execute them consecutively
+        Params: - location_list: 2D array where first dimention contains location name from location data 
+                                 and second contains gripper postion
+        """       
+        pass
+
+    def check_loc_data(self, target_location):
+        loc_list = list(self.location_dictionary.keys())
         try:
-            PF400.send(bytes(command.encode('ascii')))
-            location = PF400.recv(4096).decode("utf-8")
-            self.logger.info(location)
-            # location = "5 6 7 8 9 10"
-            coordinate_list = list(map(int,location.split(" ")))
-
-        except socket.error as err:
-            self.logger.error('Failed to find robot location: {}'.format(err))
+            idx = loc_list.index(target_location)
+        except Exception:
+            self.logger.error("Given location doesn't exist in the location data")
         else:
-            self.disconnect_robot(PF400)  
+            return True
+        finally:
+            return False
+        
 
-        return coordinate_list
 
-    def teach_location(self, location: str, robot_id:int = None):
+    
+    
+
+    def teach_new_location(self, location_name: str, gripper: str = 127):
+        # A fuction to save any location data into the location data file with a given name by the user.
+        locations = self.modify_robot_data()
+
+        pass   
+
+    def modify_robot_data(self, location: str, robot_id:int = None):
 
         current_location = self.locate_robot()
-        try:
-            if robot_id == None and (location.lower == "homeall" or location.lower == "homearm" or location.lower == "mobile_robot" or location.lower == "trash") :
-            # TODO: Find a better way for this 
-                for count, loc in enumerate(self.location_dictionary[location]):
-                    self.location_dictionary[location][count] = current_location[count]
+        location_data = self.modify_robot_data()
 
-            elif robot_id != None:
-                if location.upper() == "FRONT":
-                    key_name = "OT2_" + str(robot_id) + "_front"
-                elif location.upper() == "ABOVE_PLATE":
-                    key_name =  "OT2_" + str(robot_id) + "_above_plate"
-                elif location.upper() == "PICK_PLATE":
-                    key_name = "OT2_" + str(robot_id) + "_pick_plate"
-                elif location.upper() == "PLATE_RACK":
-                    key_name = "OT2_" + str(robot_id) + "_plate_rack"
-            else:
-                raise Exception("Please enter a valid location name!!! Format: location: str, robot_id:int = None ")
+        # try:
+        #     if robot_id == None and (location.lower() == "homeall" or location.lower() == "homearm" or location.lower() == "mobile_robot" or location.lower() == "trash") :
+        #     # TODO: Find a better way for this 
+        #         for count, loc in enumerate(self.location_dictionary[location]):
+        #             self.location_dictionary[location][count] = current_location[count]
+
+        #     elif robot_id != None:
+        #         if location.upper() == "FRONT":
+        #             location_name = "ot2_" + str(robot_id) + "_front"
+        #         elif location.upper() == "ABOVE_PLATE":
+        #             location_name =  "ot2_" + str(robot_id) + "_above_plate"
+        #         elif location.upper() == "PICK_PLATE":
+        #             location_name = "ot2_" + str(robot_id) + "_pick_plate"
+        #         elif location.upper() == "PLATE_RACK":
+        #             location_name = "ot2_" + str(robot_id) + "_plate_rack"
+        #     else:
+        #         raise Exception("Please enter a valid location name!!! Format: location: str, robot_id:int = None ")
             
-            for count, loc in enumerate(self.location_dictionary[key_name]):
-                self.location_dictionary[key_name][count] = current_location[count]        
+        #     for count, loc in enumerate(self.location_dictionary[key_name]):
+        #         self.location_dictionary[key_name][count] = current_location[count]        
            
         
-        except Exception as err:
-            self.logger.error(err)
+        # except Exception as err:
+        #     self.logger.error(err)
 
 
 
 if __name__ == "__main__":
     robot = PF400()
-    robot.pick_plate_from_rack(1)
+    ''' ---------------- TESTING -------------------'''
+    robot.rpl_teach_location("Transfer_D")
+    # robot.move_single("Transfer_D")
+    # robot.updateJsonFile()
+    # robot.move_single("HomeALL")
+    # robot.set_speed(100)
+    # robot.locate_robot()
     # robot.initialize_robot()
+    # robot.pick_plate_from_rack(1)
+    # robot.drop_complete_plate()
     # robot.pick_plate_ot2(1)
     # robot.load_robot_data()
 
@@ -601,7 +476,7 @@ if __name__ == "__main__":
 
 
     # robot.pick_plate_from_rack(1)
-    # robot.program_robot_target("full_transfer")
+    # robot.program_rpl_robot("full_transfer")
     # robot.move_single("HomeALL")
     # robot.pick_plate_ot2(1)
     # robot.drop_plate_ot2(2)
