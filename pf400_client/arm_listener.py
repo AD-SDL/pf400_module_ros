@@ -5,7 +5,7 @@ import logging
 import zmq
 import struct
 
-from rpl_arm import RPL_PF400
+from rpl_pf400 import RPL_PF400
 
 def listener(host, port):
     
