@@ -30,19 +30,16 @@ class RPL_PF400(PF400):
         self.rpl_robot = PF400(self.data_file)
 
 
-    def is_robot_running(self, msg):
-        # Cehck heartbeat and state of the robot regurly                                                                                
-        output = self.rpl_robot.initialize_robot()
 
     def command_handler(self, msg):
         self.rpl_robot.set_robot_mode()
         msg = msg.split("@")
 
         # Check robot state 
-        # while self.rpl_robot.check_general_state() == -1:
+        while self.rpl_robot.check_general_state() == -1:
 
-        #     self.logger.warn("Robot is not intilized! Intilizing now...")
-        #     output = robot.initialize_robot()
+            self.logger.warn("Robot is not intilized! Intilizing now...")
+            output = self.rpl_robot.initialize_robot()
 
         if len(msg) == 3 and msg[0].lower() == "transfer":
             output = self.program_rpl_robot(msg[0],self.OT2_ID[msg[1]],self.OT2_ID[msg[2]])
@@ -208,6 +205,7 @@ class RPL_PF400(PF400):
             self.logger.info("Executing plate transfer between OT2 ID: {} and OT2 ID: {}".format(robot_ID_1, robot_ID_2))
             self.rpl_robot.move_single("homeall", 2)
             self.pick_plate_ot2(robot_ID_1)
+            time.sleep(5)
             self.drop_plate_ot2(robot_ID_2)
             
 
