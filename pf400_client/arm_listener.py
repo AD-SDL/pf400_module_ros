@@ -15,13 +15,13 @@ def listener(host, port):
         sock.bind("tcp://"+host+":"+ port)
         # logger.info("Starting the command transfer listener")
 
-        robot = RPL_PF400()
         i = 1
         while True:
             msg = sock.recv_string()
             i += 1
             time.sleep(1)
             if msg != None:
+                robot = RPL_PF400()
                 msg_output = robot.command_handler(msg)
                 sock.send_string(str(msg_output))
                 # sock.send_string(msg_output + '@' + msg_error + '@' + str(msg_returncode))
