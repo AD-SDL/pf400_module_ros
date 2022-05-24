@@ -16,7 +16,7 @@ setup(
     maintainer='Doga Ozgulbas and Alan Wang',
     maintainer_email='dozgulbas@anl.gov',
     description='Driver for the PF400 robot arm',
-    url='https://github.com/AD-SDL/PF400_cobot',
+    url='https://github.com/AD-SDL/arm_driver_pkg',
     license='MIT License',
     tests_require=['pytest'],
     entry_points={
