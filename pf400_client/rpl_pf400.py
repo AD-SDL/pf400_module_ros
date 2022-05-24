@@ -225,6 +225,9 @@ class RPL_PF400(PF400):
             self.pick_plate_ot2(3)
             self.drop_complete_plate()
 
+def main_null():
+    print("This function is not meant to have a main function")
+
    
 if __name__ == "__main__":
     robot = RPL_PF400()

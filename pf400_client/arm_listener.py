@@ -36,6 +36,9 @@ def listener(host, port):
         # sockClient.shutdown(socket.SHUT_RDWR)
         sock.close()
         exit()
+        
+def main_null():
+    print("This function is not meant to have a main function")
 
 if __name__ == "__main__":
     listener("*", "8085")

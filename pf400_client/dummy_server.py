@@ -42,3 +42,6 @@ while True:
             # sockClient.shutdown(socket.SHUT_RDWR)
             sockClient.close()
             exit()
+            
+def main_null():
+    print("This function is not meant to have a main function")

@@ -454,6 +454,8 @@ class PF400():
         # except Exception as err:
         #     self.logger.error(err)
 
+def main_null():
+    print("This function is not meant to have a main function")
 
 
 if __name__ == "__main__":

@@ -20,7 +20,7 @@ def arm_transfer(job:str, robot_1:str = None, robot_2:str = None):
 
     ctx = zmq.Context()
     sock = ctx.socket(zmq.REQ)
-    sock.connect("tcp://10.140.54.24:8085")
+    sock.connect("tcp://192.168.1.99:8085")
 
     print("Starting PF400 command transfer client ...")
     while True:
