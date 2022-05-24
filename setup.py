@@ -19,7 +19,7 @@ setup(
     url='https://github.com/AD-SDL/arm_driver_pkg.git', 
     license='MIT License',
     tests_require=['pytest'],
-    entry_points={
+    entry_points={ 
         'console_scripts': [
              'arm_driver = arm_driver_pkg.arm_driver:main_null',
              'arm_listener = pf400_client.arm_listener:main_null',
