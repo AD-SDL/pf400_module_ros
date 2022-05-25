@@ -34,10 +34,7 @@ setup(
     entry_points={ 
         'console_scripts': [
              'arm_driver = arm_driver_pkg.arm_driver:main_null',
-            #  'arm_listener = pf400_client.arm_listener:main_null',
-            #  'rpl_pf400 = pf400_client.rpl_pf400:main_null',
-            #  'pf400_client = pf400_client.pf400_client:main_null',
-            #  'dummy_server = pf400_client.dummy_server:main_null',
+      
 
         ]
     },

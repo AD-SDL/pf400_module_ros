@@ -16,7 +16,7 @@ class RPL_PF400(PF400):
     Listens for messges come from ROS Arm Node.
 
     """
-    def __init__(self,data_file_path='robot_data.json'):
+    def __init__(self, data_file_path='robot_data.json'):
         super().__init__(data_file_path)
  
         self.OT2_ID = {"bob":1, "alex":2, "jack":3}
