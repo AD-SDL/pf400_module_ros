@@ -1,5 +1,5 @@
 #package specific ignores
-*_logs/*
+*_logs/*.log
 *.log
 
 # Byte-compiled / optimized / DLL files
