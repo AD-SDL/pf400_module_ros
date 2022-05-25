@@ -1,7 +1,7 @@
 
-# PF400_cobot
-A repository for PF400 Collaborative Robot Arm documentation, including user manuals and remote control interfaces.
-## Remote client
+# pf400_driver
+A repository for PF400 Collaborative Robot Arm driver, including user manuals and remote control interfaces.
+## PF400 Remote Client
     
 Python interface that allows remote commands to be executed using simple string messages over TCP/IP on PF400 cobot.  `/pf400_client/pf400_client.py`
 
@@ -17,8 +17,18 @@ Python interface that allows remote commands to be executed using simple string 
 * Locate current location
 * Stop movement
 * Move to one location
-* Perform pick up and drop off plate operations from the OT2s 
-* Send complex programs such as transfer plate between two robots or execute full plate transfer between each robot. 
+
+## rpl_pf400 
+
+This is a sub class of the PF400 class, which includes more specific functions that will be only in Rapid Prototyping Lab.
+
+- This class is designed to send commands to the PF400 robot that is located in Rapid Prototyping.
+- The functions are only valid in for this specific lab setup
+### Current features
+
+* Perform pick up and drop off plate operations from the OT2s, plate racks and table locations 
+* Send complex programs such as transfer plate between two robots or execute full plate transfer between each robot.
+* Teach/edit locations which are already exist in the robot data file. 
 
 
 # Development
@@ -38,12 +48,14 @@ Python interface that allows remote commands to be executed using simple string 
     conda create -n rpl-test python=3.8
     conda activate rpl-test
 
-    git clone https://www.github.com/AD-SDL/PF400_cobot
-    cd PF400_cobot
+    git clone https://github.com/AD-SDL/pf400_driver.git
+    cd pf400_driver
     #pip install -r requirements.txt
-    pip install -d . 
+    pip install -e . 
 
 Better to install in develop-mode while the config is still changing
+
+This will install arm_driver_pkg and pf400client packages
 
 ## Ros Install
 

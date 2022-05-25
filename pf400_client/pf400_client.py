@@ -23,7 +23,7 @@ class PF400():
                  - Responses begin with a "0" if the command was successful, or a negative error code number
 
     """
-    def __init__(self, data_file_path):
+    def __init__(self, data_file_path = "/utils/robot_data.json"):
         
         self.logger = logging.getLogger("PF400_Client")
         self.logger.addHandler(logging.StreamHandler())

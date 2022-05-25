@@ -2,8 +2,8 @@
 
 
 # ROS nodes
-# import rclpy
-# from rclpy.node import Node
+import rclpy
+from rclpy.node import Node
 
 import zmq
 import time
