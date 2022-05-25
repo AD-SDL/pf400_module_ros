@@ -1,6 +1,6 @@
-import os.path
+#!/usr/bin/env python3
+
 import time
-import logging
 
 import zmq
 import struct

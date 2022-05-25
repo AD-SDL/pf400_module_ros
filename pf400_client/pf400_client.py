@@ -415,8 +415,6 @@ class PF400():
         
 
 
-    
-    
 
     def teach_new_location(self, location_name: str, gripper: str = 127):
         # A fuction to save any location data into the location data file with a given name by the user.
