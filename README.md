@@ -20,10 +20,11 @@ Python interface that allows remote commands to be executed using simple string 
 
 ## rpl_pf400 
 
-This is a sub class of the PF400 class, which includes more specific functions that will be only in Rapid Prototyping Lab.
+This is a sub class of the PF400 class, which includes more specific functions that will be utilized only in Rapid Prototyping Lab.
 
-- This class is designed to send commands to the PF400 robot that is located in Rapid Prototyping.
-- The functions are only valid in for this specific lab setup
+- This class is designed to send commands to the PF400 robot that is located in Rapid Prototyping Lab.
+- The functions are only valid for this specific lab setup
+
 ### Current features
 
 * Perform pick up and drop off plate operations from the OT2s, plate racks and table locations 
