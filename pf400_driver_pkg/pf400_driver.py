@@ -19,7 +19,7 @@ def command_convert(job, robot_1, robot_2):
         return job
 
 
-def arm_transfer(job:str, robot_1:str = None, robot_2:str = None):
+def pf400_transfer(job:str, robot_1:str = None, robot_2:str = None):
 
     ctx = zmq.Context()
     sock = ctx.socket(zmq.REQ)
@@ -48,7 +48,7 @@ def main_null():
     print("This function is not meant to have a main function")
 
 if __name__ == '__main__':
-    arm_transfer("rack","bob")
+    pf400_transfer("rack","bob")
     # pf400_transfer_command("transfer","bob","alex")
     # pf400_transfer_command("complete")
 
