@@ -23,7 +23,7 @@ class PF400():
                  - Responses begin with a "0" if the command was successful, or a negative error code number
 
     """
-    def __init__(self, data_file_path = "/utils/robot_data.json"):
+    def __init__(self, data_file_path = "robot_data.json"):
         
         self.logger = logging.getLogger("PF400_Client")
         self.logger.addHandler(logging.StreamHandler())
@@ -144,6 +144,15 @@ class PF400():
 
         return out_msg
 
+    def disable_power(self, wait:int = 0.1):
+
+        cmd = 'hp 0\n'
+        ini_msg = 'Disabling power on the robot'
+        err_msg = 'Failed disable_power:'
+
+        out_msg = self.send_command(cmd, ini_msg, err_msg, wait)
+
+        return out_msg
 
     def attach_robot(self, wait:int = 0.1):
 
@@ -166,29 +175,7 @@ class PF400():
 
         return out_msg
 
-    
-    def initialize_robot(self):
-        
-        # Enable power 
-        power = self.enable_power(5)
-        # Attach robot
-        attach = self.attach_robot(5)
-        # Home robot
-        home = self.home_robot(15)
-        # Set default motion profile
-        profile = self.set_profile(5)
-        # Check robots' current state
-        rState =self.check_robot_state()
-
-        if power[0].find('-') == -1 and attach[0].find('-') == -1 and home[0].find('-') == -1 and profile[0].find('-')== -1 :
-            self.logger.info("Robot initialization is successfully completed!")
-        else:    
-            self.logger.info("Robot initialization failed!")
-
-        return power + attach + profile + home + rState
-
-        
-    ##create "profile section" apart from the "command section"
+    # Create "profile section" apart from the "command section"
     def set_profile(self, wait:int = 0.1, profile_dict:dict = {"0":0}):
 
         if len(profile_dict) == 1:
@@ -229,10 +216,37 @@ class PF400():
             raise Exception("Motion profile takes 8 arguments, {} where given".format(len(profile_dict)))
 
         return out_msg 
-
-
-
     
+    def initialize_robot(self):
+        
+        # Enable power 
+        power = self.enable_power(5)
+        # Attach robot
+        attach = self.attach_robot(5)
+        # Home robot
+        home = self.home_robot(15)
+        # Set default motion profile
+        profile = self.set_profile(5)
+        # Check robots' current state
+        rState =self.check_robot_state()
+
+        if power[0].find('-') == -1 and attach[0].find('-') == -1 and home[0].find('-') == -1 and profile[0].find('-')== -1 :
+            self.logger.info("Robot initialization is successfully completed!")
+        else:    
+            self.logger.info("Robot initialization failed!")
+
+        return power + attach + profile + home + rState
+
+
+    def force_initialize_robot(self):
+
+        self.set_robot_mode()
+        # Check robot state & initilize
+        while self.check_general_state() == -1:
+
+            self.logger.warning("Robot is not intilized! Intilizing now...")
+            output = self.initialize_robot()
+
     def set_motion_blend_tolerance(self, tolerance: int = 0, wait:int = 0.1):
         """
         Description: Gets or sets the InRange property of the selected profile, which is a parameter to set tolorance between blended motions.
@@ -404,15 +418,20 @@ class PF400():
 
     def check_loc_data(self, target_location):
         loc_list = list(self.location_dictionary.keys())
+        idx = -1
         try:
+            target_location = target_location.lower()
             idx = loc_list.index(target_location)
+
         except Exception:
             self.logger.error("Given location doesn't exist in the location data")
-        else:
-            return True
-        finally:
-            return False
         
+        if idx >= 0:
+            self.logger.info("Target location exists in the robot data file")
+            return True
+        else:
+            self.logger.error("Target location doesn not exist in the robot data file")
+            return False
 
 
 
@@ -426,6 +445,11 @@ class PF400():
 
         current_location = self.locate_robot()
         location_data = self.modify_robot_data()
+
+if __name__ == "__main__":
+    robot = PF400()
+    # robot.check_loc_data("Trash")
+    print(robot.locate_robot())
 
         # try:
         #     if robot_id == None and (location.lower() == "homeall" or location.lower() == "homearm" or location.lower() == "mobile_robot" or location.lower() == "trash") :

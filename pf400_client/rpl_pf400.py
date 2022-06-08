@@ -22,14 +22,9 @@ class RPL_PF400(PF400):
         self.OT2_ID = {"bob":1, "alex":2, "jack":3}
 
     def command_handler(self, msg):
-        self.set_robot_mode()
         msg = msg.split("@")
 
-        # Check robot state & initilize
-        while self.check_general_state() == -1:
-
-            self.logger.warn("Robot is not intilized! Intilizing now...")
-            output = self.initialize_robot()
+        self.force_initialize_robot()
 
         if len(msg) == 3 and msg[0].lower() == "transfer":
             output = self.program_rpl_robot(msg[0],self.OT2_ID[msg[1]],self.OT2_ID[msg[2]])
@@ -155,8 +150,28 @@ class RPL_PF400(PF400):
 
     def rpl_teach_location(self, location:str = None):
 
+        output = self.disable_power()
+        if output[0]  == "-":
+            raise Exception("Falied disabling power. Aborting teach location!")
+
+        self.logger.info("Please set the robot location manually moving to the disered location.\n !!! ----------------------------- IMPORTANT ----------------------------- !!! \nTo release the vertical rail, HOLD the arm to make sure it does not fall down and then press the black release button underneath the second joint.")
+        user_save_input = str(input("Do you want to save the current location? (y/n): "))
+        
+        if user_save_input.lower() == "y":
+            output = self.rpl_save_location(location)
+            self.logger.info(output)
+        elif user_save_input.lower() == "n":
+            self.logger.warning("New location is not saved!")
+        else:
+            self.logger.error("[rpl_teach_location] User entered invalid input")
+            raise Exception("Please enter 'y' to save or 'n' to not save the new location")
+        
+        self.force_initialize_robot()
+
+    def rpl_save_location(self, location:str = None):
+
         if location == None:
-            self.logger.error("[rpl_teach_location] Location name was not provided by the user")
+            self.logger.error("[rpl_save_location] Location name was not provided by the user")
             raise Exception("Please enter a location name to save the new joint values")
 
         location = location.lower()
@@ -168,10 +183,12 @@ class RPL_PF400(PF400):
         current_directory = os.path.dirname(__file__)
         parent_directory = os.path.split(current_directory)[0] 
         file_path = os.path.join(parent_directory + '/utils/robot_data.json')
+        
+        current_location = self.locate_robot()
 
         # Save the current robot location to the given location
-        loc_list = list(map(int,"2 2 2 2 2 2".split(" ")))
-        self.location_dictionary[location] = [loc_list[0],loc_list[1], loc_list[2], loc_list[3], loc_list[4], loc_list[5]]
+        loc_list = list(map(float,current_location.split(" ")))
+        self.location_dictionary[location] = [loc_list[1], loc_list[2], loc_list[3], loc_list[4], loc_list[5], loc_list[6]]
     
         # Write the new location the data file
         try:
@@ -217,4 +234,5 @@ class RPL_PF400(PF400):
    
 if __name__ == "__main__":
     robot = RPL_PF400()
-    robot.command_handler("rack@bob")
+    # robot.command_handler("rack@bob")
+    robot.rpl_teach_location("transfer_d")
