@@ -42,3 +42,30 @@
 [INFO] [2022-05-25 16:06:00] [PF400_Client] [pick_plate_from_rack ID:1] Robot is moved to the 6th location
 [INFO] [2022-05-25 16:06:00] [PF400_Client] MoveJ 1 774.343 -38.579 119.211 6.105 120.0 510.411
 
+[INFO] [2022-06-08 15:54:36] [PF400_Client] Robot created. Robot ID: 1 ~ Host: 192.168.0.1 ~ Port: 10100
+[INFO] [2022-06-08 15:54:49] [PF400_Client] Robot created. Robot ID: 1 ~ Host: 192.168.0.1 ~ Port: 10100
+[INFO] [2022-06-08 15:54:49] [PF400_Client] Setting communication mode to 0:
+[INFO] [2022-06-08 15:54:49] [PF400_Client] 0
+
+[INFO] [2022-06-08 15:54:59] [PF400_Client] Robot created. Robot ID: 1 ~ Host: 192.168.0.1 ~ Port: 10100
+[INFO] [2022-06-08 15:54:59] [PF400_Client] Setting communication mode to 0:
+[INFO] [2022-06-08 15:54:59] [PF400_Client] 0
+
+[INFO] [2022-06-08 15:55:00] [PF400_Client] [pick_plate_from_rack ID:1] Robot is moved to the 1th location
+[INFO] [2022-06-08 15:55:00] [PF400_Client] -1009
+
+[INFO] [2022-06-08 15:55:01] [PF400_Client] [pick_plate_from_rack ID:1] Robot is moved to the 2th location
+[INFO] [2022-06-08 15:55:01] [PF400_Client] -1009
+
+[INFO] [2022-06-08 15:55:02] [PF400_Client] [pick_plate_from_rack ID:1] Robot is moved to the 3th location
+[INFO] [2022-06-08 15:55:02] [PF400_Client] -1009
+
+[INFO] [2022-06-08 15:55:03] [PF400_Client] [pick_plate_from_rack ID:1] Robot is moved to the 4th location
+[INFO] [2022-06-08 15:55:03] [PF400_Client] -1009
+
+[INFO] [2022-06-08 15:55:04] [PF400_Client] [pick_plate_from_rack ID:1] Robot is moved to the 5th location
+[INFO] [2022-06-08 15:55:04] [PF400_Client] -1009
+
+[INFO] [2022-06-08 15:55:06] [PF400_Client] [pick_plate_from_rack ID:1] Robot is moved to the 6th location
+[INFO] [2022-06-08 15:55:06] [PF400_Client] -1009
+

@@ -25,11 +25,11 @@ class RPL_PF400(PF400):
         self.set_robot_mode()
         msg = msg.split("@")
 
-        # Check robot state 
-        # while self.check_general_state() == -1:
+        # Check robot state & initilize
+        while self.check_general_state() == -1:
 
-        #     self.logger.warn("Robot is not intilized! Intilizing now...")
-        #     output = self.initialize_robot()
+            self.logger.warn("Robot is not intilized! Intilizing now...")
+            output = self.initialize_robot()
 
         if len(msg) == 3 and msg[0].lower() == "transfer":
             output = self.program_rpl_robot(msg[0],self.OT2_ID[msg[1]],self.OT2_ID[msg[2]])
