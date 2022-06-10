@@ -154,17 +154,21 @@ class RPL_PF400(PF400):
         if output[0]  == "-":
             raise Exception("Falied disabling power. Aborting teach location!")
 
-        self.logger.info("Please set the robot location manually moving to the disered location.\n !!! ----------------------------- IMPORTANT ----------------------------- !!! \nTo release the vertical rail, HOLD the arm to make sure it does not fall down and then press the black release button underneath the second joint.")
+        self.logger.info("Please set the robot location by manually moving the arm to the disered location.\n" \
+            "!!! ------------------------------------ IMPORTANT ------------------------------------ !!! \n" \
+            "To release the vertical rail, HOLD the arm to make sure it does not fall down and " \
+            "then press the black release button underneath the second joint.")
+
         user_save_input = str(input("Do you want to save the current location? (y/n): "))
         
         if user_save_input.lower() == "y":
             output = self.rpl_save_location(location)
             self.logger.info(output)
         elif user_save_input.lower() == "n":
-            self.logger.warning("New location is not saved!")
+            self.logger.warning("Location is not saved!")
         else:
-            self.logger.error("[rpl_teach_location] User entered invalid input")
-            raise Exception("Please enter 'y' to save or 'n' to not save the new location")
+            self.logger.warning("Please enter 'y' to save or 'n' to not save the new location")
+            return self.rpl_teach_location(location)
         
         self.force_initialize_robot()
 
