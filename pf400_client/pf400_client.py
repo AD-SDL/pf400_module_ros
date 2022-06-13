@@ -406,7 +406,11 @@ class PF400():
         err_msg = 'Failed to find robot location:'
 
         out_msg = self.send_command(location, input_msg, err_msg, wait)
-        return out_msg
+
+        if out_msg[0] == "-":
+            return self.locate_robot()
+        else:    
+            return out_msg
    
     def program_robot(self, location_list: list = []):
         """
