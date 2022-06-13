@@ -409,8 +409,8 @@ class PF400():
 
         if out_msg[0] == "-":
             return self.locate_robot()
-        else:    
-            return out_msg
+            
+        return out_msg
    
     def program_robot(self, location_list: list = []):
         """

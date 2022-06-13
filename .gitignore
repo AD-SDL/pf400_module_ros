@@ -1,6 +1,9 @@
 #package specific ignores
 *_logs/*.log
 *.log
+**/logs
+**/log
+
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
