@@ -19,15 +19,19 @@ def command_convert(job, robot_1, robot_2):
         return job
 
 
-def pf400_transfer(job:str, robot_1:str = None, robot_2:str = None):
+def pf400_transfer(job:str, target_1:str = None, target_2:str = None):
 
     ctx = zmq.Context()
     sock = ctx.socket(zmq.REQ)
+<<<<<<< HEAD
     sock.connect("tcp://140.221.22.5:8085")
+=======
+    sock.connect("tcp://127.0.0.1:8089")
+>>>>>>> 8aeb7f468865db7087bc2dfa7eb1ae63a4a27561
 
     print("Starting PF400 command transfer client ...")
     while True:
-        full_command = command_convert(job, robot_1, robot_2)
+        full_command = command_convert(job, target_1, target_2)
         print(full_command)
         #TODO: NEED A DELAY IF MULTIPLE COMMANDS WERE SENT. OTHERWISE ROBOT WILL SKIP PARTS
         sock.send_string(full_command)
@@ -48,7 +52,7 @@ def main_null():
     print("This function is not meant to have a main function")
 
 if __name__ == '__main__':
-    pf400_transfer("rack","bob")
+    pf400_transfer("transfer","plate_rack","bob")
     # pf400_transfer_command("transfer","bob","alex")
     # pf400_transfer_command("complete")
 

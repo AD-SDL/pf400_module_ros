@@ -23,20 +23,25 @@ class RPL_PF400(PF400):
 
     def command_handler(self, msg):
         msg = msg.split("@")
-
-        self.force_initialize_robot()
+        # self.force_initialize_robot()
 
         if len(msg) == 3 and msg[0].lower() == "transfer":
-            output = self.program_rpl_robot(msg[0],self.OT2_ID[msg[1]],self.OT2_ID[msg[2]])
+            if msg[1].lower() == "plate_rack":
+                output_msg = self.program_rpl_robot(msg[1], msg[1], self.OT2_ID[msg[2]])
+            elif msg[2].lower() == "completed":  
+                print("completed")
+                output_msg = self.program_rpl_robot(msg[2], self.OT2_ID[msg[1]], msg[2])
+            else:
+                output_msg = self.program_rpl_robot(msg[0],self.OT2_ID[msg[1]],self.OT2_ID[msg[2]])
         elif len(msg) == 2 and msg[0].lower() == "rack":
-            output = self.pick_plate_from_rack(self.OT2_ID[msg[1]])
+            output_msg = self.pick_plate_from_rack(self.OT2_ID[msg[1]])
         elif len(msg) == 1 and msg[0].lower() == "complete":
-            output = robot.drop_complete_plate()
+            output_msg = robot.drop_complete_plate()
         else:
             self.logger.error("User sent invalid command")
             return "Invalid command requested by the client!!!"    
 
-        return output
+        return output_msg
     
     def pick_plate_ot2(self, ot2_ID , profile = 0, wait:int = 0.1):
         
@@ -216,9 +221,19 @@ class RPL_PF400(PF400):
             self.logger.info("Executing plate transfer between OT2 ID: {} and OT2 ID: {}".format(robot_ID_1, robot_ID_2))
             self.move_single("homeall", 2)
             self.pick_plate_ot2(robot_ID_1)
-            time.sleep(5)
+            time.sleep(2)
             self.drop_plate_ot2(robot_ID_2)
             
+        elif job.upper() == "PLATE_RACK":
+            self.logger.info("Executing plate transfer betweenplate_rack and OT2 ID: {}".format(robot_ID_2))
+            self.move_single("homeall", 2)
+            self.pick_plate_from_rack(1)
+            time.sleep(2)
+            self.drop_plate_ot2(robot_ID_2)
+
+        elif job.upper() == "COMPLETED":
+            self.pick_plate_ot2(robot_ID_1)
+            self.drop_complete_plate()
 
         elif job.upper() == "FULL_TRANSFER":
 
