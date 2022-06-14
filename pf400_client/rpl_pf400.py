@@ -23,7 +23,7 @@ class RPL_PF400(PF400):
 
     def command_handler(self, msg):
         msg = msg.split("@")
-        # self.force_initialize_robot()
+        self.force_initialize_robot()
 
         if len(msg) == 3 and msg[0].lower() == "transfer":
             if msg[1].lower() == "plate_rack":

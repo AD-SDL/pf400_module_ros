@@ -13,11 +13,7 @@ def listener(host, port):
         ctx = zmq.Context()
         sock = ctx.socket(zmq.REP)
         sock.bind("tcp://"+host+":"+ port)
-        print("Starting PF400 listener
-        
-        
-        
-        ")
+        print("Starting PF400 listener")
         # logger.info("Starting the command transfer listener")
 
         i = 1

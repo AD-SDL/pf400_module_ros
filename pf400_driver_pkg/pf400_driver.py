@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 
 
-# ROS nodes
-# import rclpy
-# from rclpy.node import Node
+# # ROS nodes
+import rclpy
+from rclpy.node import Node
 
 import zmq
 import time
