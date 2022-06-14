@@ -2,8 +2,8 @@
 
 
 # ROS nodes
-import rclpy
-from rclpy.node import Node
+# import rclpy
+# from rclpy.node import Node
 
 import zmq
 import time
@@ -23,7 +23,7 @@ def pf400_transfer(job:str, robot_1:str = None, robot_2:str = None):
 
     ctx = zmq.Context()
     sock = ctx.socket(zmq.REQ)
-    sock.connect("tcp://127.0.0.1:8085")
+    sock.connect("tcp://140.221.22.5:8085")
 
     print("Starting PF400 command transfer client ...")
     while True:
