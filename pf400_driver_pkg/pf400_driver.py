@@ -23,11 +23,7 @@ def pf400_transfer(job:str, target_1:str = None, target_2:str = None):
 
     ctx = zmq.Context()
     sock = ctx.socket(zmq.REQ)
-<<<<<<< HEAD:arm_driver_pkg/arm_driver.py
-    sock.connect("tcp://140.221.22.5:8085")
-=======
     sock.connect("tcp://127.0.0.1:8089")
->>>>>>> a951ab5d672130ffe2a1495c7f62b2b480512776:pf400_driver_pkg/pf400_driver.py
 
     print("Starting PF400 command transfer client ...")
     while True:
