@@ -1261,3 +1261,15 @@ To release the vertical rail, HOLD the arm to make sure it does not fall down an
 [INFO] [2022-06-14 16:13:14] [PF400_Client] [drop_plate_ot2 ID:1] Robot is moved to the 6th location
 [INFO] [2022-06-14 16:13:14] [PF400_Client] 0
 
+[INFO] [2022-06-20 14:39:04] [PF400_Client] Robot created. Robot ID: 1 ~ Host: 192.168.0.1 ~ Port: 10100
+[INFO] [2022-06-20 14:40:55] [PF400_Client] Robot created. Robot ID: 1 ~ Host: 127.0.0.1 ~ Port: 10100
+[INFO] [2022-06-20 14:40:55] [PF400_Client] Disabling power on the robot
+[INFO] [2022-06-20 14:40:55] [PF400_Client] hp 0
+
+[INFO] [2022-06-20 14:40:55] [PF400_Client] Please set the robot location by manually moving the arm to the disered location.
+!!! ------------------------------------ IMPORTANT ------------------------------------ !!! 
+To release the vertical rail, HOLD the arm to make sure it does not fall down and then press the black release button underneath the second joint.
+[INFO] [2022-06-20 14:41:04] [PF400_Client] Target location exists in the robot data file
+[INFO] [2022-06-20 14:41:04] [PF400_Client] Finding robot location:
+[INFO] [2022-06-20 14:41:04] [PF400_Client] wherej
+

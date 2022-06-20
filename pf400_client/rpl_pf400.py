@@ -12,16 +12,24 @@ logging.basicConfig(filename = file_path, level=logging.DEBUG, format = '[%(leve
 
 class RPL_PF400(PF400):
     """
-    Python interface to socket interface of  PF400.
-    Listens for messges come from ROS Arm Node.
+    Python interface to socket interface of PF400. This is a subclass od the PF400 class, 
+    which contains specific functions for Rapid Prototyping Lab setup.
 
     """
     def __init__(self, data_file_path = "robot_data.json"):
         super().__init__(data_file_path)
  
-        self.OT2_ID = {"bob":1, "alex":2, "jack":3}
+        self.OT2_ID = {"bob":1, "alex":2, "anna":3 , "peeler":4, "sealer":5}
 
     def command_handler(self, msg):
+
+        """
+        Decription: This function handles the commands that were sent through ZMQ messaging and ROS ARM node. 
+                    It parses the message into job, robot ID_1 and robot ID_2. 
+                    Depending on the type of the transfer job this funtion programs the PF400 robot to complete the transfers. 
+        Parameters: 
+                - msg: ZeroMQ message that coints job name and robot IDs in a single concatenated string.
+        """
         msg = msg.split("@")
         self.force_initialize_robot()
 
@@ -33,6 +41,7 @@ class RPL_PF400(PF400):
                 output_msg = self.program_rpl_robot(msg[2], self.OT2_ID[msg[1]], msg[2])
             else:
                 output_msg = self.program_rpl_robot(msg[0],self.OT2_ID[msg[1]],self.OT2_ID[msg[2]])
+
         elif len(msg) == 2 and msg[0].lower() == "rack":
             output_msg = self.pick_plate_from_rack(self.OT2_ID[msg[1]])
         elif len(msg) == 1 and msg[0].lower() == "complete":
@@ -43,7 +52,15 @@ class RPL_PF400(PF400):
 
         return output_msg
     
-    def pick_plate_ot2(self, ot2_ID , profile = 0, wait:int = 0.1):
+    def pick_plate_ot2(self, ot2_ID:int , profile:int = 0, wait:int = 0.1):
+
+        """
+        Decription: This function executes a series of motion commands to pick the plate from the OpenTrone2 robots
+        Parameters: 
+                - ot2_ID: ID number of the OpenTrone robot that the PF400 will be picking up the plate from
+                - profile: Motion profile number. Use "3" for custom motion profile otherwise defult profiles will be used.
+                - wait: Add a wait time between each motion command. Defult is 0.1 seconds.  
+        """
         
         # TODO:ADD Motion profile index
         
@@ -53,7 +70,6 @@ class RPL_PF400(PF400):
             slow, fast = 1, 2
             
 
-        # self.logger.info("Setting defult values to the motion profile")
 
         # Set movement commands to complete a pick_plate_ot2 operation
         move_front = self.set_move_command("ot2_" + str(ot2_ID) + "_front",fast)
@@ -76,6 +92,14 @@ class RPL_PF400(PF400):
 
 
     def drop_plate_ot2(self, ot2_ID, profile = 0, wait:int = 0.1):
+       
+        """
+        Decription: This function executes a series of motion commands to place the plate into the OpenTrone2 robots
+        Parameters: 
+                - ot2_ID: ID number of the OpenTrone robot that the PF400 will be placing the plate 
+                - profile: Motion profile number. Use "3" for custom motion profile otherwise defult profiles will be used.
+                - wait: Add a wait time between each motion command. Defult is 0.1 seconds.  
+        """
 
         # Set movement commands to complete a drop_plate_ot2 operation
         if profile == 3: 
@@ -104,6 +128,14 @@ class RPL_PF400(PF400):
         return out_msg
                 
     def pick_plate_from_rack(self, ot2_ID, profile = 0, wait:int = 0.1):
+
+        """
+        Decription: This function executes a series of motion commands to pick the plate from the plate rack. 
+        Parameters: 
+                - ot2_ID: ID number of the OpenTrone robot is used to specify the plate rack number. PF400 will pick up the plate from the plate rack that is on top of the same OT2, specified in this paramiter. 
+                - profile: Motion profile number. Use "3" for custom motion profile otherwise defult profiles will be used.
+                - wait: Add a wait time between each motion command. Defult is 0.1 seconds.  
+        """
         
         if profile == 3: 
             slow, fast = 3, 3
@@ -130,6 +162,13 @@ class RPL_PF400(PF400):
         
 
     def drop_complete_plate(self, profile = 0, wait:int = 0.1):
+
+        """
+        Decription: This function executes a series of motion commands to place the 96 well plate to the completed plate location. Program assumes that the PF400 is already carrying the plate with it's gripper. 
+        Parameters: 
+                - profile: Motion profile number. Use "3" for custom motion profile otherwise defult profiles will be used.
+                - wait: Add a wait time between each motion command. Defult is 0.1 seconds.  
+        """
         
         if profile == 3: 
             slow, fast = 3, 3
@@ -155,6 +194,14 @@ class RPL_PF400(PF400):
 
     def rpl_teach_location(self, location:str = None):
 
+        """
+        Decription: A function to edit the robot locoations data and save the new coordinates in joint angles format. 
+                    When this function is called, robot joints will be released and then it can be moved manually to the desired locations. 
+                    Program will ask the user if they want to save the new joint angles to the given location. Once the new angles are saved, robot will be initilized again and remote command interface will be available.
+        Parameters: 
+                - location: Location name that the new joint angles will be saved. This name should already be exist in the robot location data.
+        """
+
         output = self.disable_power()
         if output[0]  == "-":
             raise Exception("Falied disabling power. Aborting teach location!")
@@ -179,6 +226,12 @@ class RPL_PF400(PF400):
 
     def rpl_save_location(self, location:str = None):
 
+        """
+        Decription: A sub function of the rpl_teach_location funtion to save the new coordinates. This function reads and writes into the robot_data.json file.   
+        Parameters: 
+                - location: Location name that the new joint angles will be saved. This name should already be exist in the robot location data.
+        """
+
         if location == None:
             self.logger.error("[rpl_save_location] Location name was not provided by the user")
             raise Exception("Please enter a location name to save the new joint values")
@@ -188,10 +241,10 @@ class RPL_PF400(PF400):
         if self.check_loc_data(location) == False:
             return "Invalid location entered"
         
-        # Setting parent file directory 
-        current_directory = os.path.dirname(__file__)
-        parent_directory = os.path.split(current_directory)[0] 
-        file_path = os.path.join(parent_directory + '/utils/robot_data.json')
+        # # Setting parent file directory 
+        # current_directory = os.path.dirname(__file__)
+        # parent_directory = os.path.split(current_directory)[0] 
+        # file_path = os.path.join(parent_directory + '/utils/robot_data.json')
         
         current_location = self.locate_robot()
 
@@ -210,35 +263,41 @@ class RPL_PF400(PF400):
     
     def program_rpl_robot(self, job:str, robot_ID_1: int = 0, robot_ID_2:int = 0):
         """
-            Programs the robot to execute sequance of movements from its' current location to a given target location
+        Decription: A function to program the PF400 to execute transfer movements between two location. This funtion will call multiple sub funtions to complete full transfer operations, depending on the starting and ending points.
+        Parameters: 
+                - job: This parameter defines, what kind of transfer job will be executed.
+                    .Transfer: Plate transfer between two OT2 robots.
+                    .PLATE_RACK: Plate transfer between the plate rack and OT2 robot.
+                    .CompletedL Plate transfer between OT2 robot and completed plate location.
+                - robot_ID_1: First robot ID, which is goig to be the starting point of the transfer.
+                - robot_ID_2: Second robot ID, which is goig to be the ending point of the transfer.
+
         """
-        # TODO: Find current robot pose
-        # TODO: Find robot location in the operation environment and plan movements dependiging on the surrounding obstacles
-        # TODO: HOME the robot arm before starting a program & Plan different movements dependng of the current gripper state
+        # TODO: Find robot location in the environment and plan movements depending on the surrounding obstacles
+
+        self.move_single("homeall", 2)
 
         if job.upper() == "TRANSFER":
 
             self.logger.info("Executing plate transfer between OT2 ID: {} and OT2 ID: {}".format(robot_ID_1, robot_ID_2))
-            self.move_single("homeall", 2)
             self.pick_plate_ot2(robot_ID_1)
             time.sleep(2)
             self.drop_plate_ot2(robot_ID_2)
             
         elif job.upper() == "PLATE_RACK":
-            self.logger.info("Executing plate transfer betweenplate_rack and OT2 ID: {}".format(robot_ID_2))
-            self.move_single("homeall", 2)
+            self.logger.info("Executing plate transfer between plate_rack and OT2 ID: {}".format(robot_ID_2))
             self.pick_plate_from_rack(1)
             time.sleep(2)
             self.drop_plate_ot2(robot_ID_2)
 
         elif job.upper() == "COMPLETED":
+            self.logger.info("Executing plate transfer OT2 ID: {} and completed plate location".format(robot_ID_1))
             self.pick_plate_ot2(robot_ID_1)
             self.drop_complete_plate()
 
         elif job.upper() == "FULL_TRANSFER":
 
             self.logger.info("Executing full transfer")
-            self.move_single("homeall", 2)
             self.pick_plate_from_rack(1)
             self.drop_plate_ot2(1)
             time.sleep(50)

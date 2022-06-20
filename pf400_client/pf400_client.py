@@ -40,6 +40,8 @@ class PF400():
         # Predefined locations for plate transferring oparetions
         self.location_dictionary = locations
 
+        # TODO: CREATE AN AVAILABLE COMMAND DATA FILE AND CHECK THIS LIST BEFORE SENDING COMMANDS TO THE ROBOT TO PREVENT ERRORS.
+
         self.logger.info("Robot created. Robot ID: {} ~ Host: {} ~ Port: {}".format(self.ID, self.host, self.port))
     
     def load_robot_data(self, data_file_path):
