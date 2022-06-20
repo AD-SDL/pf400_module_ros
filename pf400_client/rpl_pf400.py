@@ -22,26 +22,26 @@ class RPL_PF400(PF400):
         self.OT2_ID = {"bob":1, "alex":2, "jack":3}
 
     def command_handler(self, msg):
-        self.set_robot_mode()
         msg = msg.split("@")
-
-        # Check robot state 
-        # while self.check_general_state() == -1:
-
-        #     self.logger.warn("Robot is not intilized! Intilizing now...")
-        #     output = self.initialize_robot()
+        self.force_initialize_robot()
 
         if len(msg) == 3 and msg[0].lower() == "transfer":
-            output = self.program_rpl_robot(msg[0],self.OT2_ID[msg[1]],self.OT2_ID[msg[2]])
+            if msg[1].lower() == "plate_rack":
+                output_msg = self.program_rpl_robot(msg[1], msg[1], self.OT2_ID[msg[2]])
+            elif msg[2].lower() == "completed":  
+                print("completed")
+                output_msg = self.program_rpl_robot(msg[2], self.OT2_ID[msg[1]], msg[2])
+            else:
+                output_msg = self.program_rpl_robot(msg[0],self.OT2_ID[msg[1]],self.OT2_ID[msg[2]])
         elif len(msg) == 2 and msg[0].lower() == "rack":
-            output = self.pick_plate_from_rack(self.OT2_ID[msg[1]])
+            output_msg = self.pick_plate_from_rack(self.OT2_ID[msg[1]])
         elif len(msg) == 1 and msg[0].lower() == "complete":
-            output = robot.drop_complete_plate()
+            output_msg = robot.drop_complete_plate()
         else:
             self.logger.error("User sent invalid command")
             return "Invalid command requested by the client!!!"    
 
-        return output
+        return output_msg
     
     def pick_plate_ot2(self, ot2_ID , profile = 0, wait:int = 0.1):
         
@@ -155,8 +155,32 @@ class RPL_PF400(PF400):
 
     def rpl_teach_location(self, location:str = None):
 
+        output = self.disable_power()
+        if output[0]  == "-":
+            raise Exception("Falied disabling power. Aborting teach location!")
+
+        self.logger.info("Please set the robot location by manually moving the arm to the disered location.\n" \
+            "!!! ------------------------------------ IMPORTANT ------------------------------------ !!! \n" \
+            "To release the vertical rail, HOLD the arm to make sure it does not fall down and " \
+            "then press the black release button underneath the second joint.")
+
+        user_save_input = str(input("Do you want to save the current location? (y/n): "))
+        
+        if user_save_input.lower() == "y":
+            output = self.rpl_save_location(location)
+            self.logger.info(output)
+        elif user_save_input.lower() == "n":
+            self.logger.warning("Location is not saved!")
+        else:
+            self.logger.warning("Please enter 'y' to save or 'n' to not save the new location")
+            return self.rpl_teach_location(location)
+        
+        self.force_initialize_robot()
+
+    def rpl_save_location(self, location:str = None):
+
         if location == None:
-            self.logger.error("[rpl_teach_location] Location name was not provided by the user")
+            self.logger.error("[rpl_save_location] Location name was not provided by the user")
             raise Exception("Please enter a location name to save the new joint values")
 
         location = location.lower()
@@ -168,10 +192,12 @@ class RPL_PF400(PF400):
         current_directory = os.path.dirname(__file__)
         parent_directory = os.path.split(current_directory)[0] 
         file_path = os.path.join(parent_directory + '/utils/robot_data.json')
+        
+        current_location = self.locate_robot()
 
         # Save the current robot location to the given location
-        loc_list = list(map(int,"2 2 2 2 2 2".split(" ")))
-        self.location_dictionary[location] = [loc_list[0],loc_list[1], loc_list[2], loc_list[3], loc_list[4], loc_list[5]]
+        loc_list = list(map(float,current_location.split(" ")))
+        self.location_dictionary[location] = [loc_list[1], loc_list[2], loc_list[3], loc_list[4], loc_list[5], loc_list[6]]
     
         # Write the new location the data file
         try:
@@ -195,9 +221,19 @@ class RPL_PF400(PF400):
             self.logger.info("Executing plate transfer between OT2 ID: {} and OT2 ID: {}".format(robot_ID_1, robot_ID_2))
             self.move_single("homeall", 2)
             self.pick_plate_ot2(robot_ID_1)
-            time.sleep(5)
+            time.sleep(2)
             self.drop_plate_ot2(robot_ID_2)
             
+        elif job.upper() == "PLATE_RACK":
+            self.logger.info("Executing plate transfer betweenplate_rack and OT2 ID: {}".format(robot_ID_2))
+            self.move_single("homeall", 2)
+            self.pick_plate_from_rack(1)
+            time.sleep(2)
+            self.drop_plate_ot2(robot_ID_2)
+
+        elif job.upper() == "COMPLETED":
+            self.pick_plate_ot2(robot_ID_1)
+            self.drop_complete_plate()
 
         elif job.upper() == "FULL_TRANSFER":
 
@@ -217,4 +253,5 @@ class RPL_PF400(PF400):
    
 if __name__ == "__main__":
     robot = RPL_PF400()
-    robot.command_handler("rack@bob")
+    # robot.command_handler("rack@bob")
+    robot.rpl_teach_location("transfer_d")

@@ -13,6 +13,7 @@ def listener(host, port):
         ctx = zmq.Context()
         sock = ctx.socket(zmq.REP)
         sock.bind("tcp://"+host+":"+ port)
+        print("Starting PF400 listener")
         # logger.info("Starting the command transfer listener")
 
         i = 1
@@ -41,4 +42,4 @@ def main_null():
     print("This function is not meant to have a main function")
 
 if __name__ == "__main__":
-    listener("*", "8085")
+    listener("*", "8089")
