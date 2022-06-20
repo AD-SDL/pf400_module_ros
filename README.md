@@ -15,7 +15,7 @@ Python interface that allows remote commands to be executed using simple string 
 * Robot initilazation (enable power, home robot joints, attach robot to the software and check robot state)
 * Set motion profile
 * Locate current location
-* Stop movement
+* Stop movement 
 * Move to one location
 
 ## rpl_pf400 
@@ -23,7 +23,7 @@ Python interface that allows remote commands to be executed using simple string 
 This is a sub class of the PF400 class, which includes more specific functions that will be utilized only in Rapid Prototyping Lab.
 
 - This class is designed to send commands to the PF400 robot that is located in Rapid Prototyping Lab.
-- The functions are only valid for this specific lab setup
+- The functions are only valid for this specific lab setup.
 
 ### Current features
 
