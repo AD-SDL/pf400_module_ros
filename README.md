@@ -1,8 +1,8 @@
 # pf400_driver
-    A repository for PF400 Collaborative Robot Arm driver, including user manuals and remote control interfaces.
+A repository for PF400 Collaborative Robot Arm driver, including user manuals and remote control interfaces.
 
 ## PF400 Remote Client
-    Python interface that allows remote commands to be executed using simple string messages over TCP/IP on PF400 cobot.  `/pf400_client/pf400_client.py`
+Python interface that allows remote commands to be executed using simple string messages over TCP/IP on PF400 cobot.  `/pf400_client/pf400_client.py`
 
 - PF400 is the main object that will be used for operations such as remote connection as well as sending movement commands.
 - Programs are sent to the 192.168.0.1 IP address and 10x00 port numbers (first robot port number: 10100). 
@@ -76,4 +76,3 @@ Logs go to the "running" PC `/pf400_logs/robot_client_logs.log`
 * move log to receive arbitrary path
 * move log to receive robot_name
 * move log to receive date
-* create PR
