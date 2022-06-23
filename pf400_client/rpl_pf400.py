@@ -12,7 +12,7 @@ logging.basicConfig(filename = file_path, level=logging.DEBUG, format = '[%(leve
 
 class RPL_PF400(PF400):
     """
-    Python interface to socket interface of PF400. This is a subclass od the PF400 class, 
+    Python interface to socket interface of PF400. This is a subclass of the PF400 class, 
     which contains specific functions for Rapid Prototyping Lab setup.
 
     """
