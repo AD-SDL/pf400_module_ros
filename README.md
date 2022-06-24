@@ -34,7 +34,7 @@ This is a sub class of the PF400 class, which includes more specific functions t
 # Development
 ## Enable remote connections on PF400
 - Enter IP address of the PF400 (192.168.0.1) in a web browser and then clink on Admin.
-- Go to startup configuration under wizards and setup tools. Make sure that "Tcp_cmd_server" project is loaded to be automatically compiled when the run is turned on.
+- Go to startup configuration under wizards and setup tools. Make sure that "Tcp_cmd_server" project is loaded to be automatically compiled when the robot is turned on.
 - Go to Control Panels and then Operator Control panel. Verify that TCP Command Server is running. 
 
 ![Control Panel TCP Server](https://github.com/AD-SDL/PF400_cobot/blob/master/resources/diagrams-figures/control-panel.png)
