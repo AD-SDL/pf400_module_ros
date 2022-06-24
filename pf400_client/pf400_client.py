@@ -23,7 +23,7 @@ class PF400():
                  - Responses begin with a "0" if the command was successful, or a negative error code number
 
     """
-    def __init__(self, data_file_path = "robot_data.json"):
+    def __init__(self, data_file_path = "robot_data.json", commands_file_path = "robot_commands.json", error_codes_path = "error_codes.json"):
         
         self.logger = logging.getLogger("PF400_Client")
         self.logger.addHandler(logging.StreamHandler())
@@ -32,19 +32,23 @@ class PF400():
         self.ID = robot1["id"]
         self.host = robot1["host"]
         self.port = robot1["port"]
-        self.robot_data = robot_data
-       
+        self.robot_data = robot_data       
         # Default Motion Profile Paramiters. Using two profiles for faster and slower movements
         self.motion_profile = motion_profile
-
         # Predefined locations for plate transferring oparetions
         self.location_dictionary = locations
-
-        # TODO: CREATE AN AVAILABLE COMMAND DATA FILE AND CHECK THIS LIST BEFORE SENDING COMMANDS TO THE ROBOT TO PREVENT ERRORS.
+        self.commands_list = self.load_robot_commands(commands_file_path)
+        self.error_codes = self.load_error_codes(error_codes_path)
+        self.robot_status = self.check_robot_state()
 
         self.logger.info("Robot created. Robot ID: {} ~ Host: {} ~ Port: {}".format(self.ID, self.host, self.port))
     
     def load_robot_data(self, data_file_path):
+        """
+        Decription: Loads the robot identification/motion profile/location data as dictionaries 
+        Parameters: 
+                - data_file_path: Path to data file
+        """
         # Setting parent file directory 
         current_directory = os.path.dirname(__file__)
         parent_directory = os.path.split(current_directory)[0] 
@@ -58,10 +62,51 @@ class PF400():
 
         return data, data["robot_data"][0], data["robot_data"][0]["motion_profile"],data["robot_data"][0]["locations"][0]
 
+    def load_robot_commands(self, commands_file_path):
+        """
+        Decription: Loads the available command list as a list
+        Parameters: 
+                - commands_file_path: Path to command list file
+        """
+        # Setting parent file directory 
+        current_directory = os.path.dirname(__file__)
+        parent_directory = os.path.split(current_directory)[0] 
+        file_path = os.path.join(parent_directory + '/utils/'+ commands_file_path)
+
+        # load json file
+        with open(file_path) as f:
+            data = json.load(f)
+
+        f.close()
+        return data["Commands_List"]
+
+    def load_error_codes(self, error_codes_path):
+        """
+        Decription: Loads the robot error codes data as a dictionary
+        Parameters: 
+                - error_codes_path: Path to error codes data file
+        """
+        # Setting parent file directory 
+        current_directory = os.path.dirname(__file__)
+        parent_directory = os.path.split(current_directory)[0] 
+        file_path = os.path.join(parent_directory + '/utils/'+ error_codes_path)
+
+        # load json file
+        with open(file_path) as f:
+            data = json.load(f)
+
+        f.close()
+        return data["Error_Codes"]
+
 
     #Connect the socket object to the robot
-    def connect_robot(self):    
-        #create an INET, Streaming socket (IPv4, TCP/IP)
+    def connect_robot(self): 
+        """
+        Decription: Create an INET, Streaming socket (IPv4, TCP/IP) to send string commands to the robot. 
+                    Uses the host and port numbers that were loaded from the robot data file
+
+        """   
+
         try:
             PF400 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  
 
@@ -81,29 +126,29 @@ class PF400():
         PF400.close()
         # self.logger.info("TCP/IP client is closed")
 
-    def send_command(self, cmd: str=None, ini_msg:str = None, err_msg:str = None, wait:int = 0.1):
+    def send_command(self, cmd: str=None, ini_msg:str = "Send command", err_msg:str = "Failed to send command: ", wait:int = 0.1):
         """
-        Send and arbitrary command to the robot
-        - command : 
-        - wait : wait time after movement is complete
+        Decription: Sends the commands to the robot over the TCP socket
+        Parameters: 
+                - cmd: Command itself in string format
+                - ini_msg: Customizable success message 
+                - err_msg: Customizable error message 
+                - wait: Wait time after movement is complete
         """
 
         ##Command Checking 
         #TODO: We can check the available commands if the user enters a wrong one break
+        pure_cmd = cmd.split(" ")
+    
+        if cmd == None:
+            self.logger.error("Invalid command: " + cmd)
+            return "-1" ## make it return the last valid state
+        elif pure_cmd[0].strip().lower() not in self.commands_list:
+            self.logger.error("Invalid command: " + cmd)
+            self.logger.warning("Available commands: {}".format(self.commands_list))
+            return "-1" ## make it return the last valid state
 
-        if cmd==None:
-            self.logger.info("Invalid command: " +cmd)
-            return -1 ## make it return the last valid state
-        
-        ##logging messages
-        if ini_msg=='':
-            ini_msg = 'send command'
-        if err_msg=='':
-            err_msg = 'Failed to send command: '
-
-        ##TODO check cmd against cmd list 
-        ##return invalid CMD before trying to connect
-
+        # Connect to the robot over TCP socket
         PF400_sock = self.connect_robot()
         
         try:
@@ -111,6 +156,11 @@ class PF400():
             robot_output = PF400_sock.recv(4096).decode("utf-8")
             if ini_msg:
                 self.logger.info(ini_msg)
+
+            # TODO: TRY OUTPUT ERROR CODE MESSAGES ON THE REAL ROBOT!!!!!!!!!!!!!!!!!!
+            # If command was unsucssesful, print the related error message 
+            if robot_output in self.error_codes:
+                    self.logger.error(self.error_codes[robot_output])  
             self.logger.info(robot_output)
             # Wait after executing the command. Default wait time 0.1 sc
             time.sleep(wait)
@@ -125,19 +175,25 @@ class PF400():
 
 
     def check_robot_state(self, wait:int = 0.1):
+        """
+        Decription: Checks the robot state
+        """
 
         cmd = 'sysState\n'
-        input_msg = 'Checking robot state:'
+        input_msg = 'Robot state'
         err_msg = 'Failed to check robot state:'
 
         out_msg = self.send_command(cmd, input_msg, err_msg)
+        if "0 21" in out_msg:
+            out_msg = "Robot intilized and in ready state"
         return out_msg
 
 
 
     def enable_power(self, wait:int = 0.1):
-
-        #Send cmd to Activate the robot
+        """
+        Decription: Enables the power on the robot
+        """
         cmd = 'hp 1\n'
         ini_msg = 'Enabling power on the robot'
         err_msg = 'Failed enable_power:'
@@ -147,7 +203,9 @@ class PF400():
         return out_msg
 
     def disable_power(self, wait:int = 0.1):
-
+        """
+        Decription: Disables the power on the robot
+        """
         cmd = 'hp 0\n'
         ini_msg = 'Disabling power on the robot'
         err_msg = 'Failed disable_power:'
@@ -156,10 +214,15 @@ class PF400():
 
         return out_msg
 
-    def attach_robot(self, wait:int = 0.1):
-
-        cmd = 'attach 1\n'
-        ini_msg = "Attaching the robot"
+    def attach_robot(self, robot_id:str = "1", wait:int = 0.1):
+        """
+        Decription: If there are multiple PF400 robots, chooses which robot will be programed attaches to the software. 
+                    If robot ID is not given it will attach the first robot.
+        Parameters: 
+                - robot_id: ID number of the robot
+        """
+        cmd = "attach" + robot_id + "\n"
+        ini_msg = "Attaching the robot" + robot_id
         err_msg = "Failed to attach the robot:"
 
         out_msg = self.send_command(cmd, ini_msg, err_msg, wait)
@@ -168,7 +231,9 @@ class PF400():
 
         
     def home_robot(self, wait:int = 0.1):
-
+        """
+        Decription: Homes robot joints. Homing takes around 15 seconds.
+        """
         cmd = 'home\n'
         ini_msg = 'Homing the robot'
         err_msg = 'Failed to home the robot: '
@@ -179,7 +244,12 @@ class PF400():
 
     # Create "profile section" apart from the "command section"
     def set_profile(self, wait:int = 0.1, profile_dict:dict = {"0":0}):
-
+        """
+        Decription: Sets and saves the motion profiles (defined in robot data) to the robot. 
+                    If user defines a custom profile, this profile will saved onto motion profile 3 on the robot
+        Parameters: 
+                - profile_dict: Custom motion profile
+        """  
         if len(profile_dict) == 1:
            
             cmd = 'Profile 1'
@@ -220,11 +290,15 @@ class PF400():
         return out_msg 
     
     def initialize_robot(self):
-        
+        """
+        Decription: Intilizes the robot by calling enable_power, attach_robot, home_robot, set_profile functions and 
+                    checks the robot state to find out if the initilization was successful
+        """
+
         # Enable power 
         power = self.enable_power(5)
         # Attach robot
-        attach = self.attach_robot(5)
+        attach = self.attach_robot("1", 5)
         # Home robot
         home = self.home_robot(15)
         # Set default motion profile
@@ -241,17 +315,21 @@ class PF400():
 
 
     def force_initialize_robot(self):
+        """
+        Decription: Repeats the initilzation until there are no errors and the robot is initilzed.
+        """
 
         self.set_robot_mode()
         # Check robot state & initilize
-        while self.check_general_state() == -1:
+        if self.check_general_state() == -1:
 
             self.logger.warning("Robot is not intilized! Intilizing now...")
             output = self.initialize_robot()
+            self.force_initialize_robot()
 
     def set_motion_blend_tolerance(self, tolerance: int = 0, wait:int = 0.1):
         """
-        Description: Gets or sets the InRange property of the selected profile, which is a parameter to set tolorance between blended motions.
+        Description: **NOT IMPLEMENTED** Gets or sets the InRange property of the selected profile, which is a parameter to set tolorance between blended motions.
         
         Paramiters
                 tolerance:  from -1 to 100
@@ -263,6 +341,9 @@ class PF400():
         pass
 
     def set_robot_mode(self):
+        """
+        Decription: Sets the robot to PC mode. This is needed to make sure the robot is properly communicating over the TCP socket. 
+        """
         
         cmd = 'mode 0\n'
         
@@ -273,7 +354,9 @@ class PF400():
         return out_msg
 
     def check_robot_heartbeat(self, wait:int = 0.1):
-
+        """
+        Decription: Checks the robot heartbeat.
+        """
         cmd = 'nop\n'
         
         input_msg = 'Checking robot heartbeat:'
@@ -283,6 +366,9 @@ class PF400():
         return out_msg
 
     def check_general_state(self, wait:int = 0.1):
+        """
+        Decription: Checks general state
+        """
 
         cmd1 = "hp\n"
         cmd2 = "attach\n"
@@ -313,7 +399,7 @@ class PF400():
 
     def stop_robot(self, wait:int = 0.1):
         """
-        Stops the robot immediately but leaves power on.
+        Decription: Stops the robot immediately but leaves power on.
         """
 
         cmd =  'halt\n'
@@ -325,16 +411,25 @@ class PF400():
 
     def wait_before_next_move(self, wait:int = 0.1):
         """
-        If you want to wait for the robot to stop moving, issue a waitForEom command
+        Decription: **NOT IMPLEMENTED** If you want to wait for the robot to stop moving, issue a waitForEom command
         """
         pass
 
     def clear_programs(self, wait:int = 0.1):
-        #TODO: CLEAR ROBOT MEMORY BEFORE STARTING A PROGRAM TO MAKE SURE THERE IS NO QUEUED PROGRAMS FROM PREVIOUS EXECUTION
+        """
+        Decription: TODO: CLEAR ROBOT MEMORY BEFORE STARTING A PROGRAM TO MAKE SURE THERE IS NO QUEUED PROGRAMS FROM PREVIOUS EXECUTION
+        """
         pass
 
-    def set_move_command(self, robot_location, profile:int = 2, gripper: bool = False, release: bool = False):
-        # TODO: FIND THE 5th JOINT VALUE FOR WHEN THE GRIPPER IS CLOSE AND OPEN
+    def set_move_command(self, target_location, profile:int = 2, gripper_close: bool = False, gripper_open: bool = False):
+        """
+        Decription: Creates the movement commands with the given robot_location, profile, gripper closed and gripper open info
+        Parameters:
+                - target_location: Which location the PF400 will move.
+                - profile: Motion profile ID.
+                - gripper_close: If set to TRUE, gripper is closed. If set to FALSE, gripper position will remain same as the previous location. 
+                - gripper_open: If set to TRUE, gripper is opened. If set to FALSE, gripper position will remain same as the previous location.
+        """
         if profile == 1:
             robot_command = "MoveJ 1" 
 
@@ -347,10 +442,10 @@ class PF400():
         else:
             raise Exception("Please enter a valid motion profiile! 1 for slower movement, 2 for faster movement profile, 3 for modified profile")
        
-        for count, location in enumerate(self.location_dictionary[robot_location]):
-            if gripper == True and count == 4:
+        for count, location in enumerate(self.location_dictionary[target_location]):
+            if gripper_close == True and count == 4:
                 robot_command += " " + str(120.0)
-            elif release == True and count == 4:
+            elif gripper_open == True and count == 4:
                 robot_command += " " + str(127.0)
             else:    
                 robot_command += " " + str(location) 
@@ -358,12 +453,18 @@ class PF400():
         
         return robot_command
 
-    def move_single(self, target_location, profile = 2, grap: bool = False, release: bool = False, wait:int = 0.1):
+    def move_single(self, target_location, profile = 2, gripper_close: bool = False, gripper_open: bool = False, wait:int = 0.1):
 
         """
-            Executes only one movement to the target location which is from the location dictionary
+        Decription: Executes only one movement to the target location which is from the location dictionary
+        Parameters:
+                - target_location: Which location the PF400 will move.
+                - profile: Motion profile ID.
+                - gripper_close: If set to TRUE, gripper is closed. If set to FALSE, gripper position will remain same as the previous location. 
+                - gripper_open: If set to TRUE, gripper is opened. If set to FALSE, gripper position will remain same as the previous location.
+
         """
-        single_move_commands = self.set_move_command(target_location.lower(), profile, grap, release)
+        single_move_commands = self.set_move_command(target_location.lower(), profile, gripper_close, gripper_open)
 
         input_msg = "Robot is moved to the {} location".format(target_location)
         err_msg = 'Failed move the robot:'
@@ -376,22 +477,27 @@ class PF400():
     
     def manualy_move_cartesian(self, target_joint):
         """
-        A Cartesian location specifies the coordinates of a position in space using X, Y, and Z coordinates, and an orientation of the robot tool using yaw, pitch, and roll angles.
+        Decription: ** NOT IMPLEMENTED ** A Cartesian location specifies the coordinates of a position in space using X, Y, and Z coordinates, and an orientation of the robot tool using yaw, pitch, and roll angles.
         Depending on the robot kinematics, there may be more than one set of joint angles that puts the robot's gripper at the same Cartesian location.
         """
         pass
 
     def manualy_move_joints(self, target_joint_location):
         """
-        An angles location is a collection of the joint angles for the robot.  
+        Decription: ** NOT IMPLEMENTED ** An angles location is a collection of the joint angles for the robot.  
         Joint angles are in units of degrees for rotary axes and in millimeters for linear axes.  
         By moving all joints to the specified values, the robot moves to an unambiguous position and orientation in space.
         """
 
         pass
 
-    def set_speed(self, speed, wait:int = 0.1):
+    def set_speed(self, speed:str = 50 , wait:int = 0.1):
 
+        """
+        Decription: Set the robot speed.
+        Parameters:
+                - speed: New speed value 0 - 100.
+        """
         cmd = "mspeed " + str(speed) +"\n"
 
         input_msg = "Settin new robot speed"
@@ -401,7 +507,9 @@ class PF400():
         return out_msg
             
     def locate_robot(self, wait:int = 0.1):
-        
+        """
+        Decription: Locates the robot and returns the joint locations for all 6 joints.
+        """
         location = 'wherej\n'
 
         input_msg = "Finding robot location:"
@@ -414,15 +522,13 @@ class PF400():
             
         return out_msg
    
-    def program_robot(self, location_list: list = []):
-        """
-        Description: A function to send multiple locations to the robot to execute them consecutively
-        Params: - location_list: 2D array where first dimention contains location name from location data 
-                                 and second contains gripper postion
-        """       
-        pass
+
 
     def check_loc_data(self, target_location):
+        """
+        Decription: Checks if the given location exists in the location data.
+
+        """
         loc_list = list(self.location_dictionary.keys())
         idx = -1
         try:
@@ -442,42 +548,19 @@ class PF400():
 
 
     def teach_new_location(self, location_name: str, gripper: str = 127):
-        # A fuction to save any location data into the location data file with a given name by the user.
-        locations = self.modify_robot_data()
+        """
+        Decription: ** NOT IMPLEMENTED ** A fuction to save a new location data into the location data file with a given name by the user.
+        """
+        locations = self.location_dictionary
 
         pass   
 
-    def modify_robot_data(self, location: str, robot_id:int = None):
 
-        current_location = self.locate_robot()
-        location_data = self.modify_robot_data()
 
 if __name__ == "__main__":
     robot = PF400()
+
+    # Setting parent file directory 
+    
     # robot.check_loc_data("Trash")
-    print(robot.locate_robot())
-
-        # try:
-        #     if robot_id == None and (location.lower() == "homeall" or location.lower() == "homearm" or location.lower() == "mobile_robot" or location.lower() == "trash") :
-        #     # TODO: Find a better way for this 
-        #         for count, loc in enumerate(self.location_dictionary[location]):
-        #             self.location_dictionary[location][count] = current_location[count]
-
-        #     elif robot_id != None:
-        #         if location.upper() == "FRONT":
-        #             location_name = "ot2_" + str(robot_id) + "_front"
-        #         elif location.upper() == "ABOVE_PLATE":
-        #             location_name =  "ot2_" + str(robot_id) + "_above_plate"
-        #         elif location.upper() == "PICK_PLATE":
-        #             location_name = "ot2_" + str(robot_id) + "_pick_plate"
-        #         elif location.upper() == "PLATE_RACK":
-        #             location_name = "ot2_" + str(robot_id) + "_plate_rack"
-        #     else:
-        #         raise Exception("Please enter a valid location name!!! Format: location: str, robot_id:int = None ")
-            
-        #     for count, loc in enumerate(self.location_dictionary[key_name]):
-        #         self.location_dictionary[key_name][count] = current_location[count]        
-           
-        
-        # except Exception as err:
-        #     self.logger.error(err)
+    # print(robot.commands_list)
