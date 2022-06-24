@@ -3,12 +3,13 @@ import time
 import logging
 import json
 
+import pf400_client
 from pf400_client import PF400
 
 #Log Configuration
 file_path = os.path.join(os.path.split(os.path.dirname(__file__))[0]  + '/pf400_logs/rpl_pf400_logs.log')
 
-logging.basicConfig(filename = file_path, level=logging.DEBUG, format = '[%(levelname)s] [%(asctime)s] [%(name)s] %(message)s', datefmt = '%Y-%m-%d %H:%M:%S')
+logging.basicConfig(filename = '/pf400_logs/rpl_pf400_logs.log', level=logging.DEBUG, format = '[%(levelname)s] [%(asctime)s] [%(name)s] %(message)s', datefmt = '%Y-%m-%d %H:%M:%S')
 
 class RPL_PF400(PF400):
     """

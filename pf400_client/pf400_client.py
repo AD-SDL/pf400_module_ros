@@ -5,7 +5,7 @@ import logging
 import json
 
 #Log Configuration
-file_path = os.path.join(os.path.split(os.path.dirname(__file__))[0]  + '/pf400_logs/robot_client_logs.log')
+file_path = os.path.join(os.path.split(os.path.dirname(__file__))[0]  + "/pf400_logs/robot_client_logs.log")
 
 logging.basicConfig(filename = file_path, level=logging.DEBUG, format = '[%(levelname)s] [%(asctime)s] [%(name)s] %(message)s', datefmt = '%Y-%m-%d %H:%M:%S')
 
@@ -221,7 +221,7 @@ class PF400():
         Parameters: 
                 - robot_id: ID number of the robot
         """
-        cmd = "attach" + robot_id + "\n"
+        cmd = "attach " + robot_id + "\n"
         ini_msg = "Attaching the robot" + robot_id
         err_msg = "Failed to attach the robot:"
 
