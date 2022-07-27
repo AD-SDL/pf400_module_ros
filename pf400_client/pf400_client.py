@@ -559,8 +559,5 @@ class PF400():
 
 if __name__ == "__main__":
     robot = PF400()
-
-    # Setting parent file directory 
-    
-    # robot.check_loc_data("Trash")
-    # print(robot.commands_list)
+    robot.check_general_state()
+    # print(robot.send_command("wherej\n"))
