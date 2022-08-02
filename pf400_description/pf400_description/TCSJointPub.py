@@ -23,6 +23,8 @@ class PF_JOINTS(Node):
 
 		##########################  Testing Stuff
 
+		loop_rate = self.create_rate(30)
+
 		self.broadcaster = TransformBroadcaster(self, qos=qos_profile)
 
 		odom_trans = TransformStamped()
@@ -42,9 +44,11 @@ class PF_JOINTS(Node):
 
 				self.jointStatePub.publish(joint_state)
 				self.broadcaster.sendTransform(odom_trans)
+				loop_rate.sleep()
 
 		except:
 			pass
+
 
 	# def joint_callback(self):
 	# 	try:
