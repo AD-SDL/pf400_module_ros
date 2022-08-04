@@ -26,12 +26,12 @@ def generate_launch_description():
             'use_sim_time',
             default_value='false',
             description='Use simulation (Gazebo) clock if true'),
-        Node(
-            package='pf400_description',
-            namespace='pf400',
-            executable='pf400_joint_pub',
-            name='pf400_joint_publisher'
-        ),
+        # Node(
+        #     package='pf400_description',
+        #     namespace='pf400',
+        #     executable='pf400_joint_pub',
+        #     name='pf400_joint_publisher'
+        # ),
         Node(
             package='robot_state_publisher',
             executable='robot_state_publisher',
@@ -40,11 +40,11 @@ def generate_launch_description():
             parameters=[{'use_sim_time': use_sim_time,'robot_description': robot_desc}],
             arguments=[urdf]
         ),
-        Node(
-            package='rviz2',
-            namespace='pf400',
-            executable='rviz2',
-            name='pf400_viz',
-            arguments= ['-d', [os.path.join('pf400_description', 'config', 'StandardSettings.rviz')]]
-        ),
+        # Node(
+        #     package='rviz2',
+        #     namespace='pf400',
+        #     executable='rviz2',
+        #     name='pf400_viz',
+        #     arguments= ['-d', [os.path.join('pf400_description', 'config', 'StandardSettings.rviz')]]
+        # ),
     ])

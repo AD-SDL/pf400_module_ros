@@ -27,6 +27,7 @@ setup(
         'console_scripts': [
             'pf400_joint_pub = pf400_description.TCSJointPub:main',
             'pf400_joint_control = pf400_description.jointControlNode:main',
+            'demo_client = pf400_description.demoClient:main',
         ],
     },
 )
