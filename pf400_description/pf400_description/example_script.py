@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+from operator import mod
 import sys
 import time
 from time import sleep
@@ -20,7 +21,7 @@ client.SendCommand("attach 1")
 
 # # Home if necessary
 is_homed = client.SendCommand("pd 2800")
-if is_homed == "0 0":
+if is_homed == "0 0": 
 	client.SendCommand("home")
 
 
@@ -45,29 +46,160 @@ def open():
 # peller_down_close = client.SendCommand("movej 1 212 -30.8 318.3 340.26 75.7 650.728")
 # peller_down_open = client.SendCommand("movej 1 212 -30.8 318.3 340.26 100 650.728")
 
-module_neutral = client.SendCommand("movej 1 300 0 237.92 388.47 77 643.54")
+def moveJ(pos, profile=2):
 
-client.SendCommand("movej 2 300 -83.8 346.52 457.31 77 611.22")
-client.SendCommand("movej 2 274.54 -83.8 346.52 457.31 90 611.22")
-client.SendCommand("movej 2 300 -83.8 346.52 457.31 90 611.22")
-client.SendCommand("movej 2 274.54 -83.8 346.52 457.31 90 611.22")
-client.SendCommand("movej 2 274.54 -83.8 346.52 457.31 77 611.22")
-client.SendCommand("movej 2 300 -83.8 346.52 457.31 77 611.22")
+	# if gripper=='Open':
+	# 	pos[4]=plate_size
+	# elif gripper=='Close':
+	# 	pos[4]=90
+
+	cmd = "movej" + " " + str(profile) + " " + " ".join(map(str, pos))
+
+	print(cmd)
+	client.SendCommand(cmd)
+
+# def grab(joint):
+
+	#check_gripper_pos
+
+	#neutral
+	#module_entry
+	#pos_top
+	#pos
+	#close (can be just a moveaxis)
+	#pos_top (can be just a moveaxis)
+	#module_entry
+
+# def drop():
+# 	pass
+
+# def transfer(pos1, pos2):
+# 	pass
 
 
-module_neutral = client.SendCommand("movej 1 300 0 237.92 388.47 77 643.54")
 
-client.SendCommand("movej 2 240 -30.022 315.652 342.983 77 650.720")
-client.SendCommand("movej 2 217 -30.022 315.652 342.983 77 650.720")
-client.SendCommand("movej 2 217 -30.022 315.652 342.983 90 650.720")
-client.SendCommand("movej 2 240 -30.022 315.652 342.983 90 650.720")
-print("end of step 1")
-client.SendCommand("movej 2 217 -30.022 315.652 342.983 90 650.720")
-client.SendCommand("movej 2 217 -30.022 315.652 342.983 77 650.720")
-print("end of step 2")
-client.SendCommand("movej 2 240 -30.022 315.652 342.983 77 650.720")
 
-module_neutral = client.SendCommand("movej 1 300 0 237.92 388.47 77 643.54")
+module_neutral = [400, 0, 237.92, 388.47, 76.7, 643.54]
+# peeler_gate = [263.541,-37.389,286.9,376.43,90,731.169]
+# peller_gate_top = peeler_gate + [10,0,0,0,0,0]
+peeler_above_open = [307.419, -31.460, 289.067, 373.143, 90.0, 661.437]
+peeler_above_closed = [307.419, -31.460, 289.067, 373.143, 76.7, 661.437]
+
+peeler_open = [272.419, -31.460, 289.067, 373.143, 90.0, 661.437]
+peeler_closed = [272.419, -31.460, 289.067, 373.143, 76.7, 661.437]
+
+sealer_above_closed = [250.966, -32.123, 304.570, 356.268, 76.7, 812.485]
+sealer_above_open = [250.966, -32.123, 304.570, 356.268, 90.0, 812.485]
+
+sealer_closed = [220.960, -30.670, 302.227, 356.440, 76.7, 812.442]
+sealer_open = [220.960, -30.670, 302.227, 356.440, 90.0, 812.442]
+# sealer_open = [217.395, -40.878, 336.058, 334.121, 90, 726.309]
+# sealer_closed = [217.395, -40.878, 336.058, 334.121, 76.7, 726.309]
+module_switch = [260.241, -10.147, 174.616, 539.662, 76.7, -254.6]
+ot2_enter = [260.241, -10.465, 60.89, 537.196, 76.7, -254.578]
+
+ot2_above_closed = [231.183, 29.345, 89.351, 598.682, 76.7, -67.409]
+ot2_above_open = [231.183, 29.345, 89.351, 598.682, 90.0, -67.409]
+
+ot2_closed = [201.183, 29.345, 89.351, 598.682, 76.7, -67.409]
+ot2_open = [201.183, 29.345, 89.351, 598.682, 90.0, -67.409]
+# ot2_above = [204.641, 22.313, 60.256, 635.886, 90, -254.09]
+
+
+# moveJ(module_neutral)
+
+# moveJ(peeler_above_open)
+# moveJ(peeler_open)
+# sleep(2)
+# moveJ(peeler_closed)
+# moveJ(peeler_above_closed)
+# moveJ(module_neutral)
+
+# moveJ(sealer_above_closed)
+# moveJ(sealer_closed)
+# moveJ(sealer_open)
+# moveJ(sealer_above_open)
+# sleep(1)
+# moveJ(module_neutral)
+
+
+# moveJ(sealer_above_open)
+# moveJ(sealer_open)
+# sleep(2)
+# moveJ(sealer_closed)
+# moveJ(sealer_above_closed)
+# moveJ(module_neutral)
+
+# moveJ(module_switch)
+# moveJ(ot2_enter)
+# moveJ(ot2_above_closed)
+# sleep(1)
+# moveJ(ot2_closed)
+# sleep(2)
+# moveJ(ot2_open)
+# sleep(1)
+# moveJ(ot2_above_open)
+# moveJ(ot2_enter)
+# moveJ(module_switch)
+# client.SendCommand("movej 2 300 -83.8 346.52 457.31 77 611.22")
+# client.SendCommand("movej 2 274.54 -83.8 346.52 457.31 90 611.22")
+# client.SendCommand("movej 2 300 -83.8 346.52 457.31 90 611.22")
+# client.SendCommand("movej 2 274.54 -83.8 346.52 457.31 90 611.22")
+# client.SendCommand("movej 2 274.54 -83.8 346.52 457.31 77 611.22")
+# client.SendCommand("movej 2 300 -83.8 346.52 457.31 77 611.22")
+
+
+moveJ(module_neutral)
+
+# moveJ(sealer_above_open)
+# moveJ(sealer_open)
+# sleep(1)
+# moveJ(sealer_closed)
+# moveJ(sealer_above_closed)
+# moveJ(module_neutral)
+
+
+# moveJ(peeler_above_closed)
+# moveJ(peeler_closed)
+# sleep(2)
+# moveJ(peeler_open)
+# moveJ(peeler_above_open)
+# moveJ(module_neutral)
+
+
+moveJ(peeler_above_open)
+moveJ(peeler_open)
+sleep(1)
+moveJ(peeler_closed)
+moveJ(peeler_above_closed)
+moveJ(module_neutral)
+
+moveJ(module_switch)
+moveJ(ot2_enter)
+moveJ(ot2_above_closed)
+sleep(1)
+moveJ(ot2_closed)
+sleep(2)
+moveJ(ot2_open)
+sleep(1)
+moveJ(ot2_above_open)
+moveJ(ot2_enter)
+moveJ(module_switch)
+
+
+# module_neutral = client.SendCommand("movej 1 300 0 237.92 388.47 77 643.54")
+
+# client.SendCommand("movej 2 240 -30.022 315.652 342.983 77 650.720")
+# client.SendCommand("movej 2 217 -30.022 315.652 342.983 77 650.720")
+# client.SendCommand("movej 2 217 -30.022 315.652 342.983 90 650.720")
+# client.SendCommand("movej 2 240 -30.022 315.652 342.983 90 650.720")
+# print("end of step 1")
+# client.SendCommand("movej 2 217 -30.022 315.652 342.983 90 650.720")
+# client.SendCommand("movej 2 217 -30.022 315.652 342.983 77 650.720")
+# print("end of step 2")
+# client.SendCommand("movej 2 240 -30.022 315.652 342.983 77 650.720")
+
+# module_neutral = client.SendCommand("movej 1 300 0 237.92 388.47 77 643.54")
 
 
 ####################################################
@@ -89,7 +221,7 @@ module_neutral = client.SendCommand("movej 1 300 0 237.92 388.47 77 643.54")
 #########################################
 # Above Sealer
 
-client.SendCommand("wherej")
+# client.SendCommand("wherej")
 # client.SendCommand("moveoneaxis 1 276.36 2") 	 # move one axis
 # client.SendCommand("moveoneaxis 2 -86.67 2")
 

@@ -57,7 +57,7 @@ class jointControlNode(Node):
 
         self.descriptionSrv = self.create_service(Empty, "pf400_whereJ", self.whereJCallback)
 
-        # self.actionSrv = self.create_service(PeelerActions, "peeler_actions", self.actionCallback)
+        self.actionSrv = self.create_service(MoveJ, "pf400_moveJ", self.moveJCallback)
 
 
     def stateCallback(self):
@@ -85,11 +85,28 @@ class jointControlNode(Node):
         '''
 
         self.get_logger().info('What are my joint positions?')
-
+ 
         var  = self.client.SendCommand("wherej")
         print(var)
         return response
 
+
+    def moveJCallback(self, request, response):
+
+        '''
+        The descriptionCallback function is a service that can be called to showcase the available actions a robot
+        can preform as well as deliver essential information required by the master node.
+        '''
+
+        profile = 2                                                                         # profile changes speed of arm
+        pos = request.joint_positions                                                       # Joint position taken from list given within request 
+        cmd = "movej" + " " + str(profile) + " " + " ".join(map(str, pos))                  # Turns the list into a string to send cmd to pf400 driver
+
+        print(cmd)
+
+        self.client.SendCommand(cmd)
+        
+        return response
 
 
 def main(args = None):
