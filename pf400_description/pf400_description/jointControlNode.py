@@ -24,7 +24,7 @@ class jointControlNode(Node):
 
         super().__init__(NODE_NAME)
         
-        print("Wakey wakey eggs & bakey") 
+        print("pf400 is online") 
 
         self.state = "UNKNOWN"
 
@@ -98,6 +98,11 @@ class jointControlNode(Node):
         can preform as well as deliver essential information required by the master node.
         '''
 
+        self.state = "BUSY"
+
+        self.stateCallback()
+
+
         profile = 2                                                                         # profile changes speed of arm
         pos = request.joint_positions                                                       # Joint position taken from list given within request 
         cmd = "movej" + " " + str(profile) + " " + " ".join(map(str, pos))                  # Turns the list into a string to send cmd to pf400 driver
@@ -105,6 +110,8 @@ class jointControlNode(Node):
         print(cmd)
 
         self.client.SendCommand(cmd)
+
+        self.state = "COMPLETED"
         
         return response
 
