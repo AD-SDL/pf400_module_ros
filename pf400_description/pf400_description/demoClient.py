@@ -1,4 +1,5 @@
 import sys
+from operator import add
 
 import rclpy
 from rclpy.node import Node
@@ -13,16 +14,32 @@ class MinimalClientAsync(Node):
     def __init__(self):
         super().__init__('minimal_client_async')
 
-        self.module_neutral = [400.0, 0.1, 237.92, 388.47, 76.7, 643.54]
-
 
         self.gripper_open = 90.0
-        self.gripper_closed = 76.7
+        self.gripper_closed = 79.0
 
-        self.pos1 = [272.419, -31.460, 289.067, 373.143, self.gripper_open, 661.437]
-        self.pos2 = [272.419, -31.460, 289.067, 373.143, self.gripper_open, 661.437]
+        self.module_neutral = [400.0, 0.1, 237.92, 388.47, self.gripper_open, 643.54]
+        self.module_neutralClosed = [400.0, 0.1, 237.92, 388.47, self.gripper_closed, 643.54]
 
-        self.above = [35.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+        self.peelerPos = [264.584, -29.413,	284.376, 372.338, self.gripper_open, 651.621]
+
+        self.sealerPos = [231.788, -27.154, 313.011, 342.317, self.gripper_open, 683.702]
+
+        self.peelerClosedPos = [264.584, -29.413,	284.376, 372.338, self.gripper_closed, 651.621]
+        self.sealerClosedPos = [231.788, -27.154, 313.011, 342.317, self.gripper_closed, 683.702]
+
+
+        self.above = [60.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+
+
+        self.pf400_neutral = [399.992, -0.356, 181.867, 530.993,	self.gripper_open, 643.580]
+        self.pf400_neutralClosed = [399.992, -0.356, 181.867, 530.993,	self.gripper_closed, 643.580]
+
+
+        self.cyclops_ext = [262.550, 20.608, 119.290, 662.570, self.gripper_open, 574.367]
+        self.cyclopsClosed_ext = [262.550, 20.608, 119.290, 662.570, self.gripper_closed, 574.367]
+
+
 
 
         # self.peeler_above_open = self.pos1 + [35.0, 0.0, 0.0, 0.0, 0.0, 0.0]
@@ -76,27 +93,166 @@ class MinimalClientAsync(Node):
     #     #move to pos + z (open)
     #     #go back
 
+    # def jointPos(coord, gripper):
+
+    #     pos = [coord[0], coord[1], coord[2], coord[3], gripper, coord[5]]
+
+    #     return pos
+
     def transfer(self, pos1, pos2, neutral1, neutral2):
         self.grab_plate(pos1, neutral1)
         self.deliver_plate(pos2, neutral2)
 
     def pf400ToPeeler(self):
+        '''example flow'''
 
-        self.pf400Req.joint_positions = self.module_neutral
-        self.future = self.cli.call_async(self.pf400Req)
-        rclpy.spin_until_future_complete(self, self.future)
 
-        sleep(0.5)
+        # sleep(0.5)
 
-        self.pf400Req.joint_positions = self.pos1 + self.above
-        self.future = self.cli.call_async(self.pf400Req)
-        rclpy.spin_until_future_complete(self, self.future)
+        # self.pf400Req.joint_positions = self.pf400_neutral
+        # self.future = self.cli.call_async(self.pf400Req)
+        # rclpy.spin_until_future_complete(self, self.future)  
 
-        self.pf400Req.joint_positions = self.module_neutral
-        self.future = self.cli.call_async(self.pf400Req)
-        rclpy.spin_until_future_complete(self, self.future)
+        # self.pf400Req.joint_positions = list(map(add, self.cyclops_ext, self.above))
+        # self.future = self.cli.call_async(self.pf400Req)
+        # rclpy.spin_until_future_complete(self, self.future)  
 
-        sleep(0.5)
+        # self.pf400Req.joint_positions = self.cyclops_ext
+        # self.future = self.cli.call_async(self.pf400Req)
+        # rclpy.spin_until_future_complete(self, self.future)  
+
+        # sleep(1)
+
+        # self.pf400Req.joint_positions = self.cyclopsClosed_ext
+        # self.future = self.cli.call_async(self.pf400Req)
+        # rclpy.spin_until_future_complete(self, self.future)  
+
+        # self.pf400Req.joint_positions = list(map(add, self.cyclopsClosed_ext, self.above))
+        # self.future = self.cli.call_async(self.pf400Req)
+        # rclpy.spin_until_future_complete(self, self.future)
+
+        # self.pf400Req.joint_positions = self.pf400_neutralClosed
+        # self.future = self.cli.call_async(self.pf400Req)
+        # rclpy.spin_until_future_complete(self, self.future)  
+
+        # self.pf400Req.joint_positions = self.module_neutralClosed
+        # self.future = self.cli.call_async(self.pf400Req)
+        # rclpy.spin_until_future_complete(self, self.future)
+
+        # sleep(0.5)
+
+
+        # self.pf400Req.joint_positions = list(map(add, self.sealerClosedPos, self.above))
+        # self.future = self.cli.call_async(self.pf400Req)
+        # rclpy.spin_until_future_complete(self, self.future)
+
+        # self.pf400Req.joint_positions = self.sealerClosedPos
+        # self.future = self.cli.call_async(self.pf400Req)
+        # rclpy.spin_until_future_complete(self, self.future)
+
+        # sleep(1)
+
+        # self.pf400Req.joint_positions = self.sealerPos
+        # self.future = self.cli.call_async(self.pf400Req)
+        # rclpy.spin_until_future_complete(self, self.future)
+
+
+        # self.pf400Req.joint_positions = list(map(add, self.sealerPos, self.above))
+        # self.future = self.cli.call_async(self.pf400Req)
+        # rclpy.spin_until_future_complete(self, self.future)
+
+
+        # sleep(1)
+
+        # self.pf400Req.joint_positions = self.sealerPos
+        # self.future = self.cli.call_async(self.pf400Req)
+        # rclpy.spin_until_future_complete(self, self.future)
+
+        # sleep(1)
+
+        # self.pf400Req.joint_positions = self.sealerClosedPos
+        # self.future = self.cli.call_async(self.pf400Req)
+        # rclpy.spin_until_future_complete(self, self.future)
+        
+        # self.pf400Req.joint_positions = list(map(add, self.sealerClosedPos, self.above))
+        # self.future = self.cli.call_async(self.pf400Req)
+        # rclpy.spin_until_future_complete(self, self.future)
+
+
+        # self.pf400Req.joint_positions = self.module_neutralClosed
+        # self.future = self.cli.call_async(self.pf400Req)
+        # rclpy.spin_until_future_complete(self, self.future)
+
+        # self.pf400Req.joint_positions = list(map(add, self.peelerClosedPos, self.above))
+        # self.future = self.cli.call_async(self.pf400Req)
+        # rclpy.spin_until_future_complete(self, self.future)
+
+        # self.pf400Req.joint_positions = self.peelerClosedPos
+        # self.future = self.cli.call_async(self.pf400Req)
+        # rclpy.spin_until_future_complete(self, self.future)
+
+        # # sleep(1)
+
+        # self.pf400Req.joint_positions = self.peelerPos
+        # self.future = self.cli.call_async(self.pf400Req)
+        # rclpy.spin_until_future_complete(self, self.future)
+
+        # sleep(1)
+
+        # self.pf400Req.joint_positions = list(map(add, self.peelerPos, self.above))
+        # self.future = self.cli.call_async(self.pf400Req)
+        # rclpy.spin_until_future_complete(self, self.future)
+
+        # sleep(1)
+
+        # self.pf400Req.joint_positions = self.peelerPos
+        # self.future = self.cli.call_async(self.pf400Req)
+        # rclpy.spin_until_future_complete(self, self.future)
+
+        # sleep(1)
+
+        # self.pf400Req.joint_positions = self.peelerClosedPos
+        # self.future = self.cli.call_async(self.pf400Req)
+        # rclpy.spin_until_future_complete(self, self.future)
+
+        # sleep(1)
+
+        # self.pf400Req.joint_positions = list(map(add, self.peelerClosedPos, self.above))
+        # self.future = self.cli.call_async(self.pf400Req)
+        # rclpy.spin_until_future_complete(self, self.future)
+
+        # self.pf400Req.joint_positions = self.module_neutralClosed
+        # self.future = self.cli.call_async(self.pf400Req)
+        # rclpy.spin_until_future_complete(self, self.future)
+
+        # self.pf400Req.joint_positions = self.pf400_neutralClosed
+        # self.future = self.cli.call_async(self.pf400Req)
+        # rclpy.spin_until_future_complete(self, self.future)  
+
+        # self.pf400Req.joint_positions = list(map(add, self.cyclopsClosed_ext, self.above))
+        # self.future = self.cli.call_async(self.pf400Req)
+        # rclpy.spin_until_future_complete(self, self.future)
+
+        # self.pf400Req.joint_positions = self.cyclopsClosed_ext
+        # self.future = self.cli.call_async(self.pf400Req)
+        # rclpy.spin_until_future_complete(self, self.future)  
+
+        # self.pf400Req.joint_positions = self.cyclops_ext
+        # self.future = self.cli.call_async(self.pf400Req)
+        # rclpy.spin_until_future_complete(self, self.future)  
+
+        # sleep(0.5)
+
+
+        # self.pf400Req.joint_positions = list(map(add, self.cyclops_ext, self.above))
+        # self.future = self.cli.call_async(self.pf400Req)
+        # rclpy.spin_until_future_complete(self, self.future)
+
+        # self.pf400Req.joint_positions = self.pf400_neutral
+        # self.future = self.cli.call_async(self.pf400Req)
+        # rclpy.spin_until_future_complete(self, self.future)  
+
+
 
         return self.future.result()
 
