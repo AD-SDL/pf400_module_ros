@@ -126,54 +126,9 @@ class jointControlNode(Node):
 
         self.client.transfer(pos1, pos2)
 
-        # self.pick(request)
-
         self.state = "COMPLETED"
         
         return response
-
-    # def pick(self, jointPos):
-        # '''
-        # Picks up a plate from a location determined by the joint position received
-        # '''
-
-        # self.state = "BUSY"
-
-        # self.stateCallback()
-
-        # profile = 2     
-
-        # cmd = "movej" + " " + str(profile) + " " + " ".join(map(str, self.pf400_neutral))  # Moves pf400 to neutral position
-        # self.client.SendCommand(cmd)
-        # self.client.
-
-
-        # abovePos = list(map(add, jointPos, self.above))
-
-        # cmd = "movej" + " " + str(profile) + " " + " ".join(map(str, abovePos))  # Moves pf400 to neutral position
-        # self.client.SendCommand(cmd)
-
-        # cmd = "movej" + " " + str(profile) + " " + " ".join(map(str, jointPos))  # Moves pf400 to neutral position
-        # self.client.SendCommand(cmd)
-
-        
-                                                                            # profile changes speed of arm
-        # cmd = "movej" + " " + str(profile) + " " + str(self.pf400_neutral[0]) + " " + str(self.pf400_neutral[1]) + " " + str(self.pf400_neutral[2]) + " " + str(self.pf400_neutral[3])+ " " + str(self.gripper_open) + " " + str(self.pf400_neutral[5])        
-
-        # self.client.SendCommand(cmd)
-
-        
-
-
-
-    # def place(self, location):
-    #     gripper()
-    #     return 0
-    
-    # def transfer(self, location):
-    #     self.pick()
-    #     self.place()
-
 
 
 def main(args = None):
