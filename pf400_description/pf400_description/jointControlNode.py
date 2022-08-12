@@ -59,6 +59,16 @@ class jointControlNode(Node):
 
         self.actionSrv = self.create_service(MoveJ, "pf400_moveJ", self.moveJCallback)
 
+        ########################################## Hard Coded joint locations
+
+        self.gripper_open = 90.0
+        self.gripper_closed = 79.0
+
+        self.pf400_neutral = [399.992, -0.356, 181.867, 530.993, self.gripper_open, 643.580]
+
+        self.above = [60.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+
+
 
     def stateCallback(self):
 
@@ -105,15 +115,65 @@ class jointControlNode(Node):
 
         profile = 2                                                                         # profile changes speed of arm
         pos = request.joint_positions                                                       # Joint position taken from list given within request 
-        cmd = "movej" + " " + str(profile) + " " + " ".join(map(str, pos))                  # Turns the list into a string to send cmd to pf400 driver
+        # cmd = "movej" + " " + str(profile) + " " + " ".join(map(str, pos))                  # Turns the list into a string to send cmd to pf400 driver
 
-        print(cmd)
+        print(pos)
 
-        self.client.SendCommand(cmd)
+        pos1 = request.joint_positions[0:6]
+        print(pos1)
+        pos2 = request.joint_positions[6:12]
+        print(pos2)
+
+        self.client.transfer(pos1, pos2)
+
+        # self.pick(request)
 
         self.state = "COMPLETED"
         
         return response
+
+    # def pick(self, jointPos):
+        # '''
+        # Picks up a plate from a location determined by the joint position received
+        # '''
+
+        # self.state = "BUSY"
+
+        # self.stateCallback()
+
+        # profile = 2     
+
+        # cmd = "movej" + " " + str(profile) + " " + " ".join(map(str, self.pf400_neutral))  # Moves pf400 to neutral position
+        # self.client.SendCommand(cmd)
+        # self.client.
+
+
+        # abovePos = list(map(add, jointPos, self.above))
+
+        # cmd = "movej" + " " + str(profile) + " " + " ".join(map(str, abovePos))  # Moves pf400 to neutral position
+        # self.client.SendCommand(cmd)
+
+        # cmd = "movej" + " " + str(profile) + " " + " ".join(map(str, jointPos))  # Moves pf400 to neutral position
+        # self.client.SendCommand(cmd)
+
+        
+                                                                            # profile changes speed of arm
+        # cmd = "movej" + " " + str(profile) + " " + str(self.pf400_neutral[0]) + " " + str(self.pf400_neutral[1]) + " " + str(self.pf400_neutral[2]) + " " + str(self.pf400_neutral[3])+ " " + str(self.gripper_open) + " " + str(self.pf400_neutral[5])        
+
+        # self.client.SendCommand(cmd)
+
+        
+
+
+
+    # def place(self, location):
+    #     gripper()
+    #     return 0
+    
+    # def transfer(self, location):
+    #     self.pick()
+    #     self.place()
+
 
 
 def main(args = None):
