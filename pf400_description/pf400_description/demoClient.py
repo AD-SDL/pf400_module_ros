@@ -5,16 +5,19 @@ import rclpy
 from rclpy.node import Node
 from time import sleep
 
+from std_msgs.msg import String
+
+
 from pf400_module_services.srv import MoveJ 
 from pf400_module_services.srv import PeelerActions
-from pf400_module_services.srv import SciclopsActions
+# from pf400_module_services.srv import SciclopsActions
+from sciclops_module_services.srv import SciclopsActions
 
 
 class MinimalClientAsync(Node):
 
     def __init__(self):
         super().__init__('minimal_client_async')
-
 
 
         # self.module_neutral = [400.0, 0.1, 237.92, 388.47, self.gripper_open, 643.54]
@@ -36,167 +39,50 @@ class MinimalClientAsync(Node):
             self.get_logger().info('syclops service not available, waiting again...')
         self.sciclopsReq = SciclopsActions.Request()
 
+        self.pf400StateSub = self.create_subscription(String, 'pf400_state', self.pf400StateCallback, 10)
+
+        self.pf400StateSub # prevent unused variable warning
+
+        self.sciclopsStateSub = self.create_subscription(String, 'sciclops_state', self.sciclopsStateCallback, 10)
+
+        self.sciclopsStateSub # prevent unused variable warning
+
+        self.workflowDemo()
+
+    def pf400StateCallback(self, msg):
+
+        self.pf400State = msg.data
+
+
+    def sciclopsStateCallback(self, msg):
+
+        self.sciclopsState = msg.data
+
+
 
     def workflowDemo(self):
         '''example flow'''
 
+        self.cyclops2sealer = [262.550, 20.608, 119.290, 662.570, 0.0, 574.367, 231.788, -27.154, 313.011, 342.317, 0.0, 683.702]
+        self.sealer2peeler = [231.788, -27.154, 313.011, 342.317, 0.0, 683.702, 264.584, -29.413,	284.376, 372.338, 0.0, 651.621]
 
-        # sleep(0.5)
-
-        # self.pf400Req.joint_positions = self.pf400_neutral
-        # self.future = self.cli.call_async(self.pf400Req)
-        # rclpy.spin_until_future_complete(self, self.future)  
-
-        # self.pf400Req.joint_positions = list(map(add, self.cyclops_ext, self.above))
-        # self.future = self.cli.call_async(self.pf400Req)
-        # rclpy.spin_until_future_complete(self, self.future)  
-
-        self.cyclops2sealer = [262.550, 20.608, 119.290, 662.570, self.gripper_open, 574.367, 264.584, -29.413, 284.376, 372.338, self.gripper_open, 651.621]
-
-
-        # WIP: Running services across 2 packages
 
         self.sciclopsReq.action_request = "Get Plate 1"
-        self.future = self.cli.call_async(self.sciclopsReq.action_request)
-        rclpy.spin_until_future_complete(self, self.future)
+        self.future = self.sciclopsClient.call_async(self.sciclopsReq)
+        rclpy.spin_until_future_complete(self, self.future)  
 
-        sleep(20)
+        sleep(35)
 
         self.pf400Req.joint_positions = self.cyclops2sealer
         self.future = self.pf400Client.call_async(self.pf400Req)
         rclpy.spin_until_future_complete(self, self.future)  
 
-        # sleep(1)
-
-        # self.pf400Req.joint_positions = self.cyclopsClosed_ext
-        # self.future = self.cli.call_async(self.pf400Req)
-        # rclpy.spin_until_future_complete(self, self.future)  
-
-        # self.pf400Req.joint_positions = list(map(add, self.cyclopsClosed_ext, self.above))
-        # self.future = self.cli.call_async(self.pf400Req)
-        # rclpy.spin_until_future_complete(self, self.future)
-
-        # self.pf400Req.joint_positions = self.pf400_neutralClosed
-        # self.future = self.cli.call_async(self.pf400Req)
-        # rclpy.spin_until_future_complete(self, self.future)  
-
-        # self.pf400Req.joint_positions = self.module_neutralClosed
-        # self.future = self.cli.call_async(self.pf400Req)
-        # rclpy.spin_until_future_complete(self, self.future)
-
-        # sleep(0.5)
-
-
-        # self.pf400Req.joint_positions = list(map(add, self.sealerClosedPos, self.above))
-        # self.future = self.cli.call_async(self.pf400Req)
-        # rclpy.spin_until_future_complete(self, self.future)
-
-        # self.pf400Req.joint_positions = self.sealerClosedPos
-        # self.future = self.cli.call_async(self.pf400Req)
-        # rclpy.spin_until_future_complete(self, self.future)
-
-        # sleep(1)
-
-        # self.pf400Req.joint_positions = self.sealerPos
-        # self.future = self.cli.call_async(self.pf400Req)
-        # rclpy.spin_until_future_complete(self, self.future)
-
-
-        # self.pf400Req.joint_positions = list(map(add, self.sealerPos, self.above))
-        # self.future = self.cli.call_async(self.pf400Req)
-        # rclpy.spin_until_future_complete(self, self.future)
-
-
-        # sleep(20)
-
-        # self.pf400Req.joint_positions = self.sealerPos
-        # self.future = self.cli.call_async(self.pf400Req)
-        # rclpy.spin_until_future_complete(self, self.future)
-
-        # sleep(1)
-
-        # self.pf400Req.joint_positions = self.sealerClosedPos
-        # self.future = self.cli.call_async(self.pf400Req)
-        # rclpy.spin_until_future_complete(self, self.future)
-        
-        # self.pf400Req.joint_positions = list(map(add, self.sealerClosedPos, self.above))
-        # self.future = self.cli.call_async(self.pf400Req)
-        # rclpy.spin_until_future_complete(self, self.future)
-
-
-        # self.pf400Req.joint_positions = self.module_neutralClosed
-        # self.future = self.cli.call_async(self.pf400Req)
-        # rclpy.spin_until_future_complete(self, self.future)
-
-        # self.pf400Req.joint_positions = list(map(add, self.peelerClosedPos, self.above))
-        # self.future = self.cli.call_async(self.pf400Req)
-        # rclpy.spin_until_future_complete(self, self.future)
-
-        # self.pf400Req.joint_positions = self.peelerClosedPos
-        # self.future = self.cli.call_async(self.pf400Req)
-        # rclpy.spin_until_future_complete(self, self.future)
-
-        # # sleep(1)
-
-        # self.pf400Req.joint_positions = self.peelerPos
-        # self.future = self.cli.call_async(self.pf400Req)
-        # rclpy.spin_until_future_complete(self, self.future)
-
-        # sleep(1)
-
-        # self.pf400Req.joint_positions = list(map(add, self.peelerPos, self.above))
-        # self.future = self.cli.call_async(self.pf400Req)
-        # rclpy.spin_until_future_complete(self, self.future)
-
-        # sleep(20)
-
-        # self.pf400Req.joint_positions = self.peelerPos
-        # self.future = self.cli.call_async(self.pf400Req)
-        # rclpy.spin_until_future_complete(self, self.future)
-
-        # sleep(1)
-
-        # self.pf400Req.joint_positions = self.peelerClosedPos
-        # self.future = self.cli.call_async(self.pf400Req)
-        # rclpy.spin_until_future_complete(self, self.future)
-
-        # sleep(1)
-
-        # self.pf400Req.joint_positions = list(map(add, self.peelerClosedPos, self.above))
-        # self.future = self.cli.call_async(self.pf400Req)
-        # rclpy.spin_until_future_complete(self, self.future)
-
-        # self.pf400Req.joint_positions = self.module_neutralClosed
-        # self.future = self.cli.call_async(self.pf400Req)
-        # rclpy.spin_until_future_complete(self, self.future)
-
-        # self.pf400Req.joint_positions = self.pf400_neutralClosed
-        # self.future = self.cli.call_async(self.pf400Req)
-        # rclpy.spin_until_future_complete(self, self.future)  
-
-        # self.pf400Req.joint_positions = list(map(add, self.cyclopsClosed_ext, self.above))
-        # self.future = self.cli.call_async(self.pf400Req)
-        # rclpy.spin_until_future_complete(self, self.future)
-
-        # self.pf400Req.joint_positions = self.cyclopsClosed_ext
-        # self.future = self.cli.call_async(self.pf400Req)
-        # rclpy.spin_until_future_complete(self, self.future)  
-
-        # self.pf400Req.joint_positions = self.cyclops_ext
-        # self.future = self.cli.call_async(self.pf400Req)
-        # rclpy.spin_until_future_complete(self, self.future)  
-
-        # sleep(0.5)
-
-
-        # self.pf400Req.joint_positions = list(map(add, self.cyclops_ext, self.above))
-        # self.future = self.cli.call_async(self.pf400Req)
-        # rclpy.spin_until_future_complete(self, self.future)
-
-        # self.pf400Req.joint_positions = self.pf400_neutral
-        # self.future = self.cli.call_async(self.pf400Req)
+        self.pf400Req.joint_positions = self.sealer2peeler
+        self.future = self.pf400Client.call_async(self.pf400Req)
         rclpy.spin_until_future_complete(self, self.future)  
+        
 
+        rclpy.spin_until_future_complete(self, self.future)  
 
 
         return self.future.result()
@@ -206,7 +92,7 @@ def main(args=None):
     rclpy.init(args=args)
 
     minimal_client = MinimalClientAsync()
-    response = minimal_client.workflowDemo()
+    # rclpy.spin(minimal_client)
 
     minimal_client.destroy_node()
     rclpy.shutdown()

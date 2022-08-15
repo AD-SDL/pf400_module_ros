@@ -29,9 +29,7 @@ class TCSJointClient:
 
 		self.gripper_open = 90.0
 		self.gripper_closed = 79.0
-
 		self.pf400_neutral = [399.992, -0.356, 181.867, 530.993, self.gripper_open, 643.580]
-
 		self.above = [60.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 
 	

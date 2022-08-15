@@ -51,7 +51,7 @@ class jointControlNode(Node):
         timer_period = 0.5  # seconds
 
 
-        self.statePub = self.create_publisher(String, 'state', 10)
+        self.statePub = self.create_publisher(String, 'pf400_state', 10)
 
         self.stateTimer = self.create_timer(timer_period, self.stateCallback)
 
