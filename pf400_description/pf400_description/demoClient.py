@@ -9,9 +9,9 @@ from std_msgs.msg import String
 
 
 from pf400_module_services.srv import MoveJ 
-from pf400_module_services.srv import PeelerActions
+# from sp_module_services.srv import PeelerActions
 # from pf400_module_services.srv import SciclopsActions
-from sciclops_module_services.srv import SciclopsActions
+# from sciclops_module_services.srv import SciclopsActions
 
 
 class MinimalClientAsync(Node):
@@ -33,6 +33,10 @@ class MinimalClientAsync(Node):
             self.get_logger().info('pf400 service not available, waiting again...')
         self.pf400Req = MoveJ.Request()
                                                                 
+        self.sciclopsClient = self.create_client(SciclopsActions, 'sciclops_actions') # Creating client instance 
+        while not self.sciclopsClient.wait_for_service(timeout_sec=1.0):
+            self.get_logger().info('syclops service not available, waiting again...')
+        self.sciclopsReq = SciclopsActions.Request()
 
         self.sciclopsClient = self.create_client(SciclopsActions, 'sciclops_actions') # Creating client instance 
         while not self.sciclopsClient.wait_for_service(timeout_sec=1.0):
@@ -43,9 +47,9 @@ class MinimalClientAsync(Node):
 
         self.pf400StateSub # prevent unused variable warning
 
-        self.sciclopsStateSub = self.create_subscription(String, 'sciclops_state', self.sciclopsStateCallback, 10)
+        # self.sciclopsStateSub = self.create_subscription(String, 'sciclops_state', self.sciclopsStateCallback, 10)
 
-        self.sciclopsStateSub # prevent unused variable warning
+        # self.sciclopsStateSub # prevent unused variable warning
 
         self.workflowDemo()
 
@@ -71,15 +75,15 @@ class MinimalClientAsync(Node):
         self.future = self.sciclopsClient.call_async(self.sciclopsReq)
         rclpy.spin_until_future_complete(self, self.future)  
 
-        sleep(35)
+        # sleep(35)
 
         self.pf400Req.joint_positions = self.cyclops2sealer
         self.future = self.pf400Client.call_async(self.pf400Req)
         rclpy.spin_until_future_complete(self, self.future)  
 
-        self.pf400Req.joint_positions = self.sealer2peeler
-        self.future = self.pf400Client.call_async(self.pf400Req)
-        rclpy.spin_until_future_complete(self, self.future)  
+        # self.pf400Req.joint_positions = self.sealer2peeler
+        # self.future = self.pf400Client.call_async(self.pf400Req)
+        # rclpy.spin_until_future_complete(self, self.future)  
         
 
         rclpy.spin_until_future_complete(self, self.future)  
