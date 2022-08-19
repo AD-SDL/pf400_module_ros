@@ -67,7 +67,7 @@ def main(args=None):
 
 	rclpy.init(args=args)
 
-	pf400_joint_publisher = PF_JOINTS(HOST,PORT)
+	pf400_joint_publisher = PF_JOINTS(HOST, PORT)
 
 	rclpy.spin(pf400_joint_publisher)
 

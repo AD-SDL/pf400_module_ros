@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 
-import rclpy
+# import rclpy
 import telnetlib
 import threading
 import math
 from operator import add
 from time import sleep
+from unicodedata import name
 
 from sensor_msgs.msg import JointState
 
@@ -32,7 +33,12 @@ class TCSJointClient:
 		self.pf400_neutral = [399.992, -0.356, 181.867, 530.993, self.gripper_open, 643.580]
 		self.above = [60.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 
-	
+	def load_robot_data(self, data_file_path):
+		pass #TODO
+
+	def load_robot_commands(self, commands_file_path):
+		pass #TODO
+
 	def Connect(self):
 		try:
 			self.connection = telnetlib.Telnet(self.host, self.port, 5)
@@ -51,11 +57,17 @@ class TCSJointClient:
 			self.connection.write((command.encode("ascii") + b"\n"))
 			if self.mode == 1:
 				response1 = self.connection.read_until(b"\r\n").rstrip().decode("ascii")
-			response2 = self.connection.read_until(b"\r\n").rstrip().decode("ascii")
-			if response2 != "" and response2[0] == "-":
-				raise Exception("TCS error: " + response2)
-			print("<< "+ response2)
-			return response2		
+				if response1 != "" and response1[0] == "-":
+					raise Exception("TCS error: " + response1)
+				print("<< "+ response1)
+				return response1		
+			else:
+				response2 = self.connection.read_until(b"\r\n").rstrip().decode("ascii")
+				if response2 != "" and response2[0] == "-":
+					raise Exception("TCS error: " + response2)
+				print("<< "+ response2)
+				return response2		
+			# TODO:Redo the error return code detection in the response massage by reading from error code list
 		finally:
 			self.commandLock.release()
 
@@ -71,12 +83,18 @@ class TCSJointClient:
 		self.SendCommand("selectrobot 1")
 
 	def GetJointData(self):
+		"""
+        Decription: Locates the robot and returns the joint locations for all 6 joints.
+        """
 		states = self.SendCommand("wherej")
 		joints = states.split(' ')
 		joints = joints[1:]
 		return [float(x) for x in joints]
 
 	def RefreshJointState(self):
+		"""
+        Decription: 
+        """
 		joint_array = self.GetJointData()
 		multipliers = [
 			0.001,			# J1, Z
@@ -89,9 +107,21 @@ class TCSJointClient:
 		# self.joint_state.raw_position = joint_array
 		self.joint_state.position = [state * multiplier for state, multiplier in zip(joint_array, multipliers)]
 
+	def move_end_effector_move_neutral(self):
+		"""
+        Decription: 
+        """
+		pass #TODO
+	def move_all_joints_neutral(self):
+		"""
+        Decription: 
+        """
+		pass
 
 	def pick(self, jointPos):
-
+		"""
+        Decription: 
+        """
 		profile = 2
 		jointClosedPos = jointPos
 
@@ -130,7 +160,9 @@ class TCSJointClient:
 
 
 	def place(self, jointPos):
-
+		"""
+        Decription: 
+        """
 		profile = 2
 		jointClosedPos = jointPos
 
@@ -168,7 +200,10 @@ class TCSJointClient:
 		self.SendCommand(cmd)
 
 	def transfer(self, location1, location2):
-
+		"""
+        Decription: 
+        """
 		self.pick(location1)
 		self.place(location2)
 
+# if __name__ == "__main__":
