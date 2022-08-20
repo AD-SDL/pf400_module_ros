@@ -185,7 +185,7 @@ class TCSJointClient:
 		
 
 
-	def pick(self, jointPos):
+	def pick_plate(self, jointPos):
 		"""
         Description: 
         """
@@ -195,8 +195,8 @@ class TCSJointClient:
 		profile = 2
 		jointClosedPos = jointPos
 
-		jointPos[4] = self.gripper_open
-		jointClosedPos[4] = self.gripper_closed   
+		# jointPos[4] = self.gripper_open
+		# jointClosedPos[4] = self.gripper_closed   
 		#------
 
 		abovePos = list(map(add, jointPos, self.above))
@@ -204,35 +204,38 @@ class TCSJointClient:
 		#------
 		
 		# cmd = "movej" + " " + str(profile) + " " + " ".join(map(str, self.pf400_neutral))  # Moves pf400 to neutral position
-		self.create_move_commad(self.pf400_neutral)
+		
+		cmd =self.create_move_commad(self.pf400_neutral)
 		self.SendCommand(cmd)
 
 
-		cmd = "movej" + " " + str(profile) + " " + " ".join(map(str, abovePos))  # Moves pf400 to neutral position
+		# cmd = "movej" + " " + str(profile) + " " + " ".join(map(str, abovePos))  # Moves pf400 to neutral position
+		
+		cmd = self.create_move_commad(abovePos, slow_profile, False, True)
 		self.SendCommand(cmd)
 
-		cmd = "movej" + " " + str(profile) + " " + " ".join(map(str, jointPos))  # Moves pf400 to neutral position
+		# cmd = "movej" + " " + str(profile) + " " + " ".join(map(str, jointPos))  # Moves pf400 to neutral position
         # cmd = "movej" + " " + str(profile) + " " + str(self.jointPos[0]) + " " + str(self.jointPos[1]) + " " + str(self.jointPos[2]) + " " + str(self.jointPos[3])+ " " + str(self.gripper_open) + " " + str(self.jointPos[5])        
-
+		
+		cmd = self.create_move_commad(jointPos, slow_profile, False, True)
 		self.SendCommand(cmd)
-
 		sleep(0.5)
 
-		cmd = "movej" + " " + str(profile) + " " + " ".join(map(str, jointClosedPos))  # Moves pf400 to neutral position
-
+		# cmd = "movej" + " " + str(profile) + " " + " ".join(map(str, jointClosedPos))  # Moves pf400 to neutral position
+		
+		cmd = self.create_move_commad(jointPos, slow_profile, True, False)
 		self.SendCommand(cmd)
-
 		sleep(0.5)
 
-		cmd = "movej" + " " + str(profile) + " " + " ".join(map(str, aboveClosedPos))  # Moves pf400 to neutral position
-
+		# cmd = "movej" + " " + str(profile) + " " + " ".join(map(str, aboveClosedPos))  # Moves pf400 to neutral position
+		cmd = self.create_move_commad(abovePos, slow_profile, True, False)
 		self.SendCommand(cmd)
 
 		# cmd = "movej" + " " + str(profile) + " " + " ".join(map(str, self.pf400_neutral))  # Moves pf400 to neutral position
 		# self.SendCommand(cmd)
 
 
-	def place(self, jointPos):
+	def place_plate(self, jointPos):
 		"""
         Description: 
         """
@@ -277,8 +280,8 @@ class TCSJointClient:
         Description: 
 		
         """
-		self.pick(location1)
-		self.place(location2)
+		self.pick_plate(location1)
+		self.place_plate(location2)
 
 if __name__ == "__main__":
 	target_joint_angles = "1 1 1 1 1 1"
