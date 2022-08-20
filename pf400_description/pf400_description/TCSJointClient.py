@@ -146,7 +146,7 @@ class TCSJointClient:
 
 	def move_in_one_axis(self, profile:int = 2, axis:str= "x", value:int = 0):
 		"""
-		TODO: TRY THIS FUNCTION TO SEE IF END EFFECTOR MOVES ON A SINGLE AXIS PROPORLY
+		TODO: TRY THIS FUNCTION TO SEE IF END EFFECTOR MOVES ON A SINGLE AXIS PROPERLY
 		"""
 		cartesian_coordinates = self.find_cartesian_coordinates()
 		if axis == "x":
