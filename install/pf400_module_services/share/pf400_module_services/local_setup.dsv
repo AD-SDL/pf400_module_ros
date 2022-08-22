@@ -1,4 +1,0 @@
-source;share/pf400_module_services/environment/ament_prefix_path.sh
-source;share/pf400_module_services/environment/library_path.sh
-source;share/pf400_module_services/environment/path.sh
-source;share/pf400_module_services/environment/pythonpath.sh

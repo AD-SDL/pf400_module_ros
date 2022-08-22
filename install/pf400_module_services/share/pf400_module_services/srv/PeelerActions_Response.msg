@@ -1,2 +1,0 @@
-
-bool action_response
