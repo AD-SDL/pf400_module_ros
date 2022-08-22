@@ -145,7 +145,7 @@ class TCSJointClient:
 		# Obtain current robot cartesian coordinates
 		# Return an int array with x/y/z yaw/pich/roll
 		pass
-
+ 
 	def move_in_one_axis(self, profile:int = 2, axis:str= "x", value:int = 0):
 		"""
 		TODO: TRY THIS FUNCTION TO SEE IF END EFFECTOR MOVES ON A SINGLE AXIS PROPERLY
