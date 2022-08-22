@@ -1,0 +1,15 @@
+// generated from rosidl_adapter/resource/srv.idl.em
+// with input from pf400_module_services/srv/SciclopsActions.srv
+// generated code does not contain a copyright notice
+
+
+module pf400_module_services {
+  module srv {
+    struct SciclopsActions_Request {
+      string action_request;
+    };
+    struct SciclopsActions_Response {
+      boolean action_response;
+    };
+  };
+};

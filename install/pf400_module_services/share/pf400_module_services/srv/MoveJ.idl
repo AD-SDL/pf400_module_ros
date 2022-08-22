@@ -1,0 +1,15 @@
+// generated from rosidl_adapter/resource/srv.idl.em
+// with input from pf400_module_services/srv/MoveJ.srv
+// generated code does not contain a copyright notice
+
+
+module pf400_module_services {
+  module srv {
+    struct MoveJ_Request {
+      sequence<float> joint_positions;
+    };
+    struct MoveJ_Response {
+      uint8 structure_needs_at_least_one_member;
+    };
+  };
+};

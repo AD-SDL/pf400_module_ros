@@ -7,6 +7,16 @@
   <maintainer email="ravescovi@anl.gov">Rafael Vescovi</maintainer>
   <license>MIT</license>
 
+
+  <exec_depend>joint_state_publisher</exec_depend>
+  <exec_depend>robot_state_publisher</exec_depend>
+  <exec_depend>rviz</exec_depend>
+  <exec_depend>xacro</exec_depend>
+  <depend>sp_module_services</depend>
+  <depend>sciclops_module_client</depend>
+  <depend>sciclops_module_services</depend>
+
+
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>
   <test_depend>ament_pep257</test_depend>

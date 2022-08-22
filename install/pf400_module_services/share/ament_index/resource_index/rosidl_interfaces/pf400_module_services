@@ -1,0 +1,12 @@
+srv/MoveJ.idl
+srv/MoveJ.srv
+srv/MoveJ_Request.msg
+srv/MoveJ_Response.msg
+srv/PeelerActions.idl
+srv/PeelerActions.srv
+srv/PeelerActions_Request.msg
+srv/PeelerActions_Response.msg
+srv/SciclopsActions.idl
+srv/SciclopsActions.srv
+srv/SciclopsActions_Request.msg
+srv/SciclopsActions_Response.msg
