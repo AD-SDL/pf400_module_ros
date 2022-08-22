@@ -159,7 +159,7 @@ class TCSJointClient:
 			# Set TCS to verbose
 			self.send_command("mode 1")
 		self.send_command("selectrobot 1")
-		
+
 	def initilize_robot(self):
 		pass
 
@@ -190,7 +190,7 @@ class TCSJointClient:
 
 	def move_end_effector_neutral(self):
 		"""
-        Description: Set 
+        Description: Move end effector to neutral position
         """
 
 		current_joint_locations = self.get_joint_data()
@@ -199,7 +199,7 @@ class TCSJointClient:
 
 	def move_all_joints_neutral(self):
 		"""
-        Description: 
+        Description: Move all joints to neutral position
         """
 
 		self.move_end_effector_neutral()
@@ -241,14 +241,23 @@ class TCSJointClient:
 	def move_in_one_axis(self, target_location, profile:int = 2, axis_x:int= 0,axis_y:int= 0, axis_z:int= 0):
 		"""
 		TODO: TRY THIS FUNCTION TO SEE IF END EFFECTOR MOVES ON A SINGLE AXIS PROPERLY
+		
+		Desciption: Moves the end effector on single axis with a goal movement in milimeters. 
+		Paramiters:
+			- target_location : Joint states of the target location
+			- axis_x : Goal movement on x axis in mm
+			- axis_y : Goal movement on y axis in mm
+			- axis_z : Goal movement on z axis in mm
 		"""
 		# First move robot on linear rail
 		current_joint_state = self.get_joint_data()
 		current_joint_state[5] = target_location[5]
-		self.send_command(self.create_move_command(current_joint_state)
-		)
-		cartesian_coordinates = self.forward_kinematics(target_location)
+		self.send_command(self.create_move_command(current_joint_state))
 
+		# Find the cartesian coordinates of the target joint states
+		cartesian_coordinates = self.forward_kinematics(target_location)
+		
+		# Move en effector on the single axis
 		cartesian_coordinates[0] += axis_x
 		cartesian_coordinates[1] += axis_y
 		cartesian_coordinates[2] += axis_z
