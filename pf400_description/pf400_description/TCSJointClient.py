@@ -250,7 +250,9 @@ class TCSJointClient:
 		abovePos = list(map(add, jointPos, self.above))
 		aboveClosedPos = list(map(add, jointClosedPos, self.above))
 
-		cmd = "movej" + " " + str(profile) + " " + " ".join(map(str, self.pf400_neutral))  # Moves pf400 to neutral position
+		# cmd = "movej" + " " + str(profile) + " " + " ".join(map(str, self.pf400_neutral))  # Moves pf400 to neutral position
+		cmd =self.create_move_command(self.pf400_neutral)
+
 		self.SendCommand(cmd)
 
 
