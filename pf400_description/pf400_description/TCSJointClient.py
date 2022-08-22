@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# import rclpy
+import rclpy
 import telnetlib
 import threading
 import math
@@ -8,12 +8,12 @@ from operator import add
 from time import sleep
 from unicodedata import name
 
-# from sensor_msgs.msg import JointState
+from sensor_msgs.msg import JointState
 
 class TCSJointClient:
 
 	commandLock = threading.Lock()
-	# joint_state = JointState()
+	joint_state = JointState()
 
 	def __init__(self, host, port, mode = 0):
 		"""
@@ -28,7 +28,7 @@ class TCSJointClient:
 		self.Connect()
 		self.InitConnectionMode()
 		self.axis_count = 6
-		# self.joint_state.name = ["J{}".format(x + 1) for x in range(0, self.axis_count)] # Comment out for local testing
+		self.joint_state.name = ["J{}".format(x + 1) for x in range(0, self.axis_count)] # Comment out for local testing
 		print("Connection ready")
 
 
@@ -134,7 +134,7 @@ class TCSJointClient:
         Description: 
         """
 		pass #TODO
-	
+
 	def move_all_joints_neutral(self):
 		"""
         Description: 
