@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# import rclpy
+import rclpy
 import os.path
 import telnetlib
 import threading
@@ -10,12 +10,12 @@ import math
 from operator import add
 from time import sleep
 
-# from sensor_msgs.msg import JointState
+from sensor_msgs.msg import JointState
 
 class TCSJointClient:
 
 	commandLock = threading.Lock()
-	# joint_state = JointState()
+	joint_state = JointState()
 
 	def __init__(self, host, port, mode = 0, data_file_path = "robot_data.json", commands_file_path = "robot_commands.json", error_codes_path = "error_codes.json"):
 		"""
@@ -40,7 +40,7 @@ class TCSJointClient:
 		self.init_connection_mode()
 		
 		self.axis_count = 6
-		# self.joint_state.name = ["J{}".format(x + 1) for x in range(0, self.axis_count)] # Comment out for local testing
+		self.joint_state.name = ["J{}".format(x + 1) for x in range(0, self.axis_count)] # Comment out for local testing
 		print("Connection ready")
 
 
@@ -162,8 +162,158 @@ class TCSJointClient:
 			self.send_command("mode 1")
 		self.send_command("selectrobot 1")
 
-	def initilize_robot(self):
-		pass
+
+	def check_robot_state(self, wait:int = 0.1):
+		"""
+		Decription: Checks the robot state
+		"""
+
+		cmd = 'sysState\n'
+		input_msg = 'Robot state'
+		err_msg = 'Failed to check robot state:'
+
+		out_msg = self.send_command(cmd, input_msg, err_msg)
+		if "0 21" in out_msg:
+			out_msg = "Robot intilized and in ready state"
+		return out_msg
+
+
+	def enable_power(self, wait:int = 0.1):
+		"""
+		Decription: Enables the power on the robot
+		"""
+		cmd = 'hp 1\n'
+		ini_msg = 'Enabling power on the robot'
+		err_msg = 'Failed enable_power:'
+
+		out_msg = self.send_command(cmd, ini_msg, err_msg, wait)
+
+		return out_msg
+
+	def disable_power(self, wait:int = 0.1):
+		"""
+		Decription: Disables the power on the robot
+		"""
+		cmd = 'hp 0\n'
+		ini_msg = 'Disabling power on the robot'
+		err_msg = 'Failed disable_power:'
+
+		out_msg = self.send_command(cmd, ini_msg, err_msg, wait)
+
+		return out_msg
+
+	def attach_robot(self, robot_id:str = "1", wait:int = 0.1):
+		"""
+		Decription: If there are multiple PF400 robots, chooses which robot will be programed attaches to the software. 
+					If robot ID is not given it will attach the first robot.
+		Parameters: 
+				- robot_id: ID number of the robot
+		"""
+		cmd = "attach " + robot_id + "\n"
+		ini_msg = "Attaching the robot" + robot_id
+		err_msg = "Failed to attach the robot:"
+
+		out_msg = self.send_command(cmd, ini_msg, err_msg, wait)
+
+		return out_msg
+
+		
+	def home_robot(self, wait:int = 0.1):
+		"""
+		Decription: Homes robot joints. Homing takes around 15 seconds.
+		"""
+		cmd = 'home\n'
+		ini_msg = 'Homing the robot'
+		err_msg = 'Failed to home the robot: '
+
+		out_msg = self.send_command(cmd, ini_msg, err_msg, wait)
+
+		return out_msg
+
+	# Create "profile section" apart from the "command section"
+	def set_profile(self, wait:int = 0.1, profile_dict:dict = {"0":0}):
+		"""
+		Decription: Sets and saves the motion profiles (defined in robot data) to the robot. 
+					If user defines a custom profile, this profile will saved onto motion profile 3 on the robot
+		Parameters: 
+				- profile_dict: Custom motion profile
+		"""  
+		if len(profile_dict) == 1:
+			
+			cmd = 'Profile 1'
+			for key, value in self.motion_profile[0].items():
+				cmd += ' ' + str(value)
+			cmd += '\n'
+
+			cmd2 = 'Profile 2'
+			for key, value in self.motion_profile[1].items():
+				cmd2 += ' ' + str(value)
+			cmd2 += '\n'
+
+			ini_msg = "Setting defult values to the motion profile 1"
+			ini_msg2 = "Setting defult values to the motion profile 2"
+			err_msg = 'Failed to set profile 1: '
+			err_msg2 = 'Failed to set profile 2: '
+
+			out_msg = self.send_command(cmd, ini_msg, err_msg, wait)
+			out_msg2 = self.send_command(cmd2, ini_msg2, err_msg2, wait)
+
+
+
+		elif len(profile_dict) == 8:
+
+			ini_msg = "Setting new values to the motion profile 3"
+			err_msg = 'Failed to set profile 1: '
+
+			cmd = 'Profile 3'
+			for key, value in profile_dict.items():
+				cmd += ' ' + str(value)
+			cmd += '\n'
+
+			out_msg = self.send_command(cmd, ini_msg, err_msg, wait)
+			
+		else:
+			raise Exception("Motion profile takes 8 arguments, {} where given".format(len(profile_dict)))
+
+		return out_msg 
+
+	def initialize_robot(self):
+		"""
+		Decription: Intilizes the robot by calling enable_power, attach_robot, home_robot, set_profile functions and 
+					checks the robot state to find out if the initilization was successful
+		"""
+
+		# Enable power 
+		power = self.enable_power(5)
+		# Attach robot
+		attach = self.attach_robot("1", 5)
+		# Home robot
+		home = self.home_robot(15)
+		# Set default motion profile
+		profile = self.set_profile(5)
+		# Check robots' current state
+		rState =self.check_robot_state()
+
+		if power[0].find('-') == -1 and attach[0].find('-') == -1 and home[0].find('-') == -1 and profile[0].find('-')== -1 :
+			self.logger.info("Robot initialization is successfully completed!")
+		else:    
+			self.logger.info("Robot initialization failed!")
+
+		return power + attach + profile + home + rState
+
+
+	def force_initialize_robot(self):
+		"""
+		Decription: Repeats the initilzation until there are no errors and the robot is initilzed.
+		"""
+
+		self.set_robot_mode()
+		# Check robot state & initilize
+		if self.check_general_state() == -1:
+
+			self.logger.warning("Robot is not intilized! Intilizing now...")
+			output = self.initialize_robot()
+			self.force_initialize_robot()
 
 	def get_joint_data(self):
 		"""
@@ -187,8 +337,8 @@ class TCSJointClient:
 			0.0005, 		# J5, gripper (urdf is 1/2 scale)
 			0.0005, 		# J6, rail
 		]
-		# self.joint_state.raw_position = joint_array
-		# self.joint_state.position = [state * multiplier for state, multiplier in zip(joint_array, multipliers)]
+		self.joint_state.raw_position = joint_array
+		self.joint_state.position = [state * multiplier for state, multiplier in zip(joint_array, multipliers)]
 
 	def move_end_effector_neutral(self):
 		"""
