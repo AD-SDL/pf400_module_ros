@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import rclpy
+# import rclpy
 import os.path
 import telnetlib
 import threading
@@ -10,12 +10,12 @@ import math
 from operator import add
 from time import sleep
 
-from sensor_msgs.msg import JointState
+# from sensor_msgs.msg import JointState
 
 class TCSJointClient:
 
 	commandLock = threading.Lock()
-	joint_state = JointState()
+	# joint_state = JointState()
 
 	def __init__(self, host, port, mode = 0, data_file_path = "robot_data.json", commands_file_path = "robot_commands.json", error_codes_path = "error_codes.json"):
 		"""
@@ -35,12 +35,33 @@ class TCSJointClient:
 		# self.location_dictionary = locations
 		# self.commands_list = self.load_robot_commands(commands_file_path)
 		# self.error_codes = self.load_error_codes(error_codes_path)
+		self.motion_profile = [
+                {
+                    "speed": 30,
+                    "speed2": 0,
+                    "acceleration": 100,
+                    "deceleration": 100,
+                    "accelramp": 0.1,
+                    "decelramp": 0.1,
+                    "inrange": 0,
+                    "straight": -1
+                },
+                {
+                    "speed": 50,
+                    "speed2": 0,
+                    "acceleration": 100,
+                    "deceleration": 100,
+                    "accelramp": 0.1,
+                    "decelramp": 0.1,
+                    "inrange": 60,
+                    "straight": 0
+                }]
 
 		self.connect()
 		self.init_connection_mode()
 		
 		self.axis_count = 6
-		self.joint_state.name = ["J{}".format(x + 1) for x in range(0, self.axis_count)] # Comment out for local testing
+		# self.joint_state.name = ["J{}".format(x + 1) for x in range(0, self.axis_count)] # Comment out for local testing
 		print("Connection ready")
 
 
@@ -168,11 +189,11 @@ class TCSJointClient:
 		Decription: Checks the robot state
 		"""
 
-		cmd = 'sysState\n'
+		cmd = 'sysState'
 		input_msg = 'Robot state'
 		err_msg = 'Failed to check robot state:'
 
-		out_msg = self.send_command(cmd, input_msg, err_msg)
+		out_msg = self.send_command(cmd)
 		if "0 21" in out_msg:
 			out_msg = "Robot intilized and in ready state"
 		return out_msg
@@ -182,23 +203,24 @@ class TCSJointClient:
 		"""
 		Decription: Enables the power on the robot
 		"""
-		cmd = 'hp 1\n'
-		ini_msg = 'Enabling power on the robot'
-		err_msg = 'Failed enable_power:'
+		cmd = 'hp 1'
+
 
 		out_msg = self.send_command(cmd)
+		sleep(5)
 
-		# return out_msg
+		return out_msg
 
 	def disable_power(self, wait:int = 0.1):
 		"""
 		Decription: Disables the power on the robot
 		"""
-		cmd = 'hp 0\n'
+		cmd = 'hp 0'
 		ini_msg = 'Disabling power on the robot'
 		err_msg = 'Failed disable_power:'
 
-		out_msg = self.send_command(cmd, ini_msg, err_msg, wait)
+		out_msg = self.send_command(cmd)
+		sleep(5)
 
 		return out_msg
 
@@ -209,24 +231,24 @@ class TCSJointClient:
 		Parameters: 
 				- robot_id: ID number of the robot
 		"""
-		cmd = "attach " + robot_id + "\n"
-		ini_msg = "Attaching the robot" + robot_id
-		err_msg = "Failed to attach the robot:"
+		cmd = "attach " + robot_id
 
-		out_msg = self.send_command(cmd, ini_msg, err_msg, wait)
+		out_msg = self.send_command(cmd)
+		sleep(5)
 
-		# return out_msg
+		return out_msg
 
 		
 	def home_robot(self, wait:int = 0.1):
 		"""
 		Decription: Homes robot joints. Homing takes around 15 seconds.
 		"""
-		cmd = 'home\n'
+		cmd = 'home'
 		ini_msg = 'Homing the robot'
 		err_msg = 'Failed to home the robot: '
 
-		out_msg = self.send_command(cmd, ini_msg, err_msg, wait)
+		out_msg = self.send_command(cmd)
+		sleep(10)
 
 		return out_msg
 
@@ -243,20 +265,19 @@ class TCSJointClient:
 			cmd = 'Profile 1'
 			for key, value in self.motion_profile[0].items():
 				cmd += ' ' + str(value)
-			cmd += '\n'
+
 
 			cmd2 = 'Profile 2'
 			for key, value in self.motion_profile[1].items():
 				cmd2 += ' ' + str(value)
-			cmd2 += '\n'
 
 			ini_msg = "Setting defult values to the motion profile 1"
 			ini_msg2 = "Setting defult values to the motion profile 2"
 			err_msg = 'Failed to set profile 1: '
 			err_msg2 = 'Failed to set profile 2: '
 
-			out_msg = self.send_command(cmd, ini_msg, err_msg, wait)
-			out_msg2 = self.send_command(cmd2, ini_msg2, err_msg2, wait)
+			out_msg = self.send_command(cmd)
+			out_msg2 = self.send_command(cmd2)
 
 
 
@@ -268,7 +289,6 @@ class TCSJointClient:
 			cmd = 'Profile 3'
 			for key, value in profile_dict.items():
 				cmd += ' ' + str(value)
-			cmd += '\n'
 
 			out_msg = self.send_command(cmd, ini_msg, err_msg, wait)
 			
@@ -284,23 +304,65 @@ class TCSJointClient:
 		"""
 
 		# Enable power 
-		power = self.enable_power(5)
+		power = self.enable_power()
 		# Attach robot
-		attach = self.attach_robot("1", 5)
+		attach = self.attach_robot()
 		# Home robot
-		home = self.home_robot(15)
+		home = self.home_robot()
 		# Set default motion profile
-		profile = self.set_profile(5)
+		profile = self.set_profile()
 		# Check robots' current state
 		rState =self.check_robot_state()
 
 		if power[0].find('-') == -1 and attach[0].find('-') == -1 and home[0].find('-') == -1 and profile[0].find('-')== -1 :
-			self.logger.info("Robot initialization is successfully completed!")
+			print("Robot initialization is successfully completed!")
 		else:    
-			self.logger.info("Robot initialization failed!")
+			print("Robot initialization failed!")
 
 		return power + attach + profile + home + rState
 
+	def check_general_state(self, wait:int = 0.1):
+			"""
+			Decription: Checks general state
+			"""
+
+			cmd1 = "hp"
+			cmd2 = "attach"
+			cmd3 = "sysState"
+
+			power_msg = self.send_command(cmd1)
+			power_msg = power_msg.split(" ")
+
+			attach_msg = self.send_command(cmd2)
+			attach_msg = attach_msg.split(" ")
+
+			state_msg = self.send_command(cmd3)
+			state_msg = state_msg.split(" ")
+
+			power ,attach, state = 0, 0, 0
+
+			if len(power_msg) == 1 or power_msg[0].find("-") != -1:
+				power = -1
+			if attach_msg[1].find("0") != -1 or attach_msg[0].find("-") != -1:
+				attach = -1
+			if state_msg[1].find("7") != -1 or state_msg[0].find("-") != -1:
+				state = -1
+			
+			if power == -1 or attach == -1 or state == -1:
+				return -1
+			else: 
+				return 0
+
+	def set_robot_mode(self):
+		"""
+		Decription: Sets the robot to PC mode. This is needed to make sure the robot is properly communicating over the TCP socket. 
+		"""
+		
+		cmd = 'mode 0'
+
+		out_msg = self.send_command(cmd)
+		sleep(5)
+		return out_msg
 
 	def force_initialize_robot(self):
 		"""
@@ -311,7 +373,7 @@ class TCSJointClient:
 		# Check robot state & initilize
 		if self.check_general_state() == -1:
 
-			self.logger.warning("Robot is not intilized! Intilizing now...")
+			print("Robot is not intilized! Intilizing now...")
 			output = self.initialize_robot()
 			self.force_initialize_robot()
 
@@ -442,10 +504,8 @@ class TCSJointClient:
 		# Setting the gripper location to open or close. If there is no gripper position passed in, target_joint_locations will be used.
 		if gripper_close == True:
 			target_joint_locations[4] = self.gripper_closed
-			print("close",target_joint_locations)
 		if gripper_open == True:
 			target_joint_locations[4] = self.gripper_open
-			print("open",target_joint_locations)
 
 		move_command = "movej" + " " + str(profile) + " " + " ".join(map(str, target_joint_locations))
 
@@ -497,16 +557,16 @@ class TCSJointClient:
 		slow_profile = 1
 		fast_profile = 2
 
-		jointClosedPos = target_pose
+		# jointClosedPos = target_pose
 
-		target_pose[4] = self.gripper_open
-		jointClosedPos[4] = self.gripper_closed   
+		# target_pose[4] = self.gripper_open
+		# jointClosedPos[4] = self.gripper_closed   
 
 		abovePos = list(map(add, target_pose, self.above))
-		aboveClosedPos = list(map(add, jointClosedPos, self.above))
+		# aboveClosedPos = list(map(add, jointClosedPos, self.above))
 
 		# self.move_all_joints_neutral()
-		self.send_command(self.create_move_command(abovePos, slow_profile, True, False))
+		self.send_command(self.create_move_command(abovePos, fast_profile, True, False))
 		self.send_command(self.create_move_command(target_pose, slow_profile, True, False))
 		self.send_command(self.create_move_command(target_pose, slow_profile, False, True))
 		self.send_command(self.create_move_command(abovePos))
@@ -517,20 +577,20 @@ class TCSJointClient:
 
 	def transfer(self, location1, location2):
 		"""
-        Description: 
+        Description: Plate transfer function that performs series of movements to pick and place the plates
 		
         """
+		self.force_initialize_robot()
 		self.pick_plate(location1)
 		self.place_plate(location2)
 
 if __name__ == "__main__":
 	target_joint_angles = "1 1 1 1 1 1"
 	robot = TCSJointClient("192.168.50.50", 10100)
-	# robot.get_joint_data()
-	# robot.find_cartesian_coordinates()
-	# robot.initilize_robot()
-	robot.pick_plate([262.550, 20.608, 119.290, 662.570, 126.0, 574.367])
-	robot.place_plate([262.550, 20.608, 119.290, 662.570, 126.0, 574.367])
+	loc1 = [262.550, 20.608, 119.290, 662.570, 126.0, 574.367]
+	robot.transfer(loc1, loc1)
+	# robot.initialize_robot()
+	# robot.place_plate([262.550, 20.608, 119.290, 662.570, 126.0, 574.367])
 
 
 
