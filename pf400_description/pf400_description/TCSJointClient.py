@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import rclpy
+# import rclpy
 import os.path
 import telnetlib
 import threading
@@ -10,12 +10,12 @@ import math
 from operator import add
 from time import sleep
 
-from sensor_msgs.msg import JointState
+# from sensor_msgs.msg import JointState
 
 class TCSJointClient:
 
 	commandLock = threading.Lock()
-	joint_state = JointState()
+	# joint_state = JointState()
 
 	def __init__(self, host, port, mode = 0, data_file_path = "robot_data.json", commands_file_path = "robot_commands.json", error_codes_path = "error_codes.json"):
 		"""
@@ -27,26 +27,26 @@ class TCSJointClient:
 		self.port = port
 		self.mode = mode
 		self.connection = None
-		robot_data, robot1, motion_profile, locations = self.load_robot_data(data_file_path)
-		self.robot_data = robot_data       
+		# robot_data, robot1, motion_profile, locations = self.load_robot_data(data_file_path)
+		# self.robot_data = robot_data       
 		# Default Motion Profile Paramiters. Using two profiles for faster and slower movements
-		self.motion_profile = motion_profile
+		# self.motion_profile = motion_profile
 		# Predefined locations for plate transferring oparetions
-		self.location_dictionary = locations
-		self.commands_list = self.load_robot_commands(commands_file_path)
-		self.error_codes = self.load_error_codes(error_codes_path)
+		# self.location_dictionary = locations
+		# self.commands_list = self.load_robot_commands(commands_file_path)
+		# self.error_codes = self.load_error_codes(error_codes_path)
 
 		self.connect()
 		self.init_connection_mode()
 		
 		self.axis_count = 6
-		self.joint_state.name = ["J{}".format(x + 1) for x in range(0, self.axis_count)] # Comment out for local testing
+		# self.joint_state.name = ["J{}".format(x + 1) for x in range(0, self.axis_count)] # Comment out for local testing
 		print("Connection ready")
 
 
 		self.gripper_open = 90.0
 		self.gripper_closed = 79.0
-		self.pf400_neutral = [399.992, -0.356, 181.867, 530.993, self.gripper_open, 643.580]
+		self.pf400_neutral = [399.992, -0.356, 181.867, 530.993, self.gripper_closed, 643.580]
 		self.above = [60.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 
 	def load_robot_data(self, data_file_path):
@@ -67,7 +67,7 @@ class TCSJointClient:
 		f.close()
 
 		return data, data["robot_data"][0], data["robot_data"][0]["motion_profile"],data["robot_data"][0]["locations"][0]
-
+		pass
 
 	def load_robot_commands(self, commands_file_path):
 		"""
@@ -86,6 +86,7 @@ class TCSJointClient:
 
 		f.close()
 		return data["Commands_List"]
+		pass
 
 	def load_error_codes(self, error_codes_path):
 		"""
@@ -104,6 +105,7 @@ class TCSJointClient:
 
 		f.close()
 		return data["Error_Codes"]
+		pass
 
 	def connect(self):
 		"""
@@ -169,7 +171,7 @@ class TCSJointClient:
         """
 		states = self.send_command("wherej")
 		joints = states.split(' ')
-		joints = joints[1:] # WHY THE FIRST ELEMENT SKIPPED?
+		joints = joints[1:] 
 		return [float(x) for x in joints]
 
 	def refresh_joint_state(self):
@@ -186,7 +188,7 @@ class TCSJointClient:
 			0.0005, 		# J6, rail
 		]
 		# self.joint_state.raw_position = joint_array
-		self.joint_state.position = [state * multiplier for state, multiplier in zip(joint_array, multipliers)]
+		# self.joint_state.position = [state * multiplier for state, multiplier in zip(joint_array, multipliers)]
 
 	def move_end_effector_neutral(self):
 		"""
@@ -194,6 +196,7 @@ class TCSJointClient:
         """
 
 		current_joint_locations = self.get_joint_data()
+		current_joint_locations[4] = self.gripper_closed
 		current_joint_locations[3] = 530.993
 		self.send_command(self.create_move_command(current_joint_locations))
 
@@ -213,7 +216,7 @@ class TCSJointClient:
 
 		coordinates = self.send_command("whereC")
 		coordinates_list = coordinates.split(' ')
-		coordinates_list = coordinates_list[1:] # WHY THE FIRST ELEMENT SKIPPED?
+		coordinates_list = coordinates_list[1:]
 
 		return [float(x) for x in coordinates_list]
 
@@ -287,12 +290,14 @@ class TCSJointClient:
 			raise Exception("Gripper cannot be open and close at the same time!")
 			
 		# Setting the gripper location to open or close. If there is no gripper position passed in, target_joint_locations will be used.
-		if gripper_close == "True":
+		if gripper_close == True:
 			target_joint_locations[4] = self.gripper_closed
-		elif gripper_open == "True":
+			print("close",target_joint_locations)
+		if gripper_open == True:
 			target_joint_locations[4] = self.gripper_open
+			print("open",target_joint_locations)
 
-		move_command = "movej" + " " + str(profile) + " " + "".join(map(str, target_joint_locations))
+		move_command = "movej" + " " + str(profile) + " " + " ".join(map(str, target_joint_locations))
 
 		return move_command
 		
@@ -326,9 +331,9 @@ class TCSJointClient:
 		self.move_all_joints_neutral()
 		self.send_command(self.create_move_command(abovePos, fast_profile, False, True))
 		self.send_command(self.create_move_command(target_pose, slow_profile, False, True))
-		sleep(0.5)
-		self.send_command(self.create_move_command(target_pose, slow_profile, True, False))
-		sleep(0.5)
+		# sleep(0.5)
+		self.send_command(self.create_move_command(target_pose, slow_profile, gripper_close=True, gripper_open= False))
+		# sleep(0.5)
 		self.send_command(self.create_move_command(abovePos, slow_profile, True, False))
 		self.move_all_joints_neutral()
 		# TODO: USE BELOW MOVE_ONE_AXIS FUNCTIONS TO MOVE ABOVE AND FRONT OF THE EACH TARGET LOCATIONS
@@ -350,11 +355,13 @@ class TCSJointClient:
 		abovePos = list(map(add, target_pose, self.above))
 		aboveClosedPos = list(map(add, jointClosedPos, self.above))
 
-		self.move_all_joints_neutral()
+		# self.move_all_joints_neutral()
 		self.send_command(self.create_move_command(abovePos, slow_profile, True, False))
 		self.send_command(self.create_move_command(target_pose, slow_profile, True, False))
 		self.send_command(self.create_move_command(target_pose, slow_profile, False, True))
 		self.send_command(self.create_move_command(abovePos))
+		self.move_all_joints_neutral()
+
 
 
 
@@ -368,4 +375,12 @@ class TCSJointClient:
 
 if __name__ == "__main__":
 	target_joint_angles = "1 1 1 1 1 1"
+	robot = TCSJointClient("192.168.50.50", 10100)
+	# robot.get_joint_data()
+	# robot.find_cartesian_coordinates()
+	# robot.initilize_robot()
+	robot.pick_plate([262.550, 20.608, 119.290, 662.570, 126.0, 574.367])
+	robot.place_plate([262.550, 20.608, 119.290, 662.570, 126.0, 574.367])
+
+
 
