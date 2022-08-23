@@ -186,9 +186,9 @@ class TCSJointClient:
 		ini_msg = 'Enabling power on the robot'
 		err_msg = 'Failed enable_power:'
 
-		out_msg = self.send_command(cmd, ini_msg, err_msg, wait)
+		out_msg = self.send_command(cmd)
 
-		return out_msg
+		# return out_msg
 
 	def disable_power(self, wait:int = 0.1):
 		"""
