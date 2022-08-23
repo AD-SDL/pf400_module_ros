@@ -215,7 +215,7 @@ class TCSJointClient:
 
 		out_msg = self.send_command(cmd, ini_msg, err_msg, wait)
 
-		return out_msg
+		# return out_msg
 
 		
 	def home_robot(self, wait:int = 0.1):
