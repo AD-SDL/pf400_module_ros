@@ -218,7 +218,13 @@ class TCSJointClient:
 		return [float(x) for x in coordinates_list]
 
 	def forward_kinematics(self, joint_states):
-
+		"""
+		Desciption: Calculates the forward kinematics for a given array of joint_states. 
+		Paramiters:
+			- joint_states : 6 joint states of the target location/
+		Return:
+			- cartesian_coordinates: Returns the calculated cartesian coordinates of the given joint states
+		"""
 		cartesian_coordinates = self.find_cartesian_coordinates()
 		shoulder_lenght = 225
 		elbow_lenght = 210
@@ -241,7 +247,7 @@ class TCSJointClient:
 	def move_in_one_axis(self, target_location, profile:int = 2, axis_x:int= 0,axis_y:int= 0, axis_z:int= 0):
 		"""
 		TODO: TRY THIS FUNCTION TO SEE IF END EFFECTOR MOVES ON A SINGLE AXIS PROPERLY
-		
+
 		Desciption: Moves the end effector on single axis with a goal movement in milimeters. 
 		Paramiters:
 			- target_location : Joint states of the target location
