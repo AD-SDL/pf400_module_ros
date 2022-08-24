@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import rclpy
+# import rclpy
 import os.path
 import telnetlib
 import threading
@@ -10,12 +10,12 @@ import math
 from operator import add
 from time import sleep
 
-from sensor_msgs.msg import JointState
+# from sensor_msgs.msg import JointState
 
 class TCSJointClient:
 
 	commandLock = threading.Lock()
-	joint_state = JointState()
+	# joint_state = JointState()
 
 	def __init__(self, host, port, mode = 0, data_file_path = "robot_data.json", commands_file_path = "robot_commands.json", error_codes_path = "error_codes.json"):
 		"""
@@ -61,7 +61,7 @@ class TCSJointClient:
 		self.init_connection_mode()
 		
 		self.axis_count = 6
-		self.joint_state.name = ["J{}".format(x + 1) for x in range(0, self.axis_count)] # Comment out for local testing
+		# self.joint_state.name = ["J{}".format(x + 1) for x in range(0, self.axis_count)] # Comment out for local testing
 		print("Connection ready")
 
 
@@ -147,6 +147,8 @@ class TCSJointClient:
 		"""
         Description: 
         """
+		# TODO: Try exception will change top print the error but not kill the code
+
 		self.commandLock.acquire()
 		try:
 			if not self.connection:
@@ -399,20 +401,26 @@ class TCSJointClient:
 			0.0005, 		# J5, gripper (urdf is 1/2 scale)
 			0.0005, 		# J6, rail
 		]
-		self.joint_state.raw_position = joint_array
-		self.joint_state.position = [state * multiplier for state, multiplier in zip(joint_array, multipliers)]
+		# self.joint_state.raw_position = joint_array
+		# self.joint_state.position = [state * multiplier for state, multiplier in zip(joint_array, multipliers)]
 
 	def move_end_effector_neutral(self):
 		"""
         Description: Move end effector to neutral position
         """
-
+		# 231.788, -27.154, 313.011, 342.317, 0.0, 683.702
 		current_joint_locations = self.find_joint_states()
 		current_cartesian_coordinates = self.find_cartesian_coordinates()
-		if current_cartesian_coordinates[]
+		safe_y_distance = - 430
+		if current_cartesian_coordinates[1] <= safe_y_distance:
+			y_distance = safe_y_distance - current_cartesian_coordinates[1] 
+			self.move_in_one_axis(1,0,y_distance,0)
+
+
 		current_joint_locations[4] = self.gripper_closed
 		current_joint_locations[3] = 530.993
-		self.send_command(self.create_move_command(current_joint_locations))
+
+		self.send_command(self.create_move_joint_command(current_joint_locations))
 
 	def move_all_joints_neutral(self):
 		"""
@@ -420,7 +428,7 @@ class TCSJointClient:
         """
 
 		self.move_end_effector_neutral()
-		self.send_command(self.create_move_command(self.pf400_neutral))
+		self.send_command(self.create_move_joint_command(self.pf400_neutral))
 
 	def find_cartesian_coordinates(self):
 		"""
@@ -430,7 +438,7 @@ class TCSJointClient:
 
 		coordinates = self.send_command("whereC")
 		coordinates_list = coordinates.split(' ')
-		coordinates_list = coordinates_list[1:]
+		coordinates_list = coordinates_list[1:-1]
 
 		return [float(x) for x in coordinates_list]
 
@@ -461,7 +469,7 @@ class TCSJointClient:
 
 		return cartesian_coordinates
 
-	def move_in_one_axis(self, target_location, profile:int = 2, axis_x:int= 0,axis_y:int= 0, axis_z:int= 0):
+	def move_in_one_axis_from_target(self, target_location, profile:int = 2, axis_x:int= 0,axis_y:int= 0, axis_z:int= 0):
 		"""
 		TODO: TRY THIS FUNCTION TO SEE IF END EFFECTOR MOVES ON A SINGLE AXIS PROPERLY
 
@@ -475,7 +483,7 @@ class TCSJointClient:
 		# First move robot on linear rail
 		current_joint_state = self.find_joint_states()
 		current_joint_state[5] = target_location[5]
-		self.send_command(self.create_move_command(current_joint_state))
+		self.send_command(self.create_move_joint_command(current_joint_state))
 
 		# Find the cartesian coordinates of the target joint states
 		cartesian_coordinates = self.forward_kinematics(target_location)
@@ -488,7 +496,35 @@ class TCSJointClient:
 		move_command = "MoveC "+ " " + str(profile) + " " + "".join(map(str, cartesian_coordinates))
 		self.send_command(move_command)
 
-	def create_move_command(self, target_joint_locations, profile:int = 2, gripper_close: bool = False, gripper_open: bool = False):
+	def move_in_one_axis(self,profile:int = 2, axis_x:int= 0,axis_y:int= 0, axis_z:int= 0):
+		"""
+		TODO: TRY THIS FUNCTION TO SEE IF END EFFECTOR MOVES ON A SINGLE AXIS PROPERLY
+
+		Desciption: Moves the end effector on single axis with a goal movement in milimeters. 
+		Paramiters:
+			- target_location : Joint states of the target location
+			- axis_x : Goal movement on x axis in mm
+			- axis_y : Goal movement on y axis in mm
+			- axis_z : Goal movement on z axis in mm
+		"""
+
+		# Find the cartesian coordinates of the target joint states
+		cartesian_coordinates = self.find_cartesian_coordinates()
+		
+		# Move en effector on the single axis
+		cartesian_coordinates[0] += axis_x
+		cartesian_coordinates[1] += axis_y
+		cartesian_coordinates[2] += axis_z
+
+		move_command = "MoveC"+ " " + str(profile) + " " + " ".join(map(str, cartesian_coordinates))
+		self.send_command(move_command)
+
+	def create_move_cartesian_command(self, target_cartesian_coordinates, profile:int =2):
+
+		move_command = "MoveC"+ " " + str(profile) + " " + " ".join(map(str, target_cartesian_coordinates))
+		return move_command
+
+	def create_move_joint_command(self, target_joint_locations, profile:int = 2, gripper_close: bool = False, gripper_open: bool = False):
 		"""
 		Description: Creates the movement commands with the given robot_location, profile, gripper closed and gripper open info
 		Parameters:
@@ -541,16 +577,17 @@ class TCSJointClient:
         # front_with_plate 
 
 		self.move_all_joints_neutral()
-		self.send_command(self.create_move_command(abovePos, fast_profile, False, True))
-		self.send_command(self.create_move_command(target_pose, slow_profile, False, True))
+		self.send_command(self.create_move_joint_command(abovePos, fast_profile, False, True))
+		self.send_command(self.create_move_joint_command(target_pose, slow_profile, False, True))
 		# sleep(0.5)
-		self.send_command(self.create_move_command(target_pose, slow_profile, gripper_close=True, gripper_open= False))
+		self.send_command(self.create_move_joint_command(target_pose, slow_profile, gripper_close=True, gripper_open= False))
 		# sleep(0.5)
-		self.send_command(self.create_move_command(abovePos, slow_profile, True, False))
+		self.send_command(self.create_move_joint_command(abovePos, slow_profile, True, False))
+		sleep(1)
 		self.move_all_joints_neutral()
 		# TODO: USE BELOW MOVE_ONE_AXIS FUNCTIONS TO MOVE ABOVE AND FRONT OF THE EACH TARGET LOCATIONS
-		# self.move_in_one_axis(target_pose, profile = 2, axis_x = 60, axis_y = 0, axis_z = 60)
-		# self.move_in_one_axis(target_pose, profile = 1, axis_x = 0, axis_y = 0, axis_z = 60)
+		# self.move_in_one_axis_from_target(target_pose, profile = 2, axis_x = 60, axis_y = 0, axis_z = 60)
+		# self.move_in_one_axis_from_target(target_pose, profile = 1, axis_x = 0, axis_y = 0, axis_z = 60)
 
 	def place_plate(self, target_pose):
 		"""
@@ -568,10 +605,11 @@ class TCSJointClient:
 		# aboveClosedPos = list(map(add, jointClosedPos, self.above))
 
 		# self.move_all_joints_neutral()
-		self.send_command(self.create_move_command(abovePos, fast_profile, True, False))
-		self.send_command(self.create_move_command(target_pose, slow_profile, True, False))
-		self.send_command(self.create_move_command(target_pose, slow_profile, False, True))
-		self.send_command(self.create_move_command(abovePos))
+		self.send_command(self.create_move_joint_command(abovePos, fast_profile, True, False))
+		self.send_command(self.create_move_joint_command(target_pose, slow_profile, True, False))
+		self.send_command(self.create_move_joint_command(target_pose, slow_profile, False, True))
+		self.send_command(self.create_move_joint_command(abovePos))
+		sleep(1)
 		self.move_all_joints_neutral()
 
 
@@ -587,11 +625,19 @@ class TCSJointClient:
 		self.place_plate(location2)
 
 if __name__ == "__main__":
+
 	target_joint_angles = "1 1 1 1 1 1"
 	robot = TCSJointClient("192.168.50.50", 10100)
+	robot.force_initialize_robot()
 	loc1 = [262.550, 20.608, 119.290, 662.570, 126.0, 574.367]
-	robot.transfer(loc1, loc1)
+	loc2 = [231.788, -27.154, 313.011, 342.317, 0.0, 683.702]
 	# robot.initialize_robot()
+	# robot.place_plate(loc2)
+	robot.transfer(loc1, loc2)
+	robot.transfer(loc2, loc1)
+	# robot.initialize_robot()
+
+	# robot.move_in_one_axis(1, 0, 0, -20)
 	# robot.place_plate([262.550, 20.608, 119.290, 662.570, 126.0, 574.367])
 
 
