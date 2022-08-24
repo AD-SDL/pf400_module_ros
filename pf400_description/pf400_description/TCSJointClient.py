@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# import rclpy
+import rclpy
 import os.path
 import telnetlib
 import threading
@@ -10,12 +10,12 @@ import math
 from operator import add
 from time import sleep
 
-# from sensor_msgs.msg import JointState
+from sensor_msgs.msg import JointState
 
 class TCSJointClient:
 
 	commandLock = threading.Lock()
-	# joint_state = JointState()
+	joint_state = JointState()
 
 	def __init__(self, host, port, mode = 0, data_file_path = "robot_data.json", commands_file_path = "robot_commands.json", error_codes_path = "error_codes.json"):
 		"""
@@ -61,7 +61,7 @@ class TCSJointClient:
 		self.init_connection_mode()
 		
 		self.axis_count = 6
-		# self.joint_state.name = ["J{}".format(x + 1) for x in range(0, self.axis_count)] # Comment out for local testing
+		self.joint_state.name = ["J{}".format(x + 1) for x in range(0, self.axis_count)] # Comment out for local testing
 		print("Connection ready")
 
 
@@ -377,7 +377,7 @@ class TCSJointClient:
 			output = self.initialize_robot()
 			self.force_initialize_robot()
 
-	def get_joint_data(self):
+	def find_joint_states(self):
 		"""
         Description: Locates the robot and returns the joint locations for all 6 joints.
         """
@@ -390,7 +390,7 @@ class TCSJointClient:
 		"""
         Description: 
         """
-		joint_array = self.get_joint_data()
+		joint_array = self.find_joint_states()
 		multipliers = [
 			0.001,			# J1, Z
 			math.pi / 180,	# J2, shoulder
@@ -407,7 +407,9 @@ class TCSJointClient:
         Description: Move end effector to neutral position
         """
 
-		current_joint_locations = self.get_joint_data()
+		current_joint_locations = self.find_joint_states()
+		current_cartesian_coordinates = self.find_cartesian_coordinates()
+		if current_cartesian_coordinates[]
 		current_joint_locations[4] = self.gripper_closed
 		current_joint_locations[3] = 530.993
 		self.send_command(self.create_move_command(current_joint_locations))
@@ -471,7 +473,7 @@ class TCSJointClient:
 			- axis_z : Goal movement on z axis in mm
 		"""
 		# First move robot on linear rail
-		current_joint_state = self.get_joint_data()
+		current_joint_state = self.find_joint_states()
 		current_joint_state[5] = target_location[5]
 		self.send_command(self.create_move_command(current_joint_state))
 
