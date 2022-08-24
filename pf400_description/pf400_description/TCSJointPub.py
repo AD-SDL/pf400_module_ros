@@ -6,7 +6,7 @@ from sensor_msgs.msg import JointState
 from rclpy.qos import QoSProfile
 from tf2_ros import TransformBroadcaster, TransformStamped
 
-from .TCSJointClient import TCSJointClient
+from ...pf400_driver.pf400_driver.pf400_driver import TCSJointClient
 
 class PF_JOINTS(Node):
 	def __init__(self, HOST, PORT):

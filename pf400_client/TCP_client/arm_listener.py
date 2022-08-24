@@ -5,7 +5,7 @@ import time
 import zmq
 import struct
 
-from rpl_pf400 import RPL_PF400
+from pf400_client.TCP_client.tcp_client import RPL_PF400
 
 def listener(host, port):
     

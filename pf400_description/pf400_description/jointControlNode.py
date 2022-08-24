@@ -4,7 +4,7 @@ import rclpy                 # import Rospy
 from rclpy.node import Node  # import Rospy Node
 from std_msgs.msg import String
 from std_srvs.srv import Empty
-from .TCSJointClient import TCSJointClient
+from ...pf400_driver.pf400_driver.pf400_driver import TCSJointClient
 from time import sleep
 
 # from pf400_module_services.srv import pf400WhereJ 
