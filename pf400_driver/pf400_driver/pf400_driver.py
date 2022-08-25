@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# import rclpy
+import rclpy
 import os.path
 import telnetlib
 import threading
@@ -13,12 +13,12 @@ from time import sleep
 import error_codes
 from error_codes import error_codes
 
-# from sensor_msgs.msg import JointState
+from sensor_msgs.msg import JointState
 
 class PF400():
 
 	commandLock = threading.Lock()
-	# joint_state = JointState()
+	joint_state = JointState()
 
 	def __init__(self, host, port, mode = 0, data_file_path = "robot_data.json", commands_file_path = "robot_commands.json", error_codes_path = "error_codes.json"):
 		"""
@@ -65,7 +65,7 @@ class PF400():
 		self.init_connection_mode()
 		
 		self.axis_count = 6
-		# self.joint_state.name = ["J{}".format(x + 1) for x in range(0, self.axis_count)] 
+		self.joint_state.name = ["J{}".format(x + 1) for x in range(0, self.axis_count)] 
 		print("Connection ready")
 
 
@@ -625,7 +625,7 @@ if __name__ == "__main__":
 
 	robot.transfer(loc1, loc2)
 	robot.transfer(loc2, loc1)
-	robot.initialize_robot()
+	# robot.initialize_robot()
 
 	# robot.move_in_one_axis(1, 0, 0, -20)
 	# robot.place_plate([262.550, 20.608, 119.290, 662.570, 126.0, 574.367])
