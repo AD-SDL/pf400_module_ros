@@ -6,7 +6,7 @@ from sensor_msgs.msg import JointState
 from rclpy.qos import QoSProfile
 from tf2_ros import TransformBroadcaster, TransformStamped
 
-from ...pf400_driver.pf400_driver.pf400_driver import TCSJointClient
+from ...pf400_driver.pf400_driver.pf400_driver import PF400
 
 class PF_JOINTS(Node):
 	def __init__(self, HOST, PORT):
@@ -16,7 +16,7 @@ class PF_JOINTS(Node):
 		self.HOST = HOST
 		self.PORT = PORT
 		timer_period = 0.1  # seconds
-		self.tcs_client = TCSJointClient(self.HOST, self.PORT)
+		self.tcs_client = PF400(self.HOST, self.PORT)
 		qos_profile = QoSProfile(depth=100)
 		self.jointStatePub = self.create_publisher(JointState, "joint_states",  qos_profile)
 		# self.timer = self.create_timer(timer_period, self.joint_callback)
