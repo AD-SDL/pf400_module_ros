@@ -189,7 +189,6 @@ class PF400():
         return out_msg
 
 
-
     def enable_power(self, wait:int = 0.1):
         """
         Decription: Enables the power on the robot

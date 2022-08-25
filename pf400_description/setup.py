@@ -15,7 +15,7 @@ setup(
         (os.path.join('share', package_name, 'launch'), glob('launch/*.launch.py')),
         (os.path.join('share', package_name, 'urdf'), glob('urdf/*.urdf')),
         (os.path.join('share', package_name, 'meshes'), glob('meshes/*')),
-],
+    ],
     install_requires=['setuptools'],
     zip_safe=True,
     maintainer='Rafael Vescovi',

@@ -4,7 +4,7 @@ from operator import mod
 import sys
 import time
 from time import sleep
-from TCSJointClient import TCSJointClient
+from pf400_driver.pf400_driver.pf400_driver import TCSJointClient
 
 client = TCSJointClient("192.168.50.50", "10100")
 

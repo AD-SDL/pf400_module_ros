@@ -12,10 +12,10 @@ with open('requirements.txt') as reqs:
 
 
 ##this is weird. 
-package_name = 'pf400_driver'
+package_name = 'pf400_client'
 
 setup(
-    name='pf400_driver',
+    name = package_name,
     version='0.0.1',
     packages=find_packages(),
     data_files=[
@@ -33,9 +33,7 @@ setup(
     license='MIT License',
     entry_points={ 
         'console_scripts': [
-             'pf400_driver = pf400_driver.pf400_driver:main_null',
-             'tcp_driver = pf400_driver.tcp_driver:main_null',
-             
+             'tcp_client = tcp_client.tcp_client:main_null',
       
 
         ]

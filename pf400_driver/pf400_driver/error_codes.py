@@ -1,4 +1,4 @@
-{
+error_codes = {
     "Error_Codes":{
         "-2800":"*Warning Parameter Mismatch*",
         "-2801":"*Warning No Parameters",
