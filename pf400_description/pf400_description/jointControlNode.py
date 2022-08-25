@@ -4,11 +4,13 @@ import rclpy                 # import Rospy
 from rclpy.node import Node  # import Rospy Node
 from std_msgs.msg import String
 from std_srvs.srv import Empty
-from ...pf400_driver.pf400_driver.pf400_driver import TCSJointClient
+from pf400_driver.pf400_driver import PF400
 from time import sleep
 
 # from pf400_module_services.srv import pf400WhereJ 
 from pf400_module_services.srv import MoveJ 
+from wei_services.srv import WeiDescription 
+from wei_services.srv import WeiActions  
 
 
 class jointControlNode(Node):
@@ -28,7 +30,7 @@ class jointControlNode(Node):
 
         self.state = "UNKNOWN"
 
-        self.client = TCSJointClient("192.168.50.50", "10100")
+        self.client = PF400("192.168.50.50", "10100")
 
         # Enable high power if necessary
         is_hp = self.client.SendCommand("hp")
@@ -55,9 +57,13 @@ class jointControlNode(Node):
 
         self.stateTimer = self.create_timer(timer_period, self.stateCallback)
 
-        self.descriptionSrv = self.create_service(Empty, "pf400_whereJ", self.whereJCallback)
+        self.whereSrv = self.create_service(Empty, "pf400_whereJ", self.whereJCallback)
 
-        self.actionSrv = self.create_service(MoveJ, "pf400_moveJ", self.moveJCallback)
+        self.moveSrv = self.create_service(MoveJ, "pf400_moveJ", self.moveJCallback)
+
+        self.actionSrv = self.create_service(WeiActions, NODE_NAME + "/actions", self.actionCallback)
+
+        self.descriptionSrv = self.create_service(WeiDescription, NODE_NAME + "/description", self.descriptionCallback)
 
         ########################################## Hard Coded joint locations
 
@@ -67,6 +73,8 @@ class jointControlNode(Node):
         self.pf400_neutral = [399.992, -0.356, 181.867, 530.993, self.gripper_open, 643.580]
 
         self.above = [60.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+
+        self.description={}
 
 
 
@@ -86,6 +94,57 @@ class jointControlNode(Node):
         
         self.state = "READY"
 
+
+
+    def descriptionCallback(self, request, response):
+        """The descriptionCallback function is a service that can be called to showcase the available actions a robot
+        can preform as well as deliver essential information required by the master node.
+
+        Parameters:
+        -----------
+        request: str
+            Request to the robot to deliver actions
+        response: str
+            The actions a robot can do, will be populated during execution
+
+        Returns
+        -------
+        str
+            The robot steps it can do
+        """
+        response.description_response = str(self.description)
+
+        return response
+
+    def actionCallback(self, request, response):
+
+        '''
+        The actionCallback function is a service that can be called to execute the available actions the robot
+        can preform.
+        '''
+        
+        self.manager_command = request.action_request # Run commands if manager sends corresponding command
+    
+        self.state = "BUSY"
+
+        self.stateCallback()
+
+        match self.manager_command:    
+            case "Transfer":
+                pos1 = request.joint_positions[0:6]
+                print(pos1)
+                pos2 = request.joint_positions[6:12]
+                print(pos2)
+
+                self.client.transfer(pos1, pos2)
+                response.action_response= True
+
+            case other:
+                response.action_response= False
+        
+        self.state = "COMPLETED"
+
+        return response
 
     def whereJCallback(self, request, response):
 
