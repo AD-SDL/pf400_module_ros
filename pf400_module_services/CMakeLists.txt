@@ -15,8 +15,7 @@ find_package(rosidl_default_generators REQUIRED)
 
 rosidl_generate_interfaces(${PROJECT_NAME}
   "srv/MoveJ.srv"
-  "srv/PeelerActions.srv"
-  "srv/SciclopsActions.srv"
+
  )
 
 if(BUILD_TESTING)
