@@ -4,7 +4,7 @@ import rclpy                 # import Rospy
 from rclpy.node import Node  # import Rospy Node
 from std_msgs.msg import String
 from std_srvs.srv import Empty
-from ...pf400_driver.pf400_driver.pf400_driver import PF400
+from pf400_driver.pf400_driver import PF400
 from time import sleep
 
 # from pf400_module_services.srv import pf400WhereJ 
@@ -13,12 +13,12 @@ from wei_services.srv import WeiDescription
 from wei_services.srv import WeiActions  
 
 
-class jointControlNode(Node):
+class PF400ClientNode(Node):
     '''
     The jointControlNode inputs data from the 'action' topic, providing a set of commands for the driver to execute. It then receives feedback, 
     based on the executed command and publishes the state of the peeler and a description of the peeler to the respective topics.
     '''
-    def __init__(self, PORT="/dev/ttyUSB0" , NODE_NAME="PF400_Joint_Node"):
+    def __init__(self, PORT="/dev/ttyUSB0" , NODE_NAME="PF400_Client_Node"):
         '''
         The init function is neccesary for the peelerNode class to initialize all variables, parameters, and other functions.
         Inside the function the parameters exist, and calls to other functions and services are made so they can be executed in main.
@@ -186,11 +186,11 @@ class jointControlNode(Node):
 
 def main(args = None):
 
-    NAME = "PF400_Joint_Node"
+    NAME = "PF400_Client_Node"
 
     rclpy.init(args=args)  # initialize Ros2 communication
 
-    node = jointControlNode(NODE_NAME=NAME)
+    node = PF400ClientNode(NODE_NAME=NAME)
 
     rclpy.spin(node)     # keep Ros2 communication open for action node
 

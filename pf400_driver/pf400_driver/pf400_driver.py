@@ -10,8 +10,7 @@ import math
 from operator import add
 from time import sleep
 
-import error_codes
-from error_codes import error_codes
+from pf400_driver.error_codes import error_codes
 
 from sensor_msgs.msg import JointState
 

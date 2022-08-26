@@ -33,19 +33,7 @@ setup(
     license='MIT License',
     entry_points={ 
         'console_scripts': [
-             'tcp_client = tcp_client.tcp_client:main_null',
-      
-
+             'pf400_client = pf400_client.pf400_client:main',
         ]
     },
-    classifiers=[
-        'Intended Audience :: Science/Research',
-        'Intended Audience :: Developers',
-        'License :: OSI Approved :: Apache Software License',
-        'Operating System :: POSIX',
-        'Operating System :: MacOS :: MacOS X',
-        'Programming Language :: Python',
-        'Programming Language :: Python :: 3.8',
-        'Programming Language :: Python :: 3.9',
-    ],
 )
