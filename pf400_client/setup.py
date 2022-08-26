@@ -27,7 +27,7 @@ setup(
     install_requires=install_requires,
     zip_safe=True,
     python_requires=">=3.8",
-    maintainer='Doga Ozgulbas and Alan Wang',
+    maintainer='Doga Ozgulbas',
     maintainer_email='dozgulbas@anl.gov',
     description='Driver for the PF400 robot arm',
     url='https://github.com/AD-SDL/PF400_driver.git', 
