@@ -1,5 +1,13 @@
 error_codes = {
-    "Error_Codes":{
+        # "0":"*Succsess*",
+        "0 7":"Power off - waiting for power request TRUE",
+        "0 20":"Power on - ready to have GPL attach robot",
+        "0 21":"21 GPL project attached to robot",
+        "-1012":"*Joint out-of-range* Set robot joints within their range",
+        "-1040":"*Position too far* Robot 1",
+        "-1042":"*Can't change robot config* Robot 1",
+        "-1600":"*Power off requested*",
+        "-1009":"*No robot attached*",
         "-2800":"*Warning Parameter Mismatch*",
         "-2801":"*Warning No Parameters",
         "-2802":"*Warning Illegal move command*",
@@ -23,6 +31,4 @@ error_codes = {
         "-2821":"*Undefined station*",
         "-2822":"*Not a pallet*",
         "-2823":"*Not at pallet origin*"        
-        
-    }
-}
+        }
