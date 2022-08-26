@@ -5,7 +5,7 @@ from glob import glob
 package_name = 'pf400_client'
 
 setup(
-    name=package_name,
+    name = package_name,
     version='0.0.0',
     packages=[package_name],
     data_files=[
