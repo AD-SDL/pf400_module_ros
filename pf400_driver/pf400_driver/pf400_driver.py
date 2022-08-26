@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# import rclpy
+import rclpy
 import os.path
 import telnetlib
 import threading
@@ -10,7 +10,7 @@ import math
 from operator import add
 from time import sleep
 
-import pf400_driver.error_codes
+from pf400_driver.error_codes import error_codes
 
 from sensor_msgs.msg import JointState
 
@@ -37,8 +37,7 @@ class PF400():
 		# Predefined locations for plate transferring oparetions
 		# self.location_dictionary = locations
 		# self.commands_list = self.load_robot_commands(commands_file_path)
-		# self.error_codes = self.load_error_codes(error_codes_path)
-
+		self.error_codes = error_codes
 		self.motion_profile = [
                 {
                     "speed": 30,
@@ -65,7 +64,7 @@ class PF400():
 		self.init_connection_mode()
 		
 		self.axis_count = 6
-		self.joint_state.name = ["J{}".format(x + 1) for x in range(0, self.axis_count)] # Comment out for local testing
+		self.joint_state.name = ["J{}".format(x + 1) for x in range(0, self.axis_count)] 
 		print("Connection ready")
 
 
@@ -154,24 +153,21 @@ class PF400():
 		# TODO: Try exception will change top print the error but not kill the code
 
 		self.commandLock.acquire()
+		
 		try:
 			if not self.connection:
 				self.Connect()		
+
 			print(">> " + command)
+
 			self.connection.write((command.encode("ascii") + b"\n"))
-			if self.mode == 1:
-				response1 = self.connection.read_until(b"\r\n").rstrip().decode("ascii")
-				if response1 != "" and response1[0] == "-":
-					raise Exception("TCS error: " + response1)
-				print("<< "+ response1)
-				return response1		
+			response = self.connection.read_until(b"\r\n").rstrip().decode("ascii")
+			if response != "" and response in self.error_codes:
+				self.handle_error_output(response)
 			else:
-				response2 = self.connection.read_until(b"\r\n").rstrip().decode("ascii")
-				if response2 != "" and response2[0] == "-":
-					raise Exception("TCS error: " + response2)
-				print("<< "+ response2)
-				return response2		
-			# TODO:Redo the error return code detection in the response massage by reading from error code list
+				print("<< "+ response)
+			return response		
+
 		finally:
 			self.commandLock.release()
 
@@ -189,6 +185,15 @@ class PF400():
 			self.send_command("mode 1")
 		self.send_command("selectrobot 1")
 
+	def handle_error_output(self, output):
+
+		if output in self.error_codes:
+			print("<< " + self.error_codes[output])
+			# self.initialize_robot()
+			# if output == "-1600" or output == "-1009":
+			# 	self.force_initialize_robot()
+		else:
+			print("<< TCS error: " + output)
 
 	def check_robot_state(self, wait:int = 0.1):
 		"""
@@ -196,8 +201,7 @@ class PF400():
 		"""
 
 		cmd = 'sysState'
-		input_msg = 'Robot state'
-		err_msg = 'Failed to check robot state:'
+
 
 		out_msg = self.send_command(cmd)
 		if "0 21" in out_msg:
@@ -612,9 +616,9 @@ class PF400():
 
 if __name__ == "__main__":
 
-	target_joint_angles = "1 1 1 1 1 1"
 	robot = PF400("192.168.50.50", 10100)
-	robot.force_initialize_robot()
+	# robot.force_initialize_robot()
+	# robot.disable_power()
 	loc1 = [262.550, 20.608, 119.290, 662.570, 126.0, 574.367]
 	loc2 = [231.788, -27.154, 313.011, 342.317, 0.0, 683.702]
 
