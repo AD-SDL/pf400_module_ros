@@ -10,6 +10,7 @@ import math
 from operator import add
 from time import sleep
 
+from pf400_driver.motion_profiles import motion_profiles
 from pf400_driver.error_codes import error_codes
 
 from sensor_msgs.msg import JointState
@@ -30,35 +31,10 @@ class PF400():
 		self.mode = mode
 		self.connection = None
 
-		# robot_data, robot1, motion_profile, locations = self.load_robot_data(data_file_path)
-		# self.robot_data = robot_data       
-		# Default Motion Profile Paramiters. Using two profiles for faster and slower movements
-		# self.motion_profile = motion_profile
-		# Predefined locations for plate transferring oparetions
-		# self.location_dictionary = locations
-		# self.commands_list = self.load_robot_commands(commands_file_path)
+		# Error code list of the PF400
 		self.error_codes = error_codes
-		self.motion_profile = [
-                {
-                    "speed": 30,
-                    "speed2": 0,
-                    "acceleration": 100,
-                    "deceleration": 100,
-                    "accelramp": 0.1,
-                    "decelramp": 0.1,
-                    "inrange": 0,
-                    "straight": -1
-                },
-                {
-                    "speed": 50,
-                    "speed2": 0,
-                    "acceleration": 100,
-                    "deceleration": 100,
-                    "accelramp": 0.1,
-                    "decelramp": 0.1,
-                    "inrange": 60,
-                    "straight": 0
-                }]
+		# Default Motion Profile Paramiters. Using two profiles for faster and slower movements
+		self.motion_profiles = motion_profiles
 
 		self.connect()
 		self.init_connection_mode()
@@ -72,64 +48,6 @@ class PF400():
 		self.gripper_closed = 79.0
 		self.pf400_neutral = [399.992, -0.356, 181.867, 530.993, self.gripper_closed, 643.580]
 		self.above = [60.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-
-	def load_robot_data(self, data_file_path):
-		"""
-		Decription: Loads the robot identification/motion profile/location data as dictionaries 
-		Parameters: 
-				- data_file_path: Path to data file
-		"""
-		# Setting parent file directory 
-		current_directory = os.path.dirname(__file__)
-		parent_directory = os.path.split(current_directory)[0] 
-		file_path = os.path.join(parent_directory + '/utils/'+ data_file_path)
-
-		# load json file
-		with open(file_path) as f:
-			data = json.load(f)
-
-		f.close()
-
-		return data, data["robot_data"][0], data["robot_data"][0]["motion_profile"],data["robot_data"][0]["locations"][0]
-		pass
-
-	def load_robot_commands(self, commands_file_path):
-		"""
-		Decription: Loads the available command list as a list
-		Parameters: 
-				- commands_file_path: Path to command list file
-		"""
-		# Setting parent file directory 
-		current_directory = os.path.dirname(__file__)
-		parent_directory = os.path.split(current_directory)[0] 
-		file_path = os.path.join(parent_directory + '/utils/'+ commands_file_path)
-
-		# load json file
-		with open(file_path) as f:
-			data = json.load(f)
-
-		f.close()
-		return data["Commands_List"]
-		pass
-
-	def load_error_codes(self, error_codes_path):
-		"""
-		Decription: Loads the robot error codes data as a dictionary
-		Parameters: 
-				- error_codes_path: Path to error codes data file
-		"""
-		# Setting parent file directory 
-		current_directory = os.path.dirname(__file__)
-		parent_directory = os.path.split(current_directory)[0] 
-		file_path = os.path.join(parent_directory + '/utils/'+ error_codes_path)
-
-		# load json file
-		with open(file_path) as f:
-			data = json.load(f)
-
-		f.close()
-		return data["Error_Codes"]
-		pass
 
 	def connect(self):
 		"""
@@ -150,7 +68,6 @@ class PF400():
 		"""
         Description: 
         """
-		# TODO: Try exception will change top print the error but not kill the code
 
 		self.commandLock.acquire()
 		
@@ -273,12 +190,12 @@ class PF400():
 		if len(profile_dict) == 1:
 			
 			cmd = 'Profile 1'
-			for key, value in self.motion_profile[0].items():
+			for key, value in self.motion_profiles[0].items():
 				cmd += ' ' + str(value)
 
 
 			cmd2 = 'Profile 2'
-			for key, value in self.motion_profile[1].items():
+			for key, value in self.motion_profiles[1].items():
 				cmd2 += ' ' + str(value)
 
 			ini_msg = "Setting defult values to the motion profile 1"
@@ -416,27 +333,37 @@ class PF400():
 		"""
         Description: Move end effector to neutral position
         """
-
 		current_joint_locations = self.find_joint_states()
+		
 		current_cartesian_coordinates = self.find_cartesian_coordinates()
+		
+		# Chack if end effector is inside a module. If it is, move it on the y axis first to prevent collisions with the module frames.
 		safe_y_distance = - 430
 		if current_cartesian_coordinates[1] <= safe_y_distance:
 			y_distance = safe_y_distance - current_cartesian_coordinates[1] 
 			self.move_in_one_axis(1,0,y_distance,0)
 
-
-		current_joint_locations[4] = self.gripper_closed
 		current_joint_locations[3] = 530.993
 
-		self.send_command(self.create_move_joint_command(current_joint_locations))
+		self.send_command(self.create_move_joint_command(current_joint_locations, 2, True, False))
 
-	def move_all_joints_neutral(self):
+	def move_all_joints_neutral(self, target_location):
 		"""
         Description: Move all joints to neutral position
         """
-
+		# First move end effector to it's nuetral position
 		self.move_end_effector_neutral()
+
+		# Setting an arm neutral position without moving the linear rail
+		arm_neutral = self.pf400_neutral
+		current_location = self.find_joint_states()
+		arm_neutral[5] = current_location[5]
+		self.send_command(self.create_move_joint_command(arm_neutral))
+
+		# Setting the target location's linear rail position for pf400_neutral 
+		self.pf400_neutral[5] = target_location[5]
 		self.send_command(self.create_move_joint_command(self.pf400_neutral))
+
 
 	def find_cartesian_coordinates(self):
 		"""
@@ -557,34 +484,28 @@ class PF400():
 
 		return move_command
 		
-	def pick_plate(self, target_pose):
+	def pick_plate(self, target_location):
 		"""
         Description: 
         """
-		#------
 		slow_profile = 1
 		fast_profile = 2
-		jointClosedPos = target_pose
 
-		abovePos = list(map(add, target_pose, self.above))
-		aboveClosedPos = list(map(add, jointClosedPos, self.above))
+		abovePos = list(map(add, target_location, self.above))
 
-
-		self.move_all_joints_neutral()
+		self.move_all_joints_neutral(target_location)
 		self.send_command(self.create_move_joint_command(abovePos, fast_profile, False, True))
-		self.send_command(self.create_move_joint_command(target_pose, slow_profile, False, True))
-		# sleep(0.5)
-		self.send_command(self.create_move_joint_command(target_pose, slow_profile, gripper_close=True, gripper_open= False))
-		# sleep(0.5)
+		self.send_command(self.create_move_joint_command(target_location, slow_profile, False, True))
+		self.send_command(self.create_move_joint_command(target_location, slow_profile, gripper_close=True, gripper_open= False))
 		self.send_command(self.create_move_joint_command(abovePos, slow_profile, True, False))
 		sleep(1)
-		self.move_all_joints_neutral()
+		self.move_all_joints_neutral(target_location)
 
 		# TODO: USE BELOW MOVE_ONE_AXIS FUNCTIONS TO MOVE ABOVE AND FRONT OF THE EACH TARGET LOCATIONS
-		# self.move_in_one_axis_from_target(target_pose, profile = 2, axis_x = 60, axis_y = 0, axis_z = 60)
-		# self.move_in_one_axis_from_target(target_pose, profile = 1, axis_x = 0, axis_y = 0, axis_z = 60)
+		# self.move_in_one_axis_from_target(target_location, profile = 2, axis_x = 60, axis_y = 0, axis_z = 60)
+		# self.move_in_one_axis_from_target(target_location, profile = 1, axis_x = 0, axis_y = 0, axis_z = 60)
 
-	def place_plate(self, target_pose):
+	def place_plate(self, target_location):
 		"""
         Description: 
         """
@@ -592,15 +513,16 @@ class PF400():
 		fast_profile = 2
 
 
-		abovePos = list(map(add, target_pose, self.above))
+		abovePos = list(map(add, target_location, self.above))
 
-		# self.move_all_joints_neutral()
+		sleep(1)
+		self.move_all_joints_neutral(target_location)
 		self.send_command(self.create_move_joint_command(abovePos, fast_profile, True, False))
-		self.send_command(self.create_move_joint_command(target_pose, slow_profile, True, False))
-		self.send_command(self.create_move_joint_command(target_pose, slow_profile, False, True))
+		self.send_command(self.create_move_joint_command(target_location, slow_profile, True, False))
+		self.send_command(self.create_move_joint_command(target_location, slow_profile, False, True))
 		self.send_command(self.create_move_joint_command(abovePos))
 		sleep(1)
-		self.move_all_joints_neutral()
+		self.move_all_joints_neutral(target_location)
 
 
 
