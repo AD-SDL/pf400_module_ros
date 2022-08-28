@@ -337,7 +337,7 @@ class PF400():
 		
 		current_cartesian_coordinates = self.find_cartesian_coordinates()
 		
-		# Chack if end effector is inside a module. If it is, move it on the y axis first to prevent collisions with the module frames.
+		# Check if end effector is inside a module. If it is, move it on the y axis first to prevent collisions with the module frames.
 		safe_y_distance = - 430
 		if current_cartesian_coordinates[1] <= safe_y_distance:
 			y_distance = safe_y_distance - current_cartesian_coordinates[1] 
