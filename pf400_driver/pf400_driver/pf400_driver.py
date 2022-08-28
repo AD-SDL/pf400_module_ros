@@ -355,8 +355,8 @@ class PF400():
 		self.move_end_effector_neutral()
 
 		# Setting an arm neutral position without moving the linear rail
-		arm_neutral = self.pf400_neutral
 		current_location = self.find_joint_states()
+		arm_neutral = self.pf400_neutral
 		arm_neutral[5] = current_location[5]
 		self.send_command(self.create_move_joint_command(arm_neutral))
 
