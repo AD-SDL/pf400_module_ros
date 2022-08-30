@@ -1,10 +1,7 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
-import rclpy
-import os.path
 import telnetlib
 import threading
-import json
 
 import math
 from operator import add
@@ -12,13 +9,10 @@ from time import sleep
 
 from pf400_driver.error_codes import error_codes
 
-from sensor_msgs.msg import JointState
-
 class PF400():
 	commandLock = threading.Lock()
-	joint_state = JointState()
 
-	def __init__(self, host, port, mode = 0, data_file_path = "robot_data.json", commands_file_path = "robot_commands.json", error_codes_path = "error_codes.json"):
+	def __init__(self, host, port, mode = 0):
 		"""
         Description: 
         """
@@ -29,13 +23,6 @@ class PF400():
 		self.mode = mode
 		self.connection = None
 
-		# robot_data, robot1, motion_profile, locations = self.load_robot_data(data_file_path)
-		# self.robot_data = robot_data       
-		# Default Motion Profile Paramiters. Using two profiles for faster and slower movements
-		# self.motion_profile = motion_profile
-		# Predefined locations for plate transferring oparetions
-		# self.location_dictionary = locations
-		# self.commands_list = self.load_robot_commands(commands_file_path)
 		self.error_codes = error_codes
 		self.motion_profile = [
                 {
@@ -62,75 +49,21 @@ class PF400():
 		self.connect()
 		self.init_connection_mode()
 		
-		self.axis_count = 6
-		self.joint_state.name = ["J{}".format(x + 1) for x in range(0, self.axis_count)] 
-		print("Connection ready")
+		##gripper vars
+		self.gripper_open_length = 90.0
+		self.gripper_closed_length = 79.0
+		self.gripper_safe_height= 10.0
+		
+		self.gripper_state = self.find_gripper_state()
+		self.neutral_joints = [400.0, 0.0, 180.0, 530.993, self.gripper_closed_length, 0.0]
+		
+		self.sample_above_height = [60.0, 0.0, 0.0, 0.0, 0.0, 0.0] ## move sample up before transfering
 
-		self.gripper_open = 90.0
-		self.gripper_closed = 79.0
-		self.pf400_neutral = [400.0, 0.0, 180.0, 530.993, self.gripper_closed, 0.0]
-		self.above = [60.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-
-	def load_robot_data(self, data_file_path):
-		"""
-		Decription: Loads the robot identification/motion profile/location data as dictionaries 
-		Parameters: 
-				- data_file_path: Path to data file
-		"""
-		# Setting parent file directory 
-		current_directory = os.path.dirname(__file__)
-		parent_directory = os.path.split(current_directory)[0] 
-		file_path = os.path.join(parent_directory + '/utils/'+ data_file_path)
-
-		# load json file
-		with open(file_path) as f:
-			data = json.load(f)
-		f.close()
-
-		return data, data["robot_data"][0], data["robot_data"][0]["motion_profile"],data["robot_data"][0]["locations"][0]
-		pass
-
-	def load_robot_commands(self, commands_file_path):
-		"""
-		Decription: Loads the available command list as a list
-		Parameters: 
-				- commands_file_path: Path to command list file
-		"""
-		# Setting parent file directory 
-		current_directory = os.path.dirname(__file__)
-		parent_directory = os.path.split(current_directory)[0] 
-		file_path = os.path.join(parent_directory + '/utils/'+ commands_file_path)
-
-		# load json file
-		with open(file_path) as f:
-			data = json.load(f)
-
-		f.close()
-		return data["Commands_List"]
-		pass
-
-	def load_error_codes(self, error_codes_path):
-		"""
-		Decription: Loads the robot error codes data as a dictionary
-		Parameters: 
-				- error_codes_path: Path to error codes data file
-		"""
-		# Setting parent file directory 
-		current_directory = os.path.dirname(__file__)
-		parent_directory = os.path.split(current_directory)[0] 
-		file_path = os.path.join(parent_directory + '/utils/'+ error_codes_path)
-
-		# load json file
-		with open(file_path) as f:
-			data = json.load(f)
-
-		f.close()
-		return data["Error_Codes"]
-		pass
+		self.module_left_dist = -430.0 # distance from center of rail to module on the left side
+		self.module_right_dist = 380.0 # distance from center of rail to module on the right side
 
 	def connect(self):
 		"""
-        Description: 
         """
 		try:
 			self.connection = telnetlib.Telnet(self.host, self.port, 5)
@@ -139,15 +72,12 @@ class PF400():
 
 	def disconnect(self):
 		"""
-        Description: 
         """
 		self.connection.close()
 
 	def send_command(self, command):
 		"""
-        Description: 
         """
-		# TODO: Try exception will change top print the error but not kill the code
 
 		self.commandLock.acquire()
 		
@@ -170,7 +100,6 @@ class PF400():
 
 	def init_connection_mode(self):
 		"""
-        Description: 
         """
 		if not self.connection:
 			self.Connect()
@@ -183,24 +112,19 @@ class PF400():
 		self.send_command("selectrobot 1")
 
 	def handle_error_output(self, output):
-
+		"""
+		"""
 		if output in self.error_codes:
 			print("<< " + self.error_codes[output])
-			# self.initialize_robot()
-			# if output == "-1600" or output == "-1009":
-			# 	self.force_initialize_robot()
 		else:
-			print("<< TCS error: " + output)
+			print("<< TCS Unknown error: " + output)
 
 	def check_robot_state(self, wait:int = 0.1):
 		"""
 		Decription: Checks the robot state
 		"""
 
-		cmd = 'sysState'
-
-
-		out_msg = self.send_command(cmd)
+		out_msg = self.send_command('sysState')
 		if "0 21" in out_msg:
 			out_msg = "Robot intilized and in ready state"
 		return out_msg
@@ -210,24 +134,15 @@ class PF400():
 		"""
 		Decription: Enables the power on the robot
 		"""
-		cmd = 'hp 1'
 
-		out_msg = self.send_command(cmd)
-		sleep(5)
-
+		out_msg = self.send_command('hp 1')
 		return out_msg
 
 	def disable_power(self, wait:int = 0.1):
 		"""
 		Decription: Disables the power on the robot
 		"""
-		cmd = 'hp 0'
-		ini_msg = 'Disabling power on the robot'
-		err_msg = 'Failed disable_power:'
-
-		out_msg = self.send_command(cmd)
-		sleep(5)
-
+		out_msg = self.send_command('hp 0')
 		return out_msg
 
 	def attach_robot(self, robot_id:str = "1", wait:int = 0.1):
@@ -237,11 +152,7 @@ class PF400():
 		Parameters: 
 				- robot_id: ID number of the robot
 		"""
-		cmd = "attach " + robot_id
-
-		out_msg = self.send_command(cmd)
-		sleep(5)
-
+		out_msg = self.send_command("attach " + robot_id)
 		return out_msg
 
 		
@@ -249,56 +160,7 @@ class PF400():
 		"""
 		Decription: Homes robot joints. Homing takes around 15 seconds.
 		"""
-		cmd = 'home'
-		ini_msg = 'Homing the robot'
-		err_msg = 'Failed to home the robot: '
-
-		out_msg = self.send_command(cmd)
-		sleep(10)
-
-		return out_msg
-
-	# Create "profile section" apart from the "command section"
-	def set_profile(self, wait:int = 0.1, profile_dict:dict = {"0":0}):
-		"""
-		Decription: Sets and saves the motion profiles (defined in robot data) to the robot. 
-					If user defines a custom profile, this profile will saved onto motion profile 3 on the robot
-		Parameters: 
-				- profile_dict: Custom motion profile
-		"""  
-		if len(profile_dict) == 1:
-			
-			cmd = 'Profile 1'
-			for key, value in self.motion_profile[0].items():
-				cmd += ' ' + str(value)
-
-
-			cmd2 = 'Profile 2'
-			for key, value in self.motion_profile[1].items():
-				cmd2 += ' ' + str(value)
-
-			ini_msg = "Setting defult values to the motion profile 1"
-			ini_msg2 = "Setting defult values to the motion profile 2"
-			err_msg = 'Failed to set profile 1: '
-			err_msg2 = 'Failed to set profile 2: '
-
-			out_msg = self.send_command(cmd)
-			out_msg2 = self.send_command(cmd2)
-
-		elif len(profile_dict) == 8:
-
-			ini_msg = "Setting new values to the motion profile 3"
-			err_msg = 'Failed to set profile 1: '
-
-			cmd = 'Profile 3'
-			for key, value in profile_dict.items():
-				cmd += ' ' + str(value)
-
-			out_msg = self.send_command(cmd, ini_msg, err_msg, wait)
-			
-		else:
-			raise Exception("Motion profile takes 8 arguments, {} where given".format(len(profile_dict)))
-
+		out_msg = self.send_command('home')
 		return out_msg 
 
 	def initialize_robot(self):
@@ -313,8 +175,6 @@ class PF400():
 		attach = self.attach_robot()
 		# Home robot
 		home = self.home_robot()
-		# Set default motion profile
-		profile = self.set_profile()
 		# Check robots' current state
 		rState =self.check_robot_state()
 
@@ -323,24 +183,30 @@ class PF400():
 		else:    
 			print("Robot initialization failed!")
 
-		return power + attach + profile + home + rState
+		return power + attach  + home + rState
+
+	def force_initialize_robot(self):
+		"""
+		Decription: Repeats the initilzation until there are no errors and the robot is initilzed.
+		"""
+		# Check robot state & initilize
+		if self.check_general_state() == -1:
+			print("Robot is not intilized! Intilizing now...")
+			output = self.initialize_robot()
+			self.force_initialize_robot()
 
 	def check_general_state(self, wait:int = 0.1):
 			"""
 			Decription: Checks general state
 			"""
 
-			cmd1 = "hp"
-			cmd2 = "attach"
-			cmd3 = "sysState"
-
-			power_msg = self.send_command(cmd1)
+			power_msg = self.send_command("hp")
 			power_msg = power_msg.split(" ")
 
-			attach_msg = self.send_command(cmd2)
+			attach_msg = self.send_command("attach")
 			attach_msg = attach_msg.split(" ")
 
-			state_msg = self.send_command(cmd3)
+			state_msg = self.send_command("sysState")
 			state_msg = state_msg.split(" ")
 
 			power ,attach, state = 0, 0, 0
@@ -357,30 +223,7 @@ class PF400():
 			else: 
 				return 0
 
-	def set_robot_mode(self):
-		"""
-		Decription: Sets the robot to PC mode. This is needed to make sure the robot is properly communicating over the TCP socket. 
-		"""
-		
-		cmd = 'mode 0'
-
-		out_msg = self.send_command(cmd)
-		sleep(5)
-		return out_msg
-
-	def force_initialize_robot(self):
-		"""
-		Decription: Repeats the initilzation until there are no errors and the robot is initilzed.
-		"""
-
-		self.set_robot_mode()
-		# Check robot state & initilize
-		if self.check_general_state() == -1:
-
-			print("Robot is not intilized! Intilizing now...")
-			output = self.initialize_robot()
-			self.force_initialize_robot()
-
+	## Get Commands 
 	def find_joint_states(self):
 		"""
         Description: Locates the robot and returns the joint locations for all 6 joints.
@@ -390,64 +233,25 @@ class PF400():
 		joints = joints[1:] 
 		return [float(x) for x in joints]
 
-	def refresh_joint_state(self):
-		"""
-        Description: 
-        """
-		joint_array = self.find_joint_states()
-		multipliers = [
-			0.001,			# J1, Z
-			math.pi / 180,	# J2, shoulder
-			math.pi / 180,	# J3, elbow
-			math.pi / 180,	# J4, wrist
-			0.0005, 		# J5, gripper (urdf is 1/2 scale)
-			0.0005, 		# J6, rail
-		]
-		self.joint_state.raw_position = joint_array
-		self.joint_state.position = [state * multiplier for state, multiplier in zip(joint_array, multipliers)]
-
-	def move_end_effector_neutral(self):
-		"""
-        Description: Move end effector to neutral position
-        """
-
-		current_joint_locations = self.find_joint_states()
-		current_cartesian_coordinates = self.find_cartesian_coordinates()
-		safe_y_distance = - 430
-		if current_cartesian_coordinates[1] <= safe_y_distance:
-			y_distance = safe_y_distance - current_cartesian_coordinates[1] 
-			self.move_in_one_axis(1,0,y_distance,0)
-
-
-		current_joint_locations[4] = self.gripper_closed
-		current_joint_locations[3] = 530.993
-
-		self.send_command(self.create_move_joint_command(current_joint_locations))
-
-	def move_tower_neutral(self,rail=None):
-		"""
-        Description: Move all joints to neutral position
-        """
-
-		neutral = self.pf400_neutral
-		here = self.find_joint_states()
-		if not rail:
-			rail=here[5]
-		neutral[5] = rail
-		self.move_end_effector_neutral()
-		self.send_command(self.create_move_joint_command(neutral))
-
 	def find_cartesian_coordinates(self):
 		"""
         Description: This function finds the current cartesian coordinates and angles of the robot.
 		Return: A float array with x/y/z yaw/pich/roll
         """
-
 		coordinates = self.send_command("whereC")
 		coordinates_list = coordinates.split(' ')
 		coordinates_list = coordinates_list[1:-1]
-
 		return [float(x) for x in coordinates_list]
+
+	def find_gripper_state(self):
+		"""
+		"""
+		joints = self.find_joint_states()
+		if float(joints[4]) > self.gripper_closed_length + 1.0:
+			self.gripper_state = "open"
+		else:
+			self.gripper_state = 'closed'
+		return self.gripper_state
 
 	def forward_kinematics(self, joint_states):
 		"""
@@ -458,8 +262,8 @@ class PF400():
 			- cartesian_coordinates: Returns the calculated cartesian coordinates of the given joint states
 		"""
 		cartesian_coordinates = self.find_cartesian_coordinates()
-		shoulder_lenght = 225
-		elbow_lenght = 210
+		shoulder_lenght = 225.0
+		elbow_lenght = 210.0
 
 		# Convert angles to radians
 		shoulder_angle = joint_states[1]*math.pi/180 #Joint 2 
@@ -475,6 +279,43 @@ class PF400():
 		print(x, y, z)
 
 		return cartesian_coordinates
+
+	## Create Move commands
+	def create_move_cartesian_command(self, target_cartesian_coordinates, profile:int =2):
+
+		move_command = "MoveC"+ " " + str(profile) + " " + " ".join(map(str, target_cartesian_coordinates))
+		return move_command
+
+	def create_move_joint_command(self, target_joint_locations, profile:int = 2, gripper_close: bool = False, gripper_open: bool = False):
+		"""
+		Description: Creates the movement commands with the given robot_location, profile, gripper closed and gripper open info
+		Parameters:
+				- target_location: Which location the PF400 will move.
+				- profile: Motion profile ID.
+				- gripper_close: If set to TRUE, gripper is closed. If set to FALSE, gripper position will remain same as the previous location. 
+				- gripper_open: If set to TRUE, gripper is opened. If set to FALSE, gripper position will remain same as the previous location.
+		Return: Returns the created movement command in string format
+		"""
+
+		# Checking unpermitted gripper command
+		## add check gripper here and remove gripper open/close from state
+		if gripper_close == True and gripper_open == True:
+			raise Exception("Gripper cannot be open and close at the same time!")
+			
+		# Setting the gripper location to open or close. If there is no gripper position passed in, target_joint_locations will be used.
+		if gripper_close == True:
+			target_joint_locations[4] = self.gripper_closed_length
+		if gripper_open == True:
+			target_joint_locations[4] = self.gripper_open_length
+
+		move_command = "movej" + " " + str(profile) + " " + " ".join(map(str, target_joint_locations))
+
+		return move_command		
+
+	##Move commands
+
+	def move_joints(self, joint_locations,profile=1):
+		return self.send_command(self.create_move_joint_command(joint_locations,profile))
 
 	def move_in_one_axis_from_target(self, target_location, profile:int = 2, axis_x:int= 0,axis_y:int= 0, axis_z:int= 0):
 		"""
@@ -526,35 +367,56 @@ class PF400():
 		move_command = "MoveC"+ " " + str(profile) + " " + " ".join(map(str, cartesian_coordinates))
 		self.send_command(move_command)
 
-	def create_move_cartesian_command(self, target_cartesian_coordinates, profile:int =2):
-
-		move_command = "MoveC"+ " " + str(profile) + " " + " ".join(map(str, target_cartesian_coordinates))
-		return move_command
-
-	def create_move_joint_command(self, target_joint_locations, profile:int = 2, gripper_close: bool = False, gripper_open: bool = False):
+	## lower order commands
+	def gripper_open(self):
 		"""
-		Description: Creates the movement commands with the given robot_location, profile, gripper closed and gripper open info
-		Parameters:
-				- target_location: Which location the PF400 will move.
-				- profile: Motion profile ID.
-				- gripper_close: If set to TRUE, gripper is closed. If set to FALSE, gripper position will remain same as the previous location. 
-				- gripper_open: If set to TRUE, gripper is opened. If set to FALSE, gripper position will remain same as the previous location.
-		Return: Returns the created movement command in string format
 		"""
+		joint_locations = self.find_joint_states()
+		joint_locations[4] = self.gripper_open_length
+		self.move_joints(joint_locations)
+		return self.find_gripper_state()
 
-		# Checking unpermitted gripper command
-		if gripper_close == True and gripper_open == True:
-			raise Exception("Gripper cannot be open and close at the same time!")
-			
-		# Setting the gripper location to open or close. If there is no gripper position passed in, target_joint_locations will be used.
-		if gripper_close == True:
-			target_joint_locations[4] = self.gripper_closed
-		if gripper_open == True:
-			target_joint_locations[4] = self.gripper_open
+	def gripper_close(self):
+		"""
+		"""
+		joint_locations = self.find_joint_states()
+		joint_locations[4] = self.gripper_closed_length
+		self.move_joints(joint_locations)
+		return self.find_gripper_state()
 
-		move_command = "movej" + " " + str(profile) + " " + " ".join(map(str, target_joint_locations))
+	def set_gripper_neutral(self):
+		"""
+        """
+		current_joint_locations = self.find_joint_states()
+		current_cartesian_coordinates = self.find_cartesian_coordinates()
+		
+		## add left/right checks here
+		if current_cartesian_coordinates[1] <= self.module_left_dist:
+			y_distance = self.module_left_dist - current_cartesian_coordinates[1] 
+			self.move_in_one_axis(1,0,y_distance,0)
+		
+		current_joint_locations[3] = self.neutral_joints[3]
+		return self.move_joints(current_joint_locations)
 
-		return move_command
+
+	def move_arm_neutral(self, height=None, rail=None):
+		"""
+        Description: Move all joints to neutral position
+        """
+
+		neutral = self.neutral_joints
+		current_joint_locations = self.find_joint_states()
+
+		if not height:
+			height=current_joint_locations[0]
+		if not rail:
+			rail=current_joint_locations[5]
+
+		neutral[0] = height
+		neutral[5] = rail
+		##TODO: Need to move the arm a little higher before rotating the gripper 
+		self.set_gripper_neutral()
+		return self.move_joints(neutral)
 		
 	def pick_plate(self, target_pose):
 		"""
@@ -563,22 +425,18 @@ class PF400():
 		#------
 		slow_profile = 1
 		fast_profile = 2
-		jointClosedPos = target_pose
 
-		abovePos = list(map(add, target_pose, self.above))
-		aboveClosedPos = list(map(add, jointClosedPos, self.above))
+		abovePos = list(map(add, target_pose, self.sample_above_height))
 
-
-		self.move_tower_neutral()
-		self.move_tower_neutral(rail=target_pose[5])
+		self.move_arm_neutral()
+		self.move_arm_neutral(rail=target_pose[5],height=abovePos[0])
+		
 		self.send_command(self.create_move_joint_command(abovePos, fast_profile, False, True))
 		self.send_command(self.create_move_joint_command(target_pose, slow_profile, False, True))
-		# sleep(0.5)
-		self.send_command(self.create_move_joint_command(target_pose, slow_profile, gripper_close=True, gripper_open= False))
-		# sleep(0.5)
+		self.gripper_close()
+		
 		self.send_command(self.create_move_joint_command(abovePos, slow_profile, True, False))
-		sleep(1)
-		self.move_tower_neutral()
+		self.move_arm_neutral()
 
 		# TODO: USE BELOW MOVE_ONE_AXIS FUNCTIONS TO MOVE ABOVE AND FRONT OF THE EACH TARGET LOCATIONS
 		# self.move_in_one_axis_from_target(target_pose, profile = 2, axis_x = 60, axis_y = 0, axis_z = 60)
@@ -592,43 +450,38 @@ class PF400():
 		fast_profile = 2
 
 
-		abovePos = list(map(add, target_pose, self.above))
+		abovePos = list(map(add, target_pose, self.sample_above_height))
 
-		self.move_tower_neutral()
-		self.move_tower_neutral(rail=target_pose[5])
+		self.move_arm_neutral()
+		self.move_arm_neutral(rail=target_pose[5],height=abovePos[0])
+
 		self.send_command(self.create_move_joint_command(abovePos, fast_profile, True, False))
 		self.send_command(self.create_move_joint_command(target_pose, slow_profile, True, False))
-		self.send_command(self.create_move_joint_command(target_pose, slow_profile, False, True))
+		self.gripper_open()
+
 		self.send_command(self.create_move_joint_command(abovePos))
-		sleep(1)
-		self.move_tower_neutral()
+		self.move_arm_neutral()
 
 
 
 
-	def transfer(self, location1, location2):
+	def transfer(self, source, dest):
 		"""
         Description: Plate transfer function that performs series of movements to pick and place the plates
 		
         """
 		self.force_initialize_robot()
-		self.pick_plate(location1)
-		self.place_plate(location2)
+		self.pick_plate(source)
+		self.place_plate(dest)
 
 if __name__ == "__main__":
 
 	robot = PF400("192.168.50.50", 10100)
-	# robot.force_initialize_robot()
-	# robot.disable_power()
 	loc1 = [262.550, 20.608, 119.290, 662.570, 126.0, 574.367]
 	loc2 = [231.788, -27.154, 313.011, 342.317, 0.0, 683.702]
 
 	robot.transfer(loc1, loc2)
 	robot.transfer(loc2, loc1)
-	# robot.initialize_robot()
-
-	# robot.move_in_one_axis(1, 0, 0, -20)
-	# robot.place_plate([262.550, 20.608, 119.290, 662.570, 126.0, 574.367])
 
 
 
