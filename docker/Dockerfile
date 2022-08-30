@@ -59,4 +59,4 @@ RUN source $ROS_ROOT/setup.bash && colcon build --symlink-install && source $ROS
 # On image run, source overlay and launch node
 COPY ros_entrypoint.sh /
 ENTRYPOINT [ "/ros_entrypoint.sh" ]
-CMD ros2 launch demo demo.launch.py
+CMD ros2 launch pf400_client pf400_client.launch.py

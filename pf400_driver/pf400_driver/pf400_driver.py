@@ -16,7 +16,6 @@ from pf400_driver.error_codes import error_codes
 from sensor_msgs.msg import JointState
 
 class PF400():
-
 	commandLock = threading.Lock()
 	joint_state = JointState()
 
@@ -43,10 +42,9 @@ class PF400():
 		self.joint_state.name = ["J{}".format(x + 1) for x in range(0, self.axis_count)] 
 		print("Connection ready")
 
-
 		self.gripper_open = 90.0
 		self.gripper_closed = 79.0
-		self.pf400_neutral = [399.992, -0.356, 181.867, 530.993, self.gripper_closed, 643.580]
+		self.pf400_neutral = [400.0, 0.0, 180.0, 530.993, self.gripper_closed, 0.0]
 		self.above = [60.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 
 	def connect(self):
@@ -132,7 +130,6 @@ class PF400():
 		"""
 		cmd = 'hp 1'
 
-
 		out_msg = self.send_command(cmd)
 		sleep(5)
 
@@ -205,8 +202,6 @@ class PF400():
 
 			out_msg = self.send_command(cmd)
 			out_msg2 = self.send_command(cmd2)
-
-
 
 		elif len(profile_dict) == 8:
 
