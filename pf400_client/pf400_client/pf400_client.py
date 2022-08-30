@@ -88,6 +88,10 @@ class PF400ClientNode(Node):
             vars = eval(request.vars)
             print(vars)
 
+            if 'pos1' not in vars.keys() or 'pos2' not in vars.keys():
+                print('vars wrong')
+                return 
+
             pos1 = vars.get('pos1')
             print(pos1)
             pos2 = vars.get('pos2')

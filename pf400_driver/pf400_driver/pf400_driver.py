@@ -49,10 +49,13 @@ class PF400():
 		##arm vars
 		self.neutral_joints = [400.0, 0.0, 180.0, 530.993, self.gripper_closed_length, 0.0]	
 		self.module_left_dist = -430.0
+		self.module_right_dist = -430.0
+
 
 		##sample vars
 		self.sample_above_height = 60.0
 		self.above = [self.sample_above_height,0,0,0,0,0]
+		self.y_recoil = 300.0	
 
 	def connect(self):
 		"""
@@ -218,9 +221,8 @@ class PF400():
 		if self.home_state == "0 0":
 			self.send_command("home")
 
-		self.send_command("attach 1")
+		# Set default motion profile		self.send_command("attach 1")
 
-		# Set default motion profile
 		self.set_profile()
 
 
@@ -448,11 +450,10 @@ class PF400():
         """
 		current_joint_locations = self.find_joint_states()
 		current_cartesian_coordinates = self.find_cartesian_coordinates()
-		
-		## add left/right checks here
-		# if current_cartesian_coordinates[1] <= self.module_left_dist:
-		# 	y_distance = self.module_left_dist - current_cartesian_coordinates[1] 
-		# 	self.move_in_one_axis(1,0,y_distance,0)
+		if current_cartesian_coordinates[1] > 0:
+			self.move_in_one_axis(1,0,-100,0)
+		else:
+			self.move_in_one_axis(1,0,100,0)
 		
 		current_joint_locations[3] = self.neutral_joints[3]
 		self.send_command(self.create_move_joint_command(current_joint_locations,2))
@@ -466,7 +467,7 @@ class PF400():
 		current_cartesian_coordinates = self.find_cartesian_coordinates()
 		
 		# Check if end effector is inside a module. If it is, move it on the y axis first to prevent collisions with the module frames.
-		safe_y_distance = - 430
+		safe_y_distance = -430
 		if current_cartesian_coordinates[1] <= safe_y_distance:
 			y_distance = safe_y_distance - current_cartesian_coordinates[1] 
 			self.move_in_one_axis(1,0,y_distance,0)
@@ -493,7 +494,9 @@ class PF400():
 
 		neutral[0] = height
 		neutral[5] = rail
+	
 		self.set_gripper_neutral()
+
 		self.send_command(self.create_move_joint_command(neutral,2))
 
 	def move_all_joints_neutral(self, target_location):
@@ -522,15 +525,17 @@ class PF400():
 
 		abovePos = list(map(add, target_location, self.above))
 
-		self.move_all_joints_neutral(target_location)
+
 		#raf has an extra command here
-		#self.move_arm_neutral()
-		#self.move_arm_neutral(rail=target_location[5],height=abovePos[0])
+		self.move_arm_neutral()
+		self.move_arm_neutral(rail=target_location[5],height=abovePos[0])
+		# self.send_command(self.create_move_joint_command(entryPos, fast_profile, False, True))
 		self.send_command(self.create_move_joint_command(abovePos, fast_profile, False, True))
 		self.send_command(self.create_move_joint_command(target_location, slow_profile, False, True))
-		#self.gripper_close()
-		self.send_command(self.create_move_joint_command(target_location, slow_profile, gripper_close=True, gripper_open= False))
-		self.send_command(self.create_move_joint_command(abovePos, slow_profile, True, False))
+		# self.gripper_close()
+		self.send_command(self.create_move_joint_command(target_location, slow_profile, True, True))
+		self.send_command(self.create_move_joint_command(abovePos))
+		# self.send_command(self.create_move_joint_command(entryPos, slow_profile, True, False))
 		sleep(1)
 		self.move_all_joints_neutral(target_location)
 
@@ -549,17 +554,18 @@ class PF400():
 		abovePos = list(map(add, target_location, self.above))
 
 		sleep(1)
-		self.move_all_joints_neutral(target_location)
+		#self.move_all_joints_neutral(target_location)
 		#raf has an extra command here
-		#self.move_arm_neutral()
-		#self.move_arm_neutral(rail=target_location[5],height=abovePos[0])
+		self.move_arm_neutral()
+		self.move_arm_neutral(rail=target_location[5],height=abovePos[0])
 		self.send_command(self.create_move_joint_command(abovePos, fast_profile, True, False))
 		self.send_command(self.create_move_joint_command(target_location, slow_profile, True, False))
  		#self.gripper_open()
 		self.send_command(self.create_move_joint_command(target_location, slow_profile, False, True))
 		self.send_command(self.create_move_joint_command(abovePos))
 		sleep(1)
-		self.move_all_joints_neutral(target_location)
+		self.move_arm_neutral(rail=target_location[5],height=abovePos[0])
+		#self.move_all_joints_neutral(target_location)
 
 
 	def transfer(self, source, dest):
