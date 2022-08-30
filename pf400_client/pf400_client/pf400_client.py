@@ -29,21 +29,7 @@ class PF400ClientNode(Node):
         self.state = "UNKNOWN"
         self.client = PF400("192.168.50.50", "10100")
 
-        # Enable high power if necessary
-        is_hp = self.client.send_command("hp")
-        if is_hp == "0 0":
-            self.client.send_command("hp 1")
-            sleep(5)
-
-        # Attach the robot to this thread
-        self.client.send_command("attach 1")
-
-        # # Home if necessary
-        is_homed = self.client.send_command("pd 2800")
-        if is_homed == "0 0":
-            self.client.send_command("home")
-
-        self.client.send_command("attach 1")
+        self.client.initialize_robot()
 
         timer_period = 0.5  # seconds
         self.stateTimer = self.create_timer(timer_period, self.stateCallback)
