@@ -5,6 +5,7 @@ error_codes = {
         "-1012":"*Joint out-of-range* Set robot joints within their range",
         "-1040":"*Position too far* Robot 1",
         "-1042":"*Can't change robot config* Robot 1",
+        "-1046":"*Power not enabled*",
         "-1600":"*Power off requested*",
         "-1009":"*No robot attached*",
         "-2800":"*Warning Parameter Mismatch*",
