@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+# import rclpy
 import profile
 import telnetlib
 import threading
@@ -31,18 +32,19 @@ class PF400():
 		# Default Motion Profile Paramiters. Using two profiles for faster and slower movements
 		self.motion_profiles = motion_profiles
 
-
 		##Robot State
-		self.power_state = ''
-		self.home_state = ''
-		self.gripper_state = ''
+		self.power_state = "0"
+		self.attach_state = "0"
+		self.home_state = 0
+		self.gripper_state = " "
+		self.robot_state = "0"
 
 		self.connect()
 		self.init_connection_mode()
 		self.force_initialize_robot()
 
 		##gripper vars
-		self.gripper_open_state = 90.0
+		self.gripper_open_state = 95.0
 		self.gripper_closed_state = 79.0
 		self.gripper_safe_height = 10.0
 		self.gripper_state = self.find_gripper_state()
@@ -203,33 +205,37 @@ class PF400():
 
 		return out_msg 
 
-	def initialize_robot(self, initialization_steps:list = []):
+	def initialize_robot(self):
 		"""
 		Decription: Intilizes the robot by calling enable_power, attach_robot, home_robot, set_profile functions and 
 					checks the robot state to find out if the initilization was successful
 		"""
-		power = " "
-		attach = " "
-		home = " "
 
-		if initialization_steps == []:
-			power = self.enable_power()
-			attach = self.attach_robot()
-			home = self.home_robot()
-		else:
-			if initialization_steps[0] == -1:
-				power = self.enable_power()
-				sleep(2)
-			if initialization_steps[1] == -1:
-				attach = self.attach_robot()
-				sleep(3) 
-			if initialization_steps[2] == -1:
-				home = self.home_robot()
-				sleep(5)
+		count = 0 
+
+
+		if self.power_state == "-1":
+			self.power_state = self.enable_power()
+			count += 1
+			sleep(5)
+
+		if self.attach_state == "-1":
+			self.attach_state = self.attach_robot()
+			count += 1
+			sleep(5) 
+		
+		if self.robot_state == "-1":
+			count += 1
+			self.robot_state = self.send_command("sysState")
+
+		if count == 3 and self.home_state == 0:	
+			self.home_robot()
+			self.home_state += 1
+			sleep(6)
 		
 		profile = self.set_profile()
 
-		if power[0].find("-") == -1 and attach[0].find("-") == -1 and home[0].find("-") == -1 and profile[0].find("-") == -1:
+		if self.power_state[0].find("-") == -1 and self.attach_state[0].find("-") == -1 and profile[0].find("-") == -1:
 			print("Robot initialization successfull")
 		else:
 			print("Robot initialization failed")
@@ -239,9 +245,9 @@ class PF400():
 		Decription: Repeats the initilzation until there are no errors and the robot is initilzed.
 		"""
 		# Check robot state & initilize
-		if self.check_general_state()[0] == -1:
+		if self.check_general_state() == -1:
 			print("Robot is not intilized! Intilizing now...")
-			self.initialize_robot(self.check_general_state()[1])
+			self.initialize_robot()
 			self.force_initialize_robot()
 
 	def check_general_state(self):
@@ -258,19 +264,21 @@ class PF400():
 			state_msg = self.send_command("sysState")
 			state_msg = state_msg.split(" ")
 
-			power ,attach, state = 0, 0, 0
-
 			if len(power_msg) == 1 or power_msg[0].find("-") != -1 or power_msg[1] == "0":
-				power = -1
+				self.power_state = "-1"
+
 			if attach_msg[1].find("0") != -1 or attach_msg[0].find("-") != -1:
-				attach = -1
+				self.attach_state = "-1"
+
 			if state_msg[1].find("7") != -1 or state_msg[0].find("-") != -1:
-				state = -1
-			print(power, attach, state)
-			if power == -1 or attach == -1 or state == -1:
-				return [-1,[power,attach,state]]
+				self.robot_state = "-1"
+
+			print(self.power_state, self.attach_state, self.robot_state)
+
+			if self.power_state == "-1" or self.attach_state == "-1" or self.robot_state == "-1":
+				return -1
 			else: 
-				return [0]
+				return 0
 
 	## Get Commands 
 	def find_joint_states(self):
@@ -443,20 +451,23 @@ class PF400():
 	def gripper_open(self):
 		"""
 		"""
+		sleep(2)
 		joint_locations = self.find_joint_states()
-		print(joint_locations)
 		joint_locations[4] = self.gripper_open_state
 		self.send_command(self.create_move_joint_command(joint_locations,2))
 		sleep(1)
+
 		return self.find_gripper_state()
 
 	def gripper_close(self):
 		"""
 		"""
+		sleep(2)
 		joint_locations = self.find_joint_states()
 		joint_locations[4] = self.gripper_closed_state
 		self.send_command(self.create_move_joint_command(joint_locations,2))
 		sleep(1)
+
 		return self.find_gripper_state()
 
 	# def set_gripper_neutral(self):
@@ -499,7 +510,7 @@ class PF400():
 		gripper_neutral = self.find_joint_states()
 		gripper_neutral[3] = 540.0
 
-		self.send_command(self.create_move_joint_command(gripper_neutral, 2, True, False))
+		self.send_command(self.create_move_joint_command(gripper_neutral,2))
 
 
 	def move_arm_neutral(self):
@@ -525,7 +536,7 @@ class PF400():
 			h_rail = current_location[5] # Keep the horizontal rail same
 
 		self.neutral_joints[0] = v_rail + 60.0
-		self.neutral_joints[5] = h_rail + 60.0
+		self.neutral_joints[5] = h_rail
 
 		self.send_command(self.create_move_joint_command(self.neutral_joints))
 
@@ -533,6 +544,7 @@ class PF400():
 		"""
         Description: Move all joints to neutral position
         """
+		sleep(1)
 		# First move end effector to it's nuetral position
 		self.move_gripper_neutral()
 		# Setting an arm neutral position without moving the horizontal & vertical rails
@@ -550,19 +562,11 @@ class PF400():
 
 		abovePos = list(map(add, target_location, self.above))
 
-
-		#raf has an extra command here
-		# self.move_arm_neutral()
-		# self.move_arm_neutral(rail=target_location[5],height=abovePos[0])
-		# self.send_command(self.create_move_joint_command(entryPos, fast_profile, False, True))
 		self.move_all_joints_neutral(target_location)
-		self.send_command(self.create_move_joint_command(abovePos, fast_profile, False, True))
-		self.send_command(self.create_move_joint_command(target_location, slow_profile, False, True))
-		# self.gripper_close()
-		self.send_command(self.create_move_joint_command(target_location, slow_profile, True, False))
-		self.send_command(self.create_move_joint_command(abovePos,1,True))
-		# self.send_command(self.create_move_joint_command(entryPos, slow_profile, True, False))
-		sleep(1)
+		self.send_command(self.create_move_joint_command(abovePos, fast_profile))
+		self.send_command(self.create_move_joint_command(target_location, slow_profile))
+		self.gripper_close()
+		self.move_in_one_axis(profile = 1, axis_x = 0, axis_y = 0, axis_z = 60)
 		self.move_all_joints_neutral(target_location)
 
 		# TODO: USE BELOW MOVE_ONE_AXIS FUNCTIONS TO MOVE ABOVE AND FRONT OF THE EACH TARGET LOCATIONS
@@ -576,21 +580,13 @@ class PF400():
 		slow_profile = 1
 		fast_profile = 2
 
-
 		abovePos = list(map(add, target_location, self.above))
 
-		# self.move_arm_neutral()
-		# self.move_arm_neutral(rail=target_location[5],height=abovePos[0])
-		sleep(1)
 		self.move_all_joints_neutral(target_location)
-		#raf has an extra command here
 		self.send_command(self.create_move_joint_command(abovePos, fast_profile, True, False))
 		self.send_command(self.create_move_joint_command(target_location, slow_profile, True, False))
- 		#self.gripper_open()
-		self.send_command(self.create_move_joint_command(target_location, slow_profile, False, True))
-		self.send_command(self.create_move_joint_command(abovePos, 1, False, True))
-		sleep(1)
-		# self.move_arm_neutral(rail=target_location[5],height=abovePos[0])
+		self.gripper_open()
+		self.move_in_one_axis(profile = 1, axis_x = 0, axis_y = 0, axis_z = 60)
 		self.move_all_joints_neutral(target_location)
 
 
