@@ -563,8 +563,8 @@ class PF400():
 		abovePos = list(map(add, target_location, self.above))
 
 		self.move_all_joints_neutral(target_location)
-		self.send_command(self.create_move_joint_command(abovePos, fast_profile))
-		self.send_command(self.create_move_joint_command(target_location, slow_profile))
+		self.send_command(self.create_move_joint_command(abovePos, fast_profile, False, True))
+		self.send_command(self.create_move_joint_command(target_location, slow_profile, False, True))
 		self.gripper_close()
 		self.move_in_one_axis(profile = 1, axis_x = 0, axis_y = 0, axis_z = 60)
 		self.move_all_joints_neutral(target_location)
