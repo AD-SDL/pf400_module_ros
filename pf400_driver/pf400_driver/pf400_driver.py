@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# import rclpy
+import rclpy
 import profile
 import telnetlib
 import threading
@@ -9,8 +9,8 @@ import math
 from operator import add
 from time import sleep
 
-from motion_profiles import motion_profiles
-from error_codes import error_codes
+from pf400_driver.motion_profiles import motion_profiles
+from pf400_driver.error_codes import error_codes
 
 class PF400():
 	commandLock = threading.Lock()
@@ -86,7 +86,7 @@ class PF400():
 				
 			# if command.split()[0] == "movej" or command.split()[0] == "movec" or command.split()[0] == "wherej" or command.split()[0] == "wherec":	
 			if self.robot_movement_state() > 1:
-				print("Waiting to robot movement end to send the new command")
+				print("Waiting for robot movement to end before sending the new command")
 				while self.robot_movement_state() > 1:
 					dummy_loop = 0
 
