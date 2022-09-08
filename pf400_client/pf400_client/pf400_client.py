@@ -115,6 +115,9 @@ class PF400ClientNode(Node):
 
         self.state = "COMPLETED"
 
+        # if "Error:" in self.pf400.pf400_output:
+        #     self.state = self.p400.error_msg
+
         return response
 
     def whereJCallback(self, request, response):
