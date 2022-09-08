@@ -213,7 +213,6 @@ class PF400():
 
 		count = 0 
 
-
 		if self.power_state == "-1":
 			self.power_state = self.enable_power()
 			count += 1

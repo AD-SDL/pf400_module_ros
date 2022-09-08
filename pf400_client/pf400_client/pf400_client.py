@@ -4,20 +4,21 @@ import rclpy                 # import Rospy
 from rclpy.node import Node  # import Rospy Node
 from std_msgs.msg import String
 from std_srvs.srv import Empty
-from pf400_driver.pf400_driver import PF400
+
 from time import sleep
 
 # from pf400_module_services.srv import pf400WhereJ 
-from pf400_module_services.srv import MoveJ 
 from wei_services.srv import WeiDescription 
 from wei_services.srv import WeiActions  
+
+from pf400_driver.pf400_driver import PF400
 
 class PF400ClientNode(Node):
     '''
     The jointControlNode inputs data from the 'action' topic, providing a set of commands for the driver to execute. It then receives feedback, 
     based on the executed command and publishes the state of the peeler and a description of the peeler to the respective topics.
     '''
-    def __init__(self, PORT="/dev/ttyUSB0" , NODE_NAME="PF400_Client_Node"):
+    def __init__(self, NODE_NAME="PF400_Client_Node"):
         '''
         The init function is neccesary for the peelerNode class to initialize all variables, parameters, and other functions.
         Inside the function the parameters exist, and calls to other functions and services are made so they can be executed in main.
@@ -25,8 +26,10 @@ class PF400ClientNode(Node):
 
         super().__init__(NODE_NAME)
         
-        print("pf400 is online") 
+        print("PF400 is online") 
+
         self.state = "UNKNOWN"
+
         self.client = PF400("192.168.50.50", "10100")
 
         self.client.initialize_robot()
@@ -82,20 +85,31 @@ class PF400ClientNode(Node):
         can preform.
         '''
         
-        if request.action_handle=='transfer':
+        if request.action_handle == "transfer":
+
             self.state = "BUSY"
             self.stateCallback()
             vars = eval(request.vars)
             print(vars)
 
-            if 'pos1' not in vars.keys() or 'pos2' not in vars.keys():
-                print('vars wrong')
+            if 'pos1' not in vars.keys():
+                print("Pick up location is not provided")
+                return 
+            elif 'pos2' not in vars.keys():
+                print("Drop off up location is not provided")
                 return 
 
+            if len(vars.get('pos1')) != 6:
+                print("Position 1 should be six joint angles lenght")
+                return
+            if len(vars.get('pos2')) != 6:
+                print("Position 2 should be six joint angles lenght")
+                return
+            
             pos1 = vars.get('pos1')
-            print(pos1)
+            print("Pick up location: ", pos1)
             pos2 = vars.get('pos2')
-            print(pos2)
+            print("Drop off location: ",pos2)
 
             self.client.transfer(pos1, pos2)
 
@@ -116,30 +130,6 @@ class PF400ClientNode(Node):
         return response
 
 
-    def moveJCallback(self, request, response):
-        '''
-        The descriptionCallback function is a service that can be called to showcase the available actions a robot
-        can preform as well as deliver essential information required by the master node.
-        '''
-
-        self.state = "BUSY"
-        self.stateCallback()
-
-
-        profile = 2                                                                         # profile changes speed of arm
-        pos = request.joint_positions                                                       # Joint position taken from list given within request 
-        # cmd = "movej" + " " + str(profile) + " " + " ".join(map(str, pos))                  # Turns the list into a string to send cmd to pf400 driver
-
-        print(pos)
-        pos1 = request.joint_positions[0:6]
-        print(pos1)
-        pos2 = request.joint_positions[6:12]
-        print(pos2)
-
-        self.client.transfer(pos1, pos2)
-        self.state = "COMPLETED"
-
-        return response
 
 def main(args = None):
 
