@@ -7,7 +7,7 @@ motion_profiles = [
                     "accelramp": 0.1,
                     "decelramp": 0.1,
                     "inrange": 0,
-                    "straight": -1
+                    "straight": 0
                 },
                 {
                     "speed": 50,
@@ -16,6 +16,6 @@ motion_profiles = [
                     "deceleration": 100,
                     "accelramp": 0.1,
                     "decelramp": 0.1,
-                    "inrange": 60,
+                    "inrange": 0,
                     "straight": 0
                 }]
