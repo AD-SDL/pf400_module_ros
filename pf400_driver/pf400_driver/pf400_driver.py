@@ -108,8 +108,8 @@ class PF400():
 		"""Checks the movement state of the robot
 		States: 0 = Power off
 				1 = Stopping
-				2 = Accelarating
-				3 = Deccelarating	
+				2 = Acceleration
+				3 = Decelaration	
 		"""
 
 		self.connection.write(("state".encode("ascii") + b"\n"))
