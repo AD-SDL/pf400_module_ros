@@ -90,6 +90,8 @@ class PF400():
 				self.handle_error_output(response)
 			else:
 				print("<< "+ response)
+				self.robot_state = "Normal"
+
 			return response		
 		finally:
 			self.commandLock.release()
@@ -108,13 +110,15 @@ class PF400():
 		self.send_command("selectrobot 1")
 
 	def handle_error_output(self, output):
-		"""
+		"""Handles the error message output
 		"""
 		if output in self.error_codes:
 			print("<< " + self.error_codes[output])
-			self.robot_state = "ERROR"
 		else:
 			print("<< TCS Unknown error: " + output)
+
+		self.robot_state = "ERROR"
+
 
 	def check_robot_state(self, wait:int = 0.1):
 		"""
@@ -215,7 +219,7 @@ class PF400():
 
 		count = 0 
 
-		self.check_general_state()
+		self.check_overall_state()
 
 		if self.power_state == "-1":
 			self.power_state = self.enable_power()
@@ -253,12 +257,12 @@ class PF400():
 		Decription: Repeats the initilzation until there are no errors and the robot is initilzed.
 		"""
 		# Check robot state & initilize
-		if self.check_general_state() == -1:
+		if self.check_overall_state() == -1:
 			print("Robot is not intilized! Intilizing now...")
 			self.initialize_robot()
 			self.force_initialize_robot()
 
-	def check_general_state(self):
+	def check_overall_state(self):
 			"""
 			Decription: Checks general state
 			"""

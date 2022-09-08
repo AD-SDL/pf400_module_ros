@@ -10,7 +10,7 @@ motion_profiles = [
                     "straight": 0
                 },
                 {
-                    "speed": 80,
+                    "speed": 90,
                     "speed2": 0,
                     "acceleration": 100,
                     "deceleration": 100,
