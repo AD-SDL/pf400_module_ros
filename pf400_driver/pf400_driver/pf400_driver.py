@@ -35,9 +35,10 @@ class PF400():
 		##Robot State
 		self.power_state = "0"
 		self.attach_state = "0"
-		self.home_state = 0
+		self.home_state = -1
 		self.gripper_state = " "
-		self.robot_state = "0"
+		self.initialization_state = "0"
+		self.robot_state = "Normal"
 
 		self.connect()
 		self.init_connection_mode()
@@ -50,7 +51,7 @@ class PF400():
 		self.gripper_state = self.find_gripper_state()
 
 		##arm vars
-		self.neutral_joints = [400.0, 0.0, 180.0, 540.0, self.gripper_closed_state, 0.0]	
+		self.neutral_joints = [400.0, 1.400, 177.101, 536.757, self.gripper_closed_state, 0.0]	
 		self.module_left_dist = -420.0
 		self.module_right_dist = 220.0
 
@@ -81,7 +82,14 @@ class PF400():
 		
 		try:
 			if not self.connection:
-				self.Connect()		
+				self.Connect()	
+				
+			# if command.split()[0] == "movej" or command.split()[0] == "movec" or command.split()[0] == "wherej" or command.split()[0] == "wherec":	
+			if self.robot_movement_state() > 1:
+				print("Waiting for robot movement to end before sending the new command")
+				while self.robot_movement_state() > 1:
+					dummy_loop = 0
+
 			print(">> " + command)
 			self.connection.write((command.encode("ascii") + b"\n"))
 			response = self.connection.read_until(b"\r\n").rstrip().decode("ascii")
@@ -89,9 +97,32 @@ class PF400():
 				self.handle_error_output(response)
 			else:
 				print("<< "+ response)
+				self.robot_state = "Normal"
+
 			return response		
+
 		finally:
 			self.commandLock.release()
+
+	def robot_movement_state(self):
+		"""Checks the movement state of the robot
+		States: 0 = Power off
+				1 = Stopping
+				2 = Accelarating
+				3 = Deccelarating	
+		"""
+
+		self.connection.write(("state".encode("ascii") + b"\n"))
+	
+		movement_state = self.connection.read_until(b"\r\n").rstrip().decode("ascii")
+
+		if movement_state != "" and movement_state in self.error_codes:
+			self.handle_error_output(movement_state)
+		else:
+			movement_state = int(movement_state.split()[1])
+			self.robot_state = "Normal"
+
+		return movement_state		
 
 	def init_connection_mode(self):
 		"""
@@ -107,12 +138,15 @@ class PF400():
 		self.send_command("selectrobot 1")
 
 	def handle_error_output(self, output):
-		"""
+		"""Handles the error message output
 		"""
 		if output in self.error_codes:
 			print("<< " + self.error_codes[output])
 		else:
 			print("<< TCS Unknown error: " + output)
+
+		self.robot_state = "ERROR"
+
 
 	def check_robot_state(self, wait:int = 0.1):
 		"""
@@ -213,6 +247,7 @@ class PF400():
 
 		count = 0 
 
+		self.check_overall_state()
 
 		if self.power_state == "-1":
 			self.power_state = self.enable_power()
@@ -224,14 +259,19 @@ class PF400():
 			count += 1
 			sleep(5) 
 		
-		if self.robot_state == "-1":
-			count += 1
-			self.robot_state = self.send_command("sysState")
-
-		if count == 3 and self.home_state == 0:	
+		if self.home_state == - 1:
 			self.home_robot()
-			self.home_state += 1
 			sleep(6)
+			self.home_state = 0
+
+
+		if self.initialization_state == "-1":
+			count += 1
+			self.initialization_state = self.send_command("sysState")
+
+		# if count == 3 and self.home_state == 0:	
+		# 	self.home_robot()
+		# 	self.home_state += 1
 		
 		profile = self.set_profile()
 
@@ -245,12 +285,12 @@ class PF400():
 		Decription: Repeats the initilzation until there are no errors and the robot is initilzed.
 		"""
 		# Check robot state & initilize
-		if self.check_general_state() == -1:
+		if self.check_overall_state() == -1:
 			print("Robot is not intilized! Intilizing now...")
 			self.initialize_robot()
 			self.force_initialize_robot()
 
-	def check_general_state(self):
+	def check_overall_state(self):
 			"""
 			Decription: Checks general state
 			"""
@@ -271,11 +311,11 @@ class PF400():
 				self.attach_state = "-1"
 
 			if state_msg[1].find("7") != -1 or state_msg[0].find("-") != -1:
-				self.robot_state = "-1"
+				self.initialization_state = "-1"
 
-			print(self.power_state, self.attach_state, self.robot_state)
+			print(self.power_state, self.attach_state, self.initialization_state)
 
-			if self.power_state == "-1" or self.attach_state == "-1" or self.robot_state == "-1":
+			if self.power_state == "-1" or self.attach_state == "-1" or self.initialization_state == "-1":
 				return -1
 			else: 
 				return 0
@@ -391,7 +431,7 @@ class PF400():
 	# def move_joints(self, target_joint_locations, profile:int = 1, gripper_close: bool = False, gripper_open: bool = False):
 	# 	return self.send_command(self.create_move_joint_command(target_joint_locations,profile))
 
-	def move_in_one_axis_from_target(self, target_location, profile:int = 2, axis_x:int= 0,axis_y:int= 0, axis_z:int= 0):
+	def move_in_one_axis_from_target(self, target_location, profile:int = 1, axis_x:int= 0,axis_y:int= 0, axis_z:int= 0):
 		"""
 		TODO: TRY THIS FUNCTION TO SEE IF END EFFECTOR MOVES ON A SINGLE AXIS PROPERLY
 
@@ -420,7 +460,7 @@ class PF400():
 
 		pass
 
-	def move_in_one_axis(self,profile:int = 2, axis_x:int= 0,axis_y:int= 0, axis_z:int= 0):
+	def move_in_one_axis(self,profile:int = 1, axis_x:int= 0,axis_y:int= 0, axis_z:int= 0):
 		"""
 		TODO: TRY THIS FUNCTION TO SEE IF END EFFECTOR MOVES ON A SINGLE AXIS PROPERLY
 
@@ -445,44 +485,24 @@ class PF400():
 
 	## lower order commands
 
-	def check_robot_movement(slef):
-		pass
-
 	def gripper_open(self):
+		""" Opens the gripper
 		"""
-		"""
-		sleep(2)
 		joint_locations = self.find_joint_states()
 		joint_locations[4] = self.gripper_open_state
 		self.send_command(self.create_move_joint_command(joint_locations,2))
-		sleep(1)
 
 		return self.find_gripper_state()
 
 	def gripper_close(self):
+		""" Closes the gripper
 		"""
-		"""
-		sleep(2)
 		joint_locations = self.find_joint_states()
 		joint_locations[4] = self.gripper_closed_state
 		self.send_command(self.create_move_joint_command(joint_locations,2))
-		sleep(1)
 
 		return self.find_gripper_state()
 
-	# def set_gripper_neutral(self):
-	# 	"""
-    #     """
-	# 	current_joint_locations = self.find_joint_states()
-	# 	current_cartesian_coordinates = self.find_cartesian_coordinates()
-	# 	if current_cartesian_coordinates[1] > 0:
-	# 		self.move_in_one_axis(1,0,-100,0)
-	# 	else:
-	# 		self.move_in_one_axis(1,0,100,0)
-		
-	# 	current_joint_locations[3] = self.neutral_joints[3]
-	# 	self.send_command(self.create_move_joint_command(current_joint_locations,2))
-	# 	pass
 
 	def move_gripper_safe_zone(self):
 		"""
@@ -504,13 +524,11 @@ class PF400():
         """
 		
 		# Create a new function to move the gripper into safe zone 
-		sleep(1)
 		self.move_gripper_safe_zone()
-		sleep(1)
 		gripper_neutral = self.find_joint_states()
-		gripper_neutral[3] = 540.0
+		gripper_neutral[3] = 536.757
 
-		self.send_command(self.create_move_joint_command(gripper_neutral,2))
+		self.send_command(self.create_move_joint_command(gripper_neutral,1))
 
 
 	def move_arm_neutral(self):
@@ -523,7 +541,7 @@ class PF400():
 		arm_neutral[5] = current_location[5]
 	
 
-		self.send_command(self.create_move_joint_command(arm_neutral, 2))
+		self.send_command(self.create_move_joint_command(arm_neutral, 1))
 
 	def move_rails_neutral(self, v_rail:float = None, h_rail:float = None):
 		# Setting the target location's linear rail position for pf400_neutral 
@@ -544,7 +562,6 @@ class PF400():
 		"""
         Description: Move all joints to neutral position
         """
-		sleep(1)
 		# First move end effector to it's nuetral position
 		self.move_gripper_neutral()
 		# Setting an arm neutral position without moving the horizontal & vertical rails
@@ -564,7 +581,7 @@ class PF400():
 
 		self.move_all_joints_neutral(target_location)
 		self.send_command(self.create_move_joint_command(abovePos, fast_profile, False, True))
-		self.send_command(self.create_move_joint_command(target_location, slow_profile, False, True))
+		self.send_command(self.create_move_joint_command(target_location, fast_profile, False, True))
 		self.gripper_close()
 		self.move_in_one_axis(profile = 1, axis_x = 0, axis_y = 0, axis_z = 60)
 		self.move_all_joints_neutral(target_location)
@@ -583,7 +600,7 @@ class PF400():
 		abovePos = list(map(add, target_location, self.above))
 
 		self.move_all_joints_neutral(target_location)
-		self.send_command(self.create_move_joint_command(abovePos, fast_profile, True, False))
+		self.send_command(self.create_move_joint_command(abovePos, slow_profile, True, False))
 		self.send_command(self.create_move_joint_command(target_location, slow_profile, True, False))
 		self.gripper_open()
 		self.move_in_one_axis(profile = 1, axis_x = 0, axis_y = 0, axis_z = 60)
@@ -603,12 +620,16 @@ if __name__ == "__main__":
 
 	# from pf400_driver.pf400_driver import PF400
 	robot = PF400("192.168.50.50", 10100)
-	loc1 = [262.550, 20.608, 119.290, 662.570, 126.0, 574.367]
-	loc2 = [231.788, -27.154, 313.011, 342.317, 0.0, 683.702]
+	loc1 = [262.550, 20.608, 119.290, 662.570, 126.0, 574.367] #Hudson
+	loc2 = [231.788, -27.154, 313.011, 342.317, 0.0, 683.702] #Sealer
+	pos1= [262.550, 20.608, 119.290, 662.570, 0.0, 574.367] #Hudson
+	pos2= [197.185, 59.736, 90.509, 566.953, 82.069, -65.550] #OT2
+	robot.transfer(pos1, pos2)
+	robot.transfer(pos2, pos1)
 
-	robot.transfer(loc1, loc2)
-	robot.transfer(loc2, loc1)
-	# robot.send_command(robot.create_move_joint_command([292, 20, 119, 662, 126, 574]))
+	# robot.send_command(robot.create_move_joint_command([322.544, 1.4, 177.101, 536.756, 78.933, 950]))
+	# while int(robot.robot_movement_state()) != 1:
+	# 	print(robot.robot_movement_state())
 	# robot.move_all_joints_neutral([292, 20, 119, 662, 126, 574])
 
 

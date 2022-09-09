@@ -7,6 +7,7 @@ error_codes = {
         "-1039":"*Position too close* Robot 1",
         "-1040":"*Position too far* Robot 1",
         "-1042":"*Can't change robot config* Robot 1",
+        "-1046":"*Power not enabled*",
         "-1600":"*Power off requested*",
         "-2800":"*Warning Parameter Mismatch*",
         "-2801":"*Warning No Parameters",
