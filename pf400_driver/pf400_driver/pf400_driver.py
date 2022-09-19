@@ -15,7 +15,7 @@ from pf400_driver.error_codes import error_codes
 class PF400():
 	commandLock = threading.Lock()
 
-	def __init__(self, host, port, mode = 0):
+	def __init__(self, host= "192.168.50.50", port = 10100, mode = 0):
 		"""
         Description: 
         """
@@ -558,10 +558,12 @@ class PF400():
 
 		self.send_command(self.create_move_joint_command(self.neutral_joints))
 
-	def move_all_joints_neutral(self, target_location):
+	def move_all_joints_neutral(self, target_location = None):
 		"""
         Description: Move all joints to neutral position
         """
+		if target_location == None:
+			target_location = self.find_joint_states()
 		# First move end effector to it's nuetral position
 		self.move_gripper_neutral()
 		# Setting an arm neutral position without moving the horizontal & vertical rails

@@ -25,6 +25,7 @@ setup(
     entry_points={
         'console_scripts': [
             'pf400_client = pf400_client.pf400_client:main',
+            'pf400_camera_client = pf400_client.pf400_camera_client:main'
 
         ],
     },
