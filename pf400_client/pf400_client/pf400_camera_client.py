@@ -70,7 +70,8 @@ class PF400CameraNode(Node):
             vars = eval(request.vars)
             print(vars)
 
-            location = self.camera.explore_workcell()
+            locations = self.camera.explore_workcell()
+            # Send workcell location data to WEI
             print("QR Scan Completed")
 
 

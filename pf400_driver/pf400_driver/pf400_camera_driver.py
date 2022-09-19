@@ -66,7 +66,7 @@ class CAMERA():
 
             if self.cam_left_qr_name != left_cam_data and self.cam_left_qr_name in self.locations.keys():
                 self.locations[self.cam_left_qr_name][0][5] = self.start_location[5] 
-                self.locations[self.cam_left_qr_name][1][0] = 0
+                self.locations[self.cam_left_qr_name][1][0] = 0 # Zero means this modules is found in the workcell
                 left_cam_data = self.cam_left_qr_name
 
             self.start_location[5] += 660
