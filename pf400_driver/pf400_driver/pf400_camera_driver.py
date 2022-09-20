@@ -4,7 +4,7 @@ from time import sleep
 from threading import Thread
 
 
-from pf400_driver import PF400
+from pf400_driver.pf400_driver import PF400
 
 qr_name = "TEST"
 

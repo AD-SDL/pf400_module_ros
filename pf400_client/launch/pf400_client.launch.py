@@ -13,7 +13,7 @@ def generate_launch_description():
             name='pf400Node'
     )
     pf400_camera_client = Node(
-            package = 'pf400_camera_client',
+            package = 'pf400_client',
             namespace = 'pf400_camera_client',
             executable = 'pf400_camera_client',
             output = "screen",
