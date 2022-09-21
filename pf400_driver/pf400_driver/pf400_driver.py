@@ -54,6 +54,7 @@ class PF400():
 		self.neutral_joints = [400.0, 1.400, 177.101, 536.757, self.gripper_closed_state, 0.0]	
 		self.module_left_dist = -420.0
 		self.module_right_dist = 220.0
+		self.robot_x_offset = 700 # TODO: TIND ABSULATE VALUE
 
 
 		##sample vars
@@ -378,8 +379,6 @@ class PF400():
 		# cartesian_coordinates = [0,0,0,90,180,0]
 		# joint_states = [262.550, 20.608, 119.290, 662.570, 126.0, 574.367]
 
-		offset = 700.0
-		
 		cartesian_coordinates = self.find_cartesian_coordinates()
 		shoulder_lenght = 225.0
 		elbow_lenght = 210.0
@@ -389,10 +388,6 @@ class PF400():
 		shoulder_angle = joint_states[1]*math.pi/180 #Joint 2 
 		elbow_angle = joint_states[2]*math.pi/180 #Joint 3
 		gripper_angle = joint_states[3]*math.pi/180 # Joint 4
-
-		# shoulder_angle = -15*math.pi/180 #Joint 2 
-		# elbow_angle = 79*math.pi/180 #Joint 3
-		# gripper_angle = -79*math.pi/180 # Joint 4
 
 		x = shoulder_lenght*math.cos(shoulder_angle) + elbow_lenght*math.cos(shoulder_angle+elbow_angle) + gripper_lengt*math.cos(shoulder_angle+elbow_angle+gripper_angle) 
 		y = shoulder_lenght*math.sin(shoulder_angle) + elbow_lenght*math.sin(shoulder_angle+elbow_angle)+ gripper_lengt*math.sin(shoulder_angle+elbow_angle+gripper_angle) 

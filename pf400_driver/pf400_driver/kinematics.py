@@ -5,16 +5,21 @@ import math
 
 def forward():
     # TODO: Seems like Joint 2 a weird range of motion. Find out Angle range and put an offset to the calculation
+    # Joint to range 10-350
     # TODO: ADD X AXIS OFFSET AND LINEAR RAIL VALUE BEFORE RETURNING 
 
     cartesian_coordinates = [0,0,0,90,180,0]
     # joint_states = [231.788, -27.154, -124.011, 342.317, 0.0, 683.702] 
     # joint_states = [400.0, 1.400, 177.101, 536.757, 82.069, -65.550] 
-    joint_states = [264.584, -29.413, -100, 372.338, 0.0, 651.621]
+    # joint_states =[231.788, -27.154, 313.011, 342.317, 0.0, 683.702]
+    # joint_states = [264.584, -29.413, -100, 372.338, 0.0, 651.621]
+    joint_states = [190.561, -58.794, 73.902, 1, 126.8, -446.223]
 
+    if joint_states[2]>180:
+        new_angle = -joint_states[2] + 180 # fixing the quadrant with angle range
     shoulder_lenght = 225.0
     elbow_lenght = 210.0
-    gripper_lengt = 0
+    gripper_lengt = 0.0
 
     # Convert angles to radians
     shoulder_angle = math.radians(joint_states[1]) #Joint 2 
@@ -37,7 +42,7 @@ def forward():
     return(x,y,z, phi)
 
 def inverse(x,y,z,phi):
-    
+
     # TODO: REMOVE X AXIS OFFSET AND LINEAR RAIL VALUE BEFORE CALCULATING 
 
     shoulder_lenght = 225.0
@@ -125,5 +130,4 @@ def inverse_kinematics(x, y, z, phi):
     return [z, math.degrees(theta1), math.degrees(theta2), math.degrees(theta3)], [z, math.degrees(theta1 + 2 * gamma), math.degrees(theta2 * - 1), math.degrees(theta3 + 2 * (theta2 - gamma))]
 
 x,y,z,phi = forward()
-inverse(x,y,z,phi)
 inverse_kinematics(x,y,z,phi)
