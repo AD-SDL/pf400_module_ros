@@ -57,6 +57,9 @@ class CAMERA():
 
         # TODO: Make sure that robot stops are always at the module origins
         # TODO: Find the target locations with respect to the origin locations
+        # TODO: In defult locations use cartesian location but then update them with new joint angle locations
+        # TODO: Assume that the defult locations are taken when all the modules where left side of the PF400
+
         module_lenght = 50.0
         robot_x_offset = 700
         left_cam_data = self.cam_left_qr_name
@@ -74,7 +77,7 @@ class CAMERA():
 
             if self.cam_right_qr_name != right_cam_data and self.cam_right_qr_name in self.locations.keys():
                 reverse_target_on_x_axis = (self.locations[self.cam_right_qr_name][0][0] - robot_x_offset) - module_lenght 
-                self.locations[self.cam_right_qr_name][0] = self.calctulate_module_location(self.locations[self.cam_right_qr_name][0], offset_x = reverse_target_on_x_axis)
+                self.locations[self.cam_right_qr_name][0] = self.calctulate_module_location(self.locations[self.cam_right_qr_name][0], y_direction = -1, offset_x = reverse_target_on_x_axis)
                 self.locations[self.cam_right_qr_name][1][0] = 0
                 right_cam_data = self.cam_right_qr_name
 
