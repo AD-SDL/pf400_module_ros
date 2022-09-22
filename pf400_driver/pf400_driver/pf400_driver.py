@@ -46,7 +46,7 @@ class PF400():
 
 		##gripper vars
 		self.gripper_open_state = 95.0
-		self.gripper_closed_state = 79.0
+		self.gripper_closed_state = 78.0
 		self.gripper_safe_height = 10.0
 		self.gripper_state = self.find_gripper_state()
 
@@ -607,14 +607,14 @@ class PF400():
 		self.move_all_joints_neutral(target_location)
 
 
-	def transfer(self, source, dest):
+	def transfer(self, source, target):
 		"""
         Description: Plate transfer function that performs series of movements to pick and place the plates
 		
         """
 		self.force_initialize_robot()
 		self.pick_plate(source)
-		self.place_plate(dest)
+		self.place_plate(target)
 
 if __name__ == "__main__":
 
