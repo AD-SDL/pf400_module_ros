@@ -101,6 +101,7 @@ class PF400ClientNode(Node):
             if len(vars.get('source')) != 6:
                 print("Position 1 should be six joint angles lenght")
                 return
+                
             if len(vars.get('target')) != 6:
                 print("Position 2 should be six joint angles lenght")
                 return
