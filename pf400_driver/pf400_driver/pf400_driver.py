@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import rclpy
+# import rclpy
 import profile
 import telnetlib
 import threading
@@ -9,8 +9,8 @@ import math
 from operator import add
 from time import sleep
 
-from pf400_driver.motion_profiles import motion_profiles
-from pf400_driver.error_codes import error_codes
+from motion_profiles import motion_profiles
+from error_codes import error_codes
 
 class PF400():
 	commandLock = threading.Lock()
@@ -661,8 +661,16 @@ if __name__ == "__main__":
 	loc2 = [231.788, -27.154, 313.011, 342.317, 0.0, 683.702] #Sealer
 	pos1= [262.550, 20.608, 119.290, 662.570, 0.0, 574.367] #Hudson
 	pos2= [197.185, 59.736, 90.509, 566.953, 82.069, -65.550] #OT2
-	robot.transfer(pos1, pos2)
-	robot.transfer(pos2, pos1)
+	thermocycler = [277.638, 39.029, 74.413, 602.159, 78.980, -910.338]
+ 	 	 	 	 	 
+
+	# robot.send_command(robot.create_move_joint_command(pos1, 2, False, True))
+	# robot.find_joint_states()
+	robot.transfer(pos1, thermocycler)
+	robot.transfer(thermocycler, pos1)
+	# robot.force_initialize_robot()
+	
+	# robot.pick_plate(pos1)
 
 	# robot.send_command(robot.create_move_joint_command([322.544, 1.4, 177.101, 536.756, 78.933, 950]))
 	# while int(robot.robot_movement_state()) != 1:
