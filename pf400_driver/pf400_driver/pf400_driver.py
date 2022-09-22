@@ -637,3 +637,5 @@ if __name__ == "__main__":
 
 
 # TODO: Robot home skipped after enbamleing power took longer then the wait time. Fix wait times.
+# TODO: Check if robot is homed by sending a dummy move command.
+# TODO: HOME state command pd 2000 ? 
