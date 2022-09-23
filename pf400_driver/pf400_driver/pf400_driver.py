@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import rclpy
+# import rclpy
 import profile
 import telnetlib
 import threading
@@ -9,8 +9,8 @@ import math
 from operator import add
 from time import sleep
 
-from pf400_driver.motion_profiles import motion_profiles
-from pf400_driver.error_codes import error_codes
+from motion_profiles import motion_profiles
+from error_codes import error_codes
 
 class PF400():
 	commandLock = threading.Lock()
@@ -35,7 +35,7 @@ class PF400():
 		##Robot State
 		self.power_state = "0"
 		self.attach_state = "0"
-		self.home_state = -1
+		self.home_state = "1"
 		self.gripper_state = " "
 		self.initialization_state = "0"
 		self.robot_state = "Normal"
@@ -245,34 +245,20 @@ class PF400():
 					checks the robot state to find out if the initilization was successful
 		"""
 
-		count = 0 
-
 		self.check_overall_state()
 
 		if self.power_state == "-1":
 			self.power_state = self.enable_power()
-			count += 1
-			sleep(5)
+			sleep(6)
 
 		if self.attach_state == "-1":
 			self.attach_state = self.attach_robot()
-			count += 1
-			sleep(5) 
+			sleep(6) 
 		
-		if self.home_state == - 1:
+		if self.home_state == "-1":
 			self.home_robot()
 			sleep(6)
-			self.home_state = 0
 
-
-		if self.initialization_state == "-1":
-			count += 1
-			self.initialization_state = self.send_command("sysState")
-
-		# if count == 3 and self.home_state == 0:	
-		# 	self.home_robot()
-		# 	self.home_state += 1
-		
 		profile = self.set_profile()
 
 		if self.power_state[0].find("-") == -1 and self.attach_state[0].find("-") == -1 and profile[0].find("-") == -1:
@@ -295,27 +281,41 @@ class PF400():
 			Decription: Checks general state
 			"""
 
-			power_msg = self.send_command("hp")
-			power_msg = power_msg.split(" ")
+			power_msg = self.send_command("hp").split(" ")
+			# power_msg = power_msg.split(" ")
 
-			attach_msg = self.send_command("attach")
-			attach_msg = attach_msg.split(" ")
+			attach_msg = self.send_command("attach").split(" ")
+			# attach_msg = attach_msg.split(" ")
 
-			state_msg = self.send_command("sysState")
-			state_msg = state_msg.split(" ")
+			home_msg = self.send_command("pd 2800").split(" ")
+			# home_msg = home_msg.split(" ")
+
+			state_msg = self.send_command("sysState").split(" ")
+			# state_msg = state_msg.split(" ")
 
 			if len(power_msg) == 1 or power_msg[0].find("-") != -1 or power_msg[1] == "0":
 				self.power_state = "-1"
+			else: 
+				self.power_state = power_msg[1]
 
-			if attach_msg[1].find("0") != -1 or attach_msg[0].find("-") != -1:
+			if attach_msg[1].find("0") != -1 or attach_msg[0].find("-") != -1 or attach_msg[1] == "0":
 				self.attach_state = "-1"
+			else:
+				self.attach_state = attach_msg[1]
+
+			if home_msg[1].find("0") != -1 or home_msg[0].find("-") != -1 or home_msg[1] == "0":
+				self.home_state = "-1"
+			else: 
+				self.home_state = home_msg[1]
 
 			if state_msg[1].find("7") != -1 or state_msg[0].find("-") != -1:
 				self.initialization_state = "-1"
+			else: 
+				self.initialization_state = state_msg[1]
 
-			print(self.power_state, self.attach_state, self.initialization_state)
+			print("Power: " + self.power_state + " Attach: " + self.attach_state + " Home: " + self.home_state + " Robot State: " + self.initialization_state)
 
-			if self.power_state == "-1" or self.attach_state == "-1" or self.initialization_state == "-1":
+			if self.power_state == "-1" or self.attach_state == "-1" or self.home_state == "-1" or self.initialization_state == "-1":
 				return -1
 			else: 
 				return 0
@@ -503,6 +503,9 @@ class PF400():
 
 		return self.find_gripper_state()
 
+	def moveoneaxis(self,axis_num,target,pofile):
+		""" Moves single axis to a target"""
+		self.send_command("moveoneaxis " + str(axis_num) + str(target) + str(profile)) 
 
 	def move_gripper_safe_zone(self):
 		"""
@@ -626,9 +629,9 @@ if __name__ == "__main__":
 	pos2= [197.185, 59.736, 90.509, 566.953, 82.069, -65.550] #OT2
 	thermocycler = [277.638, 39.029, 74.413, 602.159, 78.980, -910.338]
 
-	robot.transfer(pos1, pos2)
-	robot.transfer(pos2, thermocycler)
-	robot.transfer(thermocycler,pos1)
+	# robot.transfer(pos1, pos2)
+	# robot.transfer(pos2, thermocycler)
+	# robot.transfer(thermocycler,pos1)
 
 	# robot.send_command(robot.create_move_joint_command([322.544, 1.4, 177.101, 536.756, 78.933, 950]))
 	# while int(robot.robot_movement_state()) != 1:
@@ -638,4 +641,5 @@ if __name__ == "__main__":
 
 # TODO: Robot home skipped after enbamleing power took longer then the wait time. Fix wait times.
 # TODO: Check if robot is homed by sending a dummy move command.
-# TODO: HOME state command pd 2000 ? 
+# TODO: HOME state command pd 2800
+
