@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# import rclpy
+import rclpy
 import profile
 import telnetlib
 import threading
@@ -9,8 +9,8 @@ import math
 from operator import add
 from time import sleep
 
-from motion_profiles import motion_profiles
-from error_codes import error_codes
+from pf400_driver.motion_profiles import motion_profiles
+from pf400_driver.error_codes import error_codes
 
 class PF400():
 	commandLock = threading.Lock()
@@ -538,9 +538,14 @@ class PF400():
 
 		return self.find_gripper_state()
 
-	def moveoneaxis(self,axis_num,target,pofile):
-		""" Moves single axis to a target"""
+	def move_one_axis_with_rail(self, axis_num, target,pofile):
+		""" Moves single axis to a target including the linear rail"""
 		self.send_command("moveoneaxis " + str(axis_num) + str(target) + str(profile)) 
+
+	def move_multiple_axis_with_rail(self, target1, target2):
+		""" Moves extra two axises to their targets, including the linear rail"""
+		self.send_command("moveextraaxis " + str(target1) + str(target2)) 
+		pass
 
 	def move_gripper_safe_zone(self):
 		"""
