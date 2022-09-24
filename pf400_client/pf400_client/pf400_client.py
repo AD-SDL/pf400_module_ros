@@ -83,7 +83,7 @@ class PF400ClientNode(Node):
         The actionCallback function is a service that can be called to execute the available actions the robot
         can preform.
         '''
-        
+        # TODO: NEED NEW VARAIBLES FOR GRIPPER CLOSED LENGHT AND GRIPPER GRAP ANGLE 
         if request.action_handle == "transfer":
 
             self.state = "BUSY"
@@ -91,26 +91,27 @@ class PF400ClientNode(Node):
             vars = eval(request.vars)
             print(vars)
 
-            if 'pos1' not in vars.keys():
+            if 'source' not in vars.keys():
                 print("Pick up location is not provided")
                 return 
-            elif 'pos2' not in vars.keys():
+            elif 'target' not in vars.keys():
                 print("Drop off up location is not provided")
                 return 
 
-            if len(vars.get('pos1')) != 6:
+            if len(vars.get('source')) != 6:
                 print("Position 1 should be six joint angles lenght")
                 return
-            if len(vars.get('pos2')) != 6:
+                
+            if len(vars.get('target')) != 6:
                 print("Position 2 should be six joint angles lenght")
                 return
             
-            pos1 = vars.get('pos1')
-            print("Pick up location: ", pos1)
-            pos2 = vars.get('pos2')
-            print("Drop off location: ",pos2)
+            source = vars.get('source')
+            print("Pick up location: ", source)
+            target = vars.get('target')
+            print("Drop off location: ",target)
 
-            self.pf400.transfer(pos1, pos2)
+            self.pf400.transfer(source, target)
 
         self.state = "COMPLETED"
 
