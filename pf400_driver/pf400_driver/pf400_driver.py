@@ -191,8 +191,6 @@ class PF400():
 		Decription: Homes robot joints. Homing takes around 15 seconds.
 		"""
 		cmd = 'home'
-		ini_msg = 'Homing the robot'
-		err_msg = 'Failed to home the robot: '
 
 		out_msg = self.send_command(cmd)
 		sleep(10)
@@ -215,25 +213,19 @@ class PF400():
 			cmd2 = 'Profile 2'
 			for key, value in self.motion_profiles[1].items():
 				cmd2 += ' ' + str(value)
-
-			ini_msg = "Setting defult values to the motion profile 1"
-			ini_msg2 = "Setting defult values to the motion profile 2"
-			err_msg = 'Failed to set profile 1: '
-			err_msg2 = 'Failed to set profile 2: '
+		
 
 			out_msg = self.send_command(cmd)
 			out_msg2 = self.send_command(cmd2)
 
 		elif len(profile_dict) == 8:
 
-			ini_msg = "Setting new values to the motion profile 3"
-			err_msg = 'Failed to set profile 1: '
 
 			cmd = 'Profile 3'
 			for key, value in profile_dict.items():
 				cmd += ' ' + str(value)
 
-			out_msg = self.send_command(cmd, ini_msg, err_msg, wait)
+			out_msg = self.send_command(cmd)
 			
 		else:
 			raise Exception("Motion profile takes 8 arguments, {} where given".format(len(profile_dict)))
@@ -675,13 +667,6 @@ if __name__ == "__main__":
 	# robot.transfer(pos2, thermocycler)
 	# robot.transfer(thermocycler,pos1)
 
-	# robot.send_command(robot.create_move_joint_command([322.544, 1.4, 177.101, 536.756, 78.933, 950]))
-	# while int(robot.robot_movement_state()) != 1:
-	# 	print(robot.robot_movement_state())
-	# robot.move_all_joints_neutral([292, 20, 119, 662, 126, 574])
 
 
-# TODO: Robot home skipped after enbamleing power took longer then the wait time. Fix wait times.
-# TODO: Check if robot is homed by sending a dummy move command.
-# TODO: HOME state command pd 2800
 
