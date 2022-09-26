@@ -1,6 +1,14 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 import os
 from glob import glob
+
+install_requires_list = []
+with open('requirements.txt') as reqs:
+    for line in reqs.readlines():
+        req = line.strip()
+        if not req or req.startswith('#'):
+            continue
+        install_requires_list.append(req)
 
 package_name = 'pf400_client'
 
@@ -15,7 +23,7 @@ setup(
         (os.path.join('share', package_name, 'launch'), glob('launch/*.launch.py')),
 
     ],
-    install_requires=['setuptools'],
+    install_requires=['setuptools',"opencv-python"],
     zip_safe=True,
     maintainer='Doga Ozgulbas',
     maintainer_email='dozgulbas@anl.gov',
