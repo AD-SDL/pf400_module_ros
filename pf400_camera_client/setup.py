@@ -10,7 +10,7 @@ with open('requirements.txt') as reqs:
             continue
         install_requires_list.append(req)
 
-package_name = 'pf400_client'
+package_name = 'pf400_caera_client'
 
 setup(
     name = package_name,
@@ -32,8 +32,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'pf400_client = pf400_client.pf400_client:main',
-
+            'pf400_camera_client = pf400_camera_client.pf400_camera_client:main'
         ],
     },
 )
