@@ -120,7 +120,7 @@ class PF400ClientNode(Node):
             self.state = "COMPLETED"
 
         if self.pf400.robot_state == "ERROR":
-            self.state = self.p400.robot_states
+            self.state = self.pf400.robot_states
 
         return response
 
