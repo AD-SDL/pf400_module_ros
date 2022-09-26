@@ -531,7 +531,9 @@ class PF400():
 		"""
 		grab_plate_status = self.send_command("GraspPlate " + str(width)+ " " + str(speed) + " " + str(force)).split(" ")
 		
-		if grab_plate_status[1] == "-1":
+		if len(grab_plate_status) < 2:
+			return
+		elif grab_plate_status[1] == "-1":
 			print("Plate is grabed")
 			self.plate_state = 1
 		elif grab_plate_status[1] == "0" and width >= 75: # Do not try smaller width 
