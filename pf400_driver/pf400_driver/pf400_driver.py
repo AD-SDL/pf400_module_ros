@@ -511,6 +511,49 @@ class PF400():
 		self.send_command(move_command)
 
 	## lower order commands
+	def grab_plate(self, width: int = 100, speed:int = 100, force: int = 10):
+		""" 
+		Description: 
+			Grabs the plate by appling additional force
+		Parameters:
+			- width: Plate width, in mm. Should be accurate to within about 1 mm.
+			- speed: Percent speed to open fingers.  1 to 100.
+			- Force: Maximum gripper squeeze force, in Nt. 
+					 A positive value indicates the fingers must close to grasp.  
+					 A negative value indicates the fingers must open to grasp.
+		Returns:
+			- 1: Plate grabed
+			- 0: Plate is not grabed
+		"""
+		grab_plate_status = self.send_command("GraspPlate " + str(width)+ " " + str(speed) + " " + str(force))
+		
+		if grab_plate_status == "1":
+			print("Plate is grabed")
+		elif grab_plate_status == "0":
+			print("No plate") 
+		
+		return grab_plate_status
+
+	def release_plate(self, width: int = 100, speed:int = 100):
+		""" 
+		Description: 
+			Release the plate 
+		Parameters:
+			- width: Open width, in mm.
+			- speed: Percent speed to open fingers.  1 to 100.
+		Returns:
+			- Plate released
+			- 
+		"""
+
+		release_plate_status = self.send_command("ReleasePlate " + str(width)+ " " + str(speed))
+
+		if release_plate_status == "1":
+			print("Plate is released")
+		elif release_plate_status == "0":
+			print("Plate is not released") 
+
+		return release_plate_status
 
 	def gripper_open(self):
 		""" Opens the gripper
