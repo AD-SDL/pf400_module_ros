@@ -30,7 +30,7 @@ class CAMERA():
                           "thermocycler": [[0,0,0,0,0,0],[-1]]}
 
         self.robot = PF400("192.168.50.50", 10100)
-        self.start_location = self.robot.find_joint_states()
+        self.start_location = self.robot.get_joint_states()
         self.start_location[5] = -990
 
     def scan_qr_code(self):  

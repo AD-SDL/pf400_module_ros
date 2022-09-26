@@ -115,6 +115,7 @@ class PF400ClientNode(Node):
         
         if self.pf400.plate_state == -1:
             self.state = "ERROR"
+            self.get_logger().ERROR("Transfer cannot be completed, missing plate!")
         else:
             self.state = "COMPLETED"
 
