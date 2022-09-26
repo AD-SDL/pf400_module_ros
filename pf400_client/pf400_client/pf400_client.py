@@ -107,9 +107,9 @@ class PF400ClientNode(Node):
                 return
             
             source = vars.get('source')
-            print("Pick up location: ", source)
+            print("Source location: ", source)
             target = vars.get('target')
-            print("Drop off location: ",target)
+            print("Target location: ",target)
 
             self.pf400.transfer(source, target)
         
