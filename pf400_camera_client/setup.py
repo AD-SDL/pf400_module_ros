@@ -10,7 +10,7 @@ with open('requirements.txt') as reqs:
             continue
         install_requires_list.append(req)
 
-package_name = 'pf400_caera_client'
+package_name = 'pf400_camera_client'
 
 setup(
     name = package_name,
