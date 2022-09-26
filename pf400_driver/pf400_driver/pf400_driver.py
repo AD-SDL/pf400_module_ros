@@ -36,7 +36,6 @@ class PF400():
 		self.power_state = "0"
 		self.attach_state = "0"
 		self.home_state = "1"
-		self.gripper_state = " "
 		self.initialization_state = "0"
 		self.movement_state = -2
 		self.robot_state = "Normal"
@@ -50,6 +49,9 @@ class PF400():
 		self.gripper_closed_state = 77.0
 		self.gripper_safe_height = 10.0
 		self.gripper_state = self.get_gripper_state()
+
+		#plate vars
+		self.plate_state = 0
 
 		##arm vars
 		self.neutral_joints = [400.0, 1.400, 177.101, 536.757, self.gripper_closed_state, 0.0]	
@@ -137,8 +139,9 @@ class PF400():
 			# Set TCS to verbose
 			self.connection.write(("mode 1".encode("ascii") + b"\n"))
 			self.send_command("selectrobot 1")
+			
 		init_mode = self.connection.read_until(b"\r\n").rstrip().decode("ascii")
-		
+
 	def handle_error_output(self, output):
 		"""Handles the error message output
 		"""
@@ -526,13 +529,20 @@ class PF400():
 			- 1: Plate grabed
 			- 0: Plate is not grabed
 		"""
-		grab_plate_status = self.send_command("GraspPlate " + str(width)+ " " + str(speed) + " " + str(force))
+		grab_plate_status = self.send_command("GraspPlate " + str(width)+ " " + str(speed) + " " + str(force)).split(" ")
 		
-		if grab_plate_status == "-1":
+		if grab_plate_status[1] == "-1":
 			print("Plate is grabed")
-		elif grab_plate_status == "0":
+			self.plate_state = 1
+		elif grab_plate_status[1] == "0" and width >= 75: # Do not try smaller width 
 			print("No plate") 
-		
+			width -= 1
+			self.grab_plate(width,speed,force)
+		elif width <= 75:
+			print("PLATE WAS NOT FOUND!")
+			self.robot_state = "Missing Plate"
+			# TODO: Stop robot transfer here
+			self.plate_state = -1
 		return grab_plate_status
 
 	def release_plate(self, width: int = 100, speed:int = 100):
@@ -547,12 +557,13 @@ class PF400():
 			- 
 		"""
 
-		release_plate_status = self.send_command("ReleasePlate " + str(width)+ " " + str(speed))
+		release_plate_status = self.send_command("ReleasePlate " + str(width)+ " " + str(speed)).split(" ")
 
-		if release_plate_status == "1":
-			print("Plate is released")
-		elif release_plate_status == "0":
-			print("Plate is  released") 
+		if release_plate_status[0] == "1":
+			print("Plate is not released")
+		elif release_plate_status[0] == "0":
+			print("Plate is released") 
+			self.plate_state = 0
 
 		return release_plate_status
 
@@ -575,11 +586,11 @@ class PF400():
 		return self.get_gripper_state()
 
 	def move_one_axis_with_rail(self, axis_num, target,pofile):
-		""" Moves single axis to a target including the linear rail"""
+		""" Moves single axis to a target"""
 		self.send_command("moveoneaxis " + str(axis_num) + str(target) + str(profile)) 
 
 	def move_multiple_axis_with_rail(self, target1, target2):
-		""" Moves extra two axises to their targets, including the linear rail"""
+		""" Moves extra two axises to their targets"""
 		self.send_command("moveextraaxis " + str(target1) + str(target2)) 
 		pass
 
@@ -664,7 +675,7 @@ class PF400():
 		self.send_command(self.create_move_joint_command(abovePos, fast_profile, False, True))
 		self.send_command(self.create_move_joint_command(target_location, fast_profile, False, True))
 		# self.gripper_close()
-		self.grab_plate(75,100,10)
+		self.grab_plate(89,100,10)
 		self.move_in_one_axis(profile = 1, axis_x = 0, axis_y = 0, axis_z = 60)
 		self.move_all_joints_neutral(target_location)
 
@@ -697,6 +708,9 @@ class PF400():
         """
 		self.force_initialize_robot()
 		self.pick_plate(source)
+		if self.plate_state == -1: 
+			print("Transfer cannot complete, missing plate!")
+			return # Stopping transfer here
 		self.place_plate(target)
 
 if __name__ == "__main__":
@@ -710,6 +724,7 @@ if __name__ == "__main__":
 	thermocycler = [277.638, 39.029, 74.413, 602.159, 78.980, -910.338]
 
 	robot.transfer(pos1, pos2)
+	robot.transfer(pos2,pos1)
 	# robot.transfer(pos2, loc2)
 	# robot.transfer(loc2,pos1)
 

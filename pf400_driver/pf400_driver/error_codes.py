@@ -31,5 +31,6 @@ error_codes = {
         "-2820":"*Invalid station index*",
         "-2821":"*Undefined station*",
         "-2822":"*Not a pallet*",
-        "-2823":"*Not at pallet origin*"        
+        "-2823":"*Not at pallet origin*",    
+        "-3122":"*Soft envelope error* Robot 1: 1"   
         }

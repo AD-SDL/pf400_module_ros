@@ -112,8 +112,11 @@ class PF400ClientNode(Node):
             print("Drop off location: ",target)
 
             self.pf400.transfer(source, target)
-
-        self.state = "COMPLETED"
+        
+        if self.pf400.plate_state == -1:
+            self.state = "ERROR"
+        else:
+            self.state = "COMPLETED"
 
         if self.pf400.robot_state == "ERROR":
             self.state = self.p400.robot_states
