@@ -16,8 +16,15 @@ class PF400():
 	commandLock = threading.Lock()
 
 	def __init__(self, host= "192.168.50.50", port = 10100, mode = 0):
+		
 		"""
         Description: 
+			- Python interface that allows remote commands to be executed using simple string messages over Telnet socket on PF400. 
+			- PF400 is the main object that will be used for operations such as remote connection as well as sending movement commands.
+			- Programs are sent to the 10x00 port (first robot port: 10100). 
+			- A program sent to robot will be executed immediately unless there is a prior operation running on the robot. 
+			- If a second motion command is sent while the referenced robot is moving, the second command is blocked and will not reply until the first motion is complete.
+
         """
 
 		print("Initializing connection...")
@@ -32,7 +39,7 @@ class PF400():
 		# Default Motion Profile Paramiters. Using two profiles for faster and slower movements
 		self.motion_profiles = motion_profiles
 
-		##Robot State
+		# Robot State
 		self.power_state = "0"
 		self.attach_state = "0"
 		self.home_state = "1"
@@ -40,34 +47,42 @@ class PF400():
 		self.movement_state = -2
 		self.robot_state = "Normal"
 
+		# Initialize robot 
 		self.connect()
 		self.init_connection_mode()
 		self.force_initialize_robot()
+		
+		# Robot kinematics
+		self.shoulder_lenght = 302
+		self.elbow_lenght = 289
+		self.gripper_lengt = 162
 
-		##gripper vars
+		# Gripper variables
 		self.gripper_open_state = 95.0
 		self.gripper_closed_state = 77.0
 		self.gripper_safe_height = 10.0
 		self.gripper_state = self.get_gripper_state()
 
-		#plate vars
-		self.plate_state = 0
-
-		##arm vars
+		# Arm variables
 		self.neutral_joints = [400.0, 1.400, 177.101, 536.757, self.gripper_closed_state, 0.0]	
 		self.module_left_dist = -420.0
 		self.module_right_dist = 220.0
-		self.robot_x_offset = 700 # TODO: TIND ABSULATE VALUE
 
-
-		##sample vars
+		# Sample variables
 		self.sample_above_height = 60.0
 		self.above = [self.sample_above_height,0,0,0,0,0]
 		self.y_recoil = 300.0	
 
+		# Plate variables
+		self.plate_state = 0
+		self.plate_width = 89
+		self.plate_source_rotation = 0 # 90 to rotate 90 degrees
+		self.plate_target_rotation = 0 # 90 to rotate 90 degrees
+
 	def connect(self):
 		"""
-        """
+		Decription: Create a streaming socket to send string commands to the robot. 
+		"""   
 		try:
 			self.connection = telnetlib.Telnet(self.host, self.port, 5)
 		except:
@@ -80,6 +95,9 @@ class PF400():
 
 	def send_command(self, command):
 		"""
+		Decription: Sends the commands to the robot over the socket client
+        Parameters: 
+                - command: Command itself in string format
         """
 
 		self.commandLock.acquire()
@@ -143,7 +161,8 @@ class PF400():
 		init_mode = self.connection.read_until(b"\r\n").rstrip().decode("ascii")
 
 	def handle_error_output(self, output):
-		"""Handles the error message output
+		"""
+		Decription: Handles the error message output
 		"""
 		if output in self.error_codes:
 			print("<< " + self.error_codes[output])
@@ -343,7 +362,6 @@ class PF400():
 		self.joint_state.raw_position = joint_array
 		self.joint_state.position = [state * multiplier for state, multiplier in zip(joint_array, multipliers)]
 
-
 	def get_cartesian_coordinates(self):
 		"""
         Description: This function finds the current cartesian coordinates and angles of the robot.
@@ -364,66 +382,94 @@ class PF400():
 			self.gripper_state = 'closed'
 		return self.gripper_state
 
-	def forward_kinematics(self, joint_states):
+	def forward_kinematics(self, joint_states:list):
 		"""
 		Desciption: Calculates the forward kinematics for a given array of joint_states. 
 		Paramiters:
 			- joint_states : 6 joint states of the target location/
 		Return:
 			- cartesian_coordinates: Returns the calculated cartesian coordinates of the given joint states
+			- phi: Phi angle in degress to be used for inverse kinematics
+			- joint_state[5]: The rail lenght. Needs to be supstracted from x axis if calculated coordinates will be fed into inverse kinematics
 		"""
-		# cartesian_coordinates = [0,0,0,90,180,0]
-		# joint_states = [262.550, 20.608, 119.290, 662.570, 126.0, 574.367]
-
-		cartesian_coordinates = self.get_cartesian_coordinates()
-		shoulder_lenght = 225.0
-		elbow_lenght = 210.0
-		gripper_lengt = 0
+		
+		if joint_states[2] > 180:
+			adjusted_angle_j3 =  joint_states[2] - 360  # fixing the quadrant with angle range
+		else:
+			adjusted_angle_j3 = joint_states[2]
 
 		# Convert angles to radians
-		shoulder_angle = joint_states[1]*math.pi/180 #Joint 2 
-		elbow_angle = joint_states[2]*math.pi/180 #Joint 3
-		gripper_angle = joint_states[3]*math.pi/180 # Joint 4
+		shoulder_angle = math.radians(joint_states[1]) # Joint 2 
+		elbow_angle = math.radians(joint_states[2]) # Joint 3
+		gripper_angle = math.radians(joint_states[3]) # Joint 4
 
-		x = shoulder_lenght*math.cos(shoulder_angle) + elbow_lenght*math.cos(shoulder_angle+elbow_angle) + gripper_lengt*math.cos(shoulder_angle+elbow_angle+gripper_angle) 
-		y = shoulder_lenght*math.sin(shoulder_angle) + elbow_lenght*math.sin(shoulder_angle+elbow_angle)+ gripper_lengt*math.sin(shoulder_angle+elbow_angle+gripper_angle) 
+		
+		x = self.shoulder_lenght*math.cos(shoulder_angle) + self.elbow_lenght*math.cos(shoulder_angle+elbow_angle) + self.gripper_lengt*math.cos(shoulder_angle+elbow_angle+gripper_angle) 
+		y = self.shoulder_lenght*math.sin(shoulder_angle) + self.elbow_lenght*math.sin(shoulder_angle+elbow_angle) + self.gripper_lengt*math.sin(shoulder_angle+elbow_angle+gripper_angle) 
 		z = joint_states[0]
 
-		cartesian_coordinates[0] = x
-		cartesian_coordinates[1] = y
-		cartesian_coordinates[2] = z
-		phi = shoulder_angle + elbow_angle + gripper_angle
+		cartesian_coordinates = self.get_cartesian_coordinates()
 
-		print(x, y, z, phi)
-
-		return(x, y, z, phi)
-
-	def inverse_kinematics(self, x, y, z, phi):
+		cartesian_coordinates[0] = round(x,3) + joint_states[5]
+		cartesian_coordinates[1] = round(y,3)
+		cartesian_coordinates[2] = round(z,3)
+		# cartesian_coordinates[3] = 0 # TODO: CALCULATE A YAW ANGLE
 		
-		xe = x
-		ye = y
+		phi = math.degrees(shoulder_angle) + adjusted_angle_j3 + math.degrees(gripper_angle)
+		print(round(x + joint_states[5], 3), round(y,3), round(z,3), round(phi,3))
+
+		return cartesian_coordinates, round(phi,3), joint_states[5] 
+
+	def inverse_kinematics(self, cartesian_coordinates:list, phi:float, rail:float = 0):
+		
+		"""
+		Desciption: Calculates the inverse kinematics for a given array of cartesian coordinates. 
+		Paramiters:
+			- cartesian_coordinates: X/Y/Z Y/P/R cartesian coordinates. 
+									 X axis has to be substracted from the rail length before feeding into this function!
+			- Phi: Phi angle. Phi = Joint_2_angle + Joint_3_angle + Joint_4_angle
+			- Rail: Rail length (optional). If provided it will be substracted from X axis.
+		Return:
+			- Joint angles: Calculated 6 new joint angles.
+		"""
+			
+		Joint_1 = cartesian_coordinates[2]
+		xe = cartesian_coordinates[0] - rail
+		ye = cartesian_coordinates[1]
+
 		phie = math.radians(phi)
 
-		shoulder_lenght = 225.0
-		elbow_lenght = 210.0
-		gripper_lengt = 0.0
-
-		x_second_joint = xe - gripper_lengt * math.cos(phie) 
-		y_second_joint = ye - gripper_lengt * math.sin(phie)
+		x_second_joint = xe - self.gripper_lengt * math.cos(phie) 
+		y_second_joint = ye - self.gripper_lengt * math.sin(phie)
 
 		radius = math.sqrt(x_second_joint**2 + y_second_joint**2) 
-		gamma = math.acos((radius*radius + shoulder_lenght*shoulder_lenght - elbow_lenght*elbow_lenght)/(2*radius*shoulder_lenght)) 
+		gamma = math.acos((radius*radius + self.shoulder_lenght * self.shoulder_lenght - self.elbow_lenght * self.elbow_lenght)/(2 * radius * self.shoulder_lenght)) 
 		
-		theta2 = math.pi - math.acos((shoulder_lenght*shoulder_lenght + elbow_lenght*elbow_lenght - radius*radius)/(2*shoulder_lenght*elbow_lenght))
+		theta2 = math.pi - math.acos((self.shoulder_lenght * self.shoulder_lenght + self.elbow_lenght * self.elbow_lenght - radius*radius)/(2 * self.shoulder_lenght * self.elbow_lenght))
 		theta1 = math.atan2(y_second_joint, x_second_joint) - gamma 
 		theta3 = phie - theta1 - theta2
 		
+		if cartesian_coordinates[1] > 0 :
 
-		print("theta1: {}".format(math.degrees(theta1), math.degrees(theta1 + 2 * gamma)))
-		print("theta2: {} and {}".format(math.degrees(theta2), math.degrees(theta2 * - 1)))
-		print("theta3: {} and {}".format(math.degrees(theta3), math.degrees(theta3 + 2 * (theta2 - gamma))))
+			# Robot is in the First Quadrant on the coordinate plane (x:+ , y:+)
+			Joint_2 = math.degrees(theta1)
+			Joint_3 = math.degrees(theta2) # Adding 360 degrees to Joint 3 to fix the pose. 
+			Joint_4 = math.degrees(theta3)
+			# print("theta1: ", Joint_2)
+			# print("theta2: ", Joint_3) 
+			# print("theta3: ", Joint_4)
 
-		return [z, math.degrees(theta1), math.degrees(theta2), math.degrees(theta3)], [z, math.degrees(theta1 + 2 * gamma), math.degrees(theta2 * - 1), math.degrees(theta3 + 2 * (theta2 - gamma))]
+		elif cartesian_coordinates[1] < 0:
+			# Robot is in the Forth Quadrant on the coordinate plane (x:+ , y:-)
+			# Use the joint angles for Forth Quadrant
+			Joint_2 = math.degrees(theta1 + 2 * gamma)
+			Joint_3 = math.degrees(theta2 * - 1) + 360 # Adding 360 degrees to Joint 3 to fix the pose. 
+			Joint_4 = math.degrees(theta3 + 2 * (theta2 - gamma))
+			# print("theta1: ", Joint_2)
+			# print("theta2: ", Joint_3) 
+			# print("theta3: ", Joint_4)
+
+		return [Joint_1, Joint_2, Joint_3, Joint_4, self.get_gripper_state, rail]
 
 	## Create Move commands
 	def create_move_cartesian_command(self, target_cartesian_coordinates, profile:int =2):
@@ -568,7 +614,10 @@ class PF400():
 			self.plate_state = 0
 
 		return release_plate_status
-
+	def set_gripper_open(self):
+		pass
+	def set_gripper_close(self):
+		pass
 	def gripper_open(self):
 		""" Opens the gripper
 		"""
