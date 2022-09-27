@@ -55,12 +55,14 @@ class PF400():
 		# Robot kinematics
 		self.shoulder_lenght = 302
 		self.elbow_lenght = 289
-		self.gripper_lengt = 162
+		self.end_effector_lenght = 162
 
 		# Gripper variables
 		self.gripper_open_state = 95.0
 		self.gripper_closed_state = 77.0
 		self.gripper_safe_height = 10.0
+		self.set_gripper_open()
+		self.set_gripper_close()
 		self.gripper_state = self.get_gripper_state()
 
 		# Arm variables
@@ -126,24 +128,7 @@ class PF400():
 		finally:
 			self.commandLock.release()
 
-	def get_robot_movement_state(self):
-		"""Checks the movement state of the robot
-		States: 0 = Power off
-				1 = Stopping
-				2 = Acceleration
-				3 = Decelaration	
-		"""
-
-		self.connection.write(("state".encode("ascii") + b"\n"))
-	
-		movement_state = self.connection.read_until(b"\r\n").rstrip().decode("ascii")
-
-		if movement_state != "" and movement_state in self.error_codes:
-			self.handle_error_output(movement_state)
-		else:
-			self.movement_state = int(movement_state.split()[1])
-			
-		# return movement_state		
+	# INITIALIZE COMMANDS 
 
 	def init_connection_mode(self):
 		"""
@@ -220,7 +205,6 @@ class PF400():
 
 		return out_msg
 
-	# Create "profile section" apart from the "command section"
 	def set_profile(self, wait:int = 0.1, profile_dict:dict = {"0":0}):
 		"""
 		Decription: Sets and saves the motion profiles (defined in robot data) to the robot. 
@@ -261,7 +245,7 @@ class PF400():
 					checks the robot state to find out if the initilization was successful
 		"""
 
-		self.check_overall_state()
+		self.get_overall_state()
 
 		if self.power_state == "-1":
 			self.power_state = self.enable_power()
@@ -276,6 +260,8 @@ class PF400():
 			sleep(6)
 
 		profile = self.set_profile()
+		# self.set_gripper_open()
+		# self.set_gripper_close()
 
 		if self.power_state[0].find("-") == -1 and self.attach_state[0].find("-") == -1 and profile[0].find("-") == -1:
 			print("Robot initialization successfull")
@@ -287,12 +273,31 @@ class PF400():
 		Decription: Repeats the initilzation until there are no errors and the robot is initilzed.
 		"""
 		# Check robot state & initilize
-		if self.check_overall_state() == -1:
+		if self.get_overall_state() == -1:
 			print("Robot is not intilized! Intilizing now...")
 			self.initialize_robot()
 			self.force_initialize_robot()
 
-	def check_overall_state(self):
+	# GET COMMANDS
+
+	def get_robot_movement_state(self):
+		"""Checks the movement state of the robot
+		States: 0 = Power off
+				1 = Stopping
+				2 = Acceleration
+				3 = Decelaration	
+		"""
+
+		self.connection.write(("state".encode("ascii") + b"\n"))
+	
+		movement_state = self.connection.read_until(b"\r\n").rstrip().decode("ascii")
+
+		if movement_state != "" and movement_state in self.error_codes:
+			self.handle_error_output(movement_state)
+		else:
+			self.movement_state = int(movement_state.split()[1])
+			
+	def get_overall_state(self):
 			"""
 			Decription: Checks general state
 			"""
@@ -336,7 +341,6 @@ class PF400():
 			else: 
 				return 0
 
-	## Get Commands 
 	def get_joint_states(self):
 		"""
         Description: Locates the robot and returns the joint locations for all 6 joints.
@@ -382,6 +386,21 @@ class PF400():
 			self.gripper_state = 'closed'
 		return self.gripper_state
 
+	def get_gripper_lenght(self):
+		joint_angles = self.get_joint_states()
+		return joint_angles[4]
+
+	# SET COMMANDS
+
+	def set_gripper_open(self):
+		self.send_command("GripOpenPos " + self.gripper_open)
+		
+	def set_gripper_close(self):
+		self.send_command("GripClosePos " + self.gripper_close)
+
+
+	# KINEMATIC CALCULATIONS
+
 	def forward_kinematics(self, joint_states:list):
 		"""
 		Desciption: Calculates the forward kinematics for a given array of joint_states. 
@@ -404,8 +423,8 @@ class PF400():
 		gripper_angle = math.radians(joint_states[3]) # Joint 4
 
 		
-		x = self.shoulder_lenght*math.cos(shoulder_angle) + self.elbow_lenght*math.cos(shoulder_angle+elbow_angle) + self.gripper_lengt*math.cos(shoulder_angle+elbow_angle+gripper_angle) 
-		y = self.shoulder_lenght*math.sin(shoulder_angle) + self.elbow_lenght*math.sin(shoulder_angle+elbow_angle) + self.gripper_lengt*math.sin(shoulder_angle+elbow_angle+gripper_angle) 
+		x = self.shoulder_lenght*math.cos(shoulder_angle) + self.elbow_lenght*math.cos(shoulder_angle+elbow_angle) + self.end_effector_lenght*math.cos(shoulder_angle+elbow_angle+gripper_angle) 
+		y = self.shoulder_lenght*math.sin(shoulder_angle) + self.elbow_lenght*math.sin(shoulder_angle+elbow_angle) + self.end_effector_lenght*math.sin(shoulder_angle+elbow_angle+gripper_angle) 
 		z = joint_states[0]
 
 		cartesian_coordinates = self.get_cartesian_coordinates()
@@ -425,7 +444,7 @@ class PF400():
 		"""
 		Desciption: Calculates the inverse kinematics for a given array of cartesian coordinates. 
 		Paramiters:
-			- cartesian_coordinates: X/Y/Z Y/P/R cartesian coordinates. 
+			- cartesian_coordinates: X/Y/Z Yaw/Pitch/Roll cartesian coordinates. 
 									 X axis has to be substracted from the rail length before feeding into this function!
 			- Phi: Phi angle. Phi = Joint_2_angle + Joint_3_angle + Joint_4_angle
 			- Rail: Rail length (optional). If provided it will be substracted from X axis.
@@ -439,8 +458,8 @@ class PF400():
 
 		phie = math.radians(phi)
 
-		x_second_joint = xe - self.gripper_lengt * math.cos(phie) 
-		y_second_joint = ye - self.gripper_lengt * math.sin(phie)
+		x_second_joint = xe - self.end_effector_lenght * math.cos(phie) 
+		y_second_joint = ye - self.end_effector_lenght * math.sin(phie)
 
 		radius = math.sqrt(x_second_joint**2 + y_second_joint**2) 
 		gamma = math.acos((radius*radius + self.shoulder_lenght * self.shoulder_lenght - self.elbow_lenght * self.elbow_lenght)/(2 * radius * self.shoulder_lenght)) 
@@ -450,7 +469,6 @@ class PF400():
 		theta3 = phie - theta1 - theta2
 		
 		if cartesian_coordinates[1] > 0 :
-
 			# Robot is in the First Quadrant on the coordinate plane (x:+ , y:+)
 			Joint_2 = math.degrees(theta1)
 			Joint_3 = math.degrees(theta2) # Adding 360 degrees to Joint 3 to fix the pose. 
@@ -469,15 +487,15 @@ class PF400():
 			# print("theta2: ", Joint_3) 
 			# print("theta3: ", Joint_4)
 
-		return [Joint_1, Joint_2, Joint_3, Joint_4, self.get_gripper_state, rail]
+		return [Joint_1, Joint_2, Joint_3, Joint_4, self.get_gripper_lenght(), rail]
 
-	## Create Move commands
+	# MOVE COMMANDS
 	def create_move_cartesian_command(self, target_cartesian_coordinates, profile:int =2):
 
 		move_command = "MoveC"+ " " + str(profile) + " " + " ".join(map(str, target_cartesian_coordinates))
 		return move_command
 
-	def create_move_joint_command(self, target_joint_locations, profile:int = 1, gripper_close: bool = False, gripper_open: bool = False):
+	def create_move_joint_command(self, target_joint_angles, profile:int = 1, gripper_close: bool = False, gripper_open: bool = False):
 		"""
 		Description: Creates the movement commands with the given robot_location, profile, gripper closed and gripper open info
 		Parameters:
@@ -493,20 +511,18 @@ class PF400():
 		if gripper_close == True and gripper_open == True:
 			raise Exception("Gripper cannot be open and close at the same time!")
 			
-		# Setting the gripper location to open or close. If there is no gripper position passed in, target_joint_locations will be used.
+		# Setting the gripper location to open or close. If there is no gripper position passed in, target_joint_angles will be used.
 		if gripper_close == True:
-			target_joint_locations[4] = self.gripper_closed_state
+			target_joint_angles[4] = self.gripper_closed_state
 		if gripper_open == True:
-			target_joint_locations[4] = self.gripper_open_state
+			target_joint_angles[4] = self.gripper_open_state
 
-		move_command = "movej" + " " + str(profile) + " " + " ".join(map(str, target_joint_locations))
+		move_command = "movej" + " " + str(profile) + " " + " ".join(map(str, target_joint_angles))
 
 		return move_command		
 
-	##Move commands
-
-	# def move_joints(self, target_joint_locations, profile:int = 1, gripper_close: bool = False, gripper_open: bool = False):
-	# 	return self.send_command(self.create_move_joint_command(target_joint_locations,profile))
+	# def move_joints(self, target_joint_angles, profile:int = 1, gripper_close: bool = False, gripper_open: bool = False):
+	# 	return self.send_command(self.create_move_joint_command(target_joint_angles,profile))
 
 	def move_in_one_axis_from_target(self, target_location, profile:int = 1, axis_x:int= 0,axis_y:int= 0, axis_z:int= 0):
 		"""
@@ -614,26 +630,17 @@ class PF400():
 			self.plate_state = 0
 
 		return release_plate_status
-	def set_gripper_open(self):
-		pass
-	def set_gripper_close(self):
-		pass
+
 	def gripper_open(self):
 		""" Opens the gripper
 		"""
-		joint_locations = self.get_joint_states()
-		joint_locations[4] = self.gripper_open_state
-		self.send_command(self.create_move_joint_command(joint_locations,2))
-
+		self.send_command("gripper 1")
 		return self.get_gripper_state()
 
 	def gripper_close(self):
 		""" Closes the gripper
 		"""
-		joint_locations = self.get_joint_states()
-		joint_locations[4] = self.gripper_closed_state
-		self.send_command(self.create_move_joint_command(joint_locations,2))
-
+		self.send_command("gripper 2")
 		return self.get_gripper_state()
 
 	def move_one_axis_with_rail(self, axis_num, target,pofile):
@@ -725,8 +732,7 @@ class PF400():
 		self.move_all_joints_neutral(target_location)
 		self.send_command(self.create_move_joint_command(abovePos, fast_profile, False, True))
 		self.send_command(self.create_move_joint_command(target_location, fast_profile, False, True))
-		# self.gripper_close()
-		self.grab_plate(89,100,10)
+		self.grab_plate(self.plate_width,100,10)
 		self.move_in_one_axis(profile = 1, axis_x = 0, axis_y = 0, axis_z = 60)
 		self.move_all_joints_neutral(target_location)
 
@@ -746,7 +752,6 @@ class PF400():
 		self.move_all_joints_neutral(target_location)
 		self.send_command(self.create_move_joint_command(abovePos, slow_profile, True, False))
 		self.send_command(self.create_move_joint_command(target_location, slow_profile, True, False))
-		# self.gripper_open()
 		self.release_plate()
 		self.move_in_one_axis(profile = 1, axis_x = 0, axis_y = 0, axis_z = 60)
 		self.move_all_joints_neutral(target_location)
@@ -760,7 +765,7 @@ class PF400():
 		self.force_initialize_robot()
 		self.pick_plate(source)
 		if self.plate_state == -1: 
-			print("Transfer cannot complete, missing plate!")
+			print("Transfer cannot be completed, missing plate!")
 			return # Stopping transfer here
 		self.place_plate(target)
 
