@@ -399,6 +399,25 @@ class PF400():
 	def set_gripper_close(self):
 		self.send_command("GripClosePos " + self.gripper_close)
 
+	def set_plate_rotation(self, joint_states, rotation_degree = 0):
+		"""
+		Description:
+		Parameters:
+			- joint_states:
+			- rotation_degree: 
+		"""
+		cartesian_coordinates, phi_angle, rail_pos = self.forward_kinematics(joint_states)
+
+		if cartesian_coordinates[1] < 0:
+			#Location is on the right side of the robot
+			cartesian_coordinates[3] += rotation_degree
+		elif cartesian_coordinates[1] > 0:
+			cartesian_coordinates[3] -= rotation_degree
+		
+		new_joint_angles = self.inverse_kinematics(cartesian_coordinates, phi_angle, rail_pos)
+
+		return new_joint_angles
+
 
 	# KINEMATIC CALCULATIONS
 
@@ -591,7 +610,7 @@ class PF400():
 		# Find the cartesian coordinates of the target joint states
 		cartesian_coordinates = self.get_cartesian_coordinates()
 		
-		# Move en effector on the single axis
+		# Move end effector on the single axis
 		cartesian_coordinates[0] += axis_x
 		cartesian_coordinates[1] += axis_y
 		cartesian_coordinates[2] += axis_z
@@ -599,7 +618,6 @@ class PF400():
 		move_command = "MoveC"+ " " + str(profile) + " " + " ".join(map(str, cartesian_coordinates))
 		self.send_command(move_command)
 
-	## lower order commands
 	def grab_plate(self, width: int = 123, speed:int = 100, force: int = 10):
 		""" 
 		Description: 
@@ -784,32 +802,13 @@ class PF400():
 		self.move_in_one_axis(profile = 1, axis_x = 0, axis_y = 0, axis_z = 60)
 		self.move_all_joints_neutral(target_location)
 
-	def set_gripper_to_plate_rotation(self, joint_states, rotation_degree = 0):
-		"""
-		Description:
-		Parameters:
-			- joint_states:
-			- gripper_position: 0 for open, 1 for close 
-		"""
-		cartesian_coordinates, phi_angle, rail_pos = self.forward_kinematics(joint_states)
-
-		if cartesian_coordinates[1] < 0:
-			#Location is on the right side of the robot
-			cartesian_coordinates[3] += rotation_degree
-		elif cartesian_coordinates[1] > 0:
-			cartesian_coordinates[3] -= rotation_degree
-		
-		new_joint_angles = self.inverse_kinematics(cartesian_coordinates, phi_angle,rail_pos)
-
-		return new_joint_angles
-
 	def rotate_plate_on_deck(self, rotation_degree):
 		"""Uses the deck to ratate the plate between two transfers"""
 		target = self.plate_ratation_deck
 
 
 		if rotation_degree < 0:
-			target = self.set_gripper_to_plate_rotation(target, rotation_degree)
+			target = self.set_plate_rotation(target, rotation_degree)
 
 		abovePos = list(map(add, target, self.above))
 
@@ -821,7 +820,7 @@ class PF400():
 
 		# Ratating gripper to grab the plate from other rotation
 		if rotation_degree > 0 :	
-			target = self.set_gripper_to_plate_rotation(target, rotation_degree)
+			target = self.set_plate_rotation(target, rotation_degree)
 
 		self.send_command(self.create_move_joint_command(target, 1, False, True))
 		self.grab_plate(self.plate_width,100,10)
@@ -846,10 +845,10 @@ class PF400():
 
 		# These two will fix plate rotation on the deck
 		if self.plate_source_rotation != 0 and source[3] > 400 and source[3] < 550:
-			source = self.set_gripper_to_plate_rotation(source, self.plate_source_rotation)
+			source = self.set_plate_rotation(source, self.plate_source_rotation)
 		
 		if self.plate_target_rotation != 0 and target[3] > 400 and target[3] < 550: 
-			target = self.set_gripper_to_plate_rotation(target, self.plate_target_rotation)
+			target = self.set_plate_rotation(target, self.plate_target_rotation)
 
 
 		self.force_initialize_robot()
