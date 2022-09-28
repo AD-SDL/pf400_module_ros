@@ -5,7 +5,7 @@ import numpy as np
 
 
 def forward():
-    # TODO: Seems like Joint 2 a weird range of motion. Find out Angle range and put an offset to the calculation
+    # TODO: Seems like Joint 2 has a weird range of motion. 
     # Joint two range 10-350
 
     cartesian_coordinates = [0,0,0,90,180,0]
@@ -41,12 +41,27 @@ def forward():
     x = shoulder_lenght*math.cos(shoulder_angle) + elbow_lenght*math.cos(shoulder_angle+elbow_angle) + gripper_lengt*math.cos(shoulder_angle+elbow_angle+gripper_angle) 
     y = shoulder_lenght*math.sin(shoulder_angle) + elbow_lenght*math.sin(shoulder_angle+elbow_angle) + gripper_lengt*math.sin(shoulder_angle+elbow_angle+gripper_angle) 
     z = joint_states[0]
-
+    # yaw = math.degrees(math.atan(x/-y))
+    # pitch = math.asin(y / 3)
+    # yaw = math.asin( x / (math.cos(pitch)*3))  # //Beware cos(pitch)==0, catch this exception!
+    # # roll = 0;    
     cartesian_coordinates[0] = x
     cartesian_coordinates[1] = y
     cartesian_coordinates[2] = z
-    
     phi = math.degrees(shoulder_angle) + adjusted_angle_j3 + math.degrees(gripper_angle)
+
+    if phi < 360:
+        yaw = phi%360
+    elif phi > 360 and phi < 540:
+        yaw = phi%360
+    elif phi > 540 and phi<720:
+        yaw = phi%360 - 360
+    elif phi > 720 and phi < 900:
+        yaw = phi%720
+    elif phi > 900 and phi < 1080:
+        yaw = phi%720 - 720
+    print(yaw)    
+
     print(round(x + joint_states[5], 3), round(y,3), round(z,3), round(phi,3))
 
     return round(x,3), round(y,3), round(z,3), round(phi,3), joint_states[5]

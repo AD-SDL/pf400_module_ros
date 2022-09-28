@@ -426,15 +426,28 @@ class PF400():
 		x = self.shoulder_lenght*math.cos(shoulder_angle) + self.elbow_lenght*math.cos(shoulder_angle+elbow_angle) + self.end_effector_lenght*math.cos(shoulder_angle+elbow_angle+gripper_angle) 
 		y = self.shoulder_lenght*math.sin(shoulder_angle) + self.elbow_lenght*math.sin(shoulder_angle+elbow_angle) + self.end_effector_lenght*math.sin(shoulder_angle+elbow_angle+gripper_angle) 
 		z = joint_states[0]
+		
+		phi = math.degrees(shoulder_angle) + adjusted_angle_j3 + math.degrees(gripper_angle)
+
+		if phi < 360:
+			yaw = phi%360
+		elif phi > 360 and phi < 540:
+			yaw = phi%360
+		elif phi > 540 and phi<720:
+			yaw = phi%360 - 360
+		elif phi > 720 and phi < 900:
+			yaw = phi%720
+		elif phi > 900 and phi < 1080:
+			yaw = phi%720 - 720
+		print(yaw)    
 
 		cartesian_coordinates = self.get_cartesian_coordinates()
 
 		cartesian_coordinates[0] = round(x,3) + joint_states[5]
 		cartesian_coordinates[1] = round(y,3)
 		cartesian_coordinates[2] = round(z,3)
-		# cartesian_coordinates[3] = 0 # TODO: CALCULATE A YAW ANGLE
-		
-		phi = math.degrees(shoulder_angle) + adjusted_angle_j3 + math.degrees(gripper_angle)
+		cartesian_coordinates[3] = round(yaw,3)
+
 		print(round(x + joint_states[5], 3), round(y,3), round(z,3), round(phi,3))
 
 		return cartesian_coordinates, round(phi,3), joint_states[5] 
