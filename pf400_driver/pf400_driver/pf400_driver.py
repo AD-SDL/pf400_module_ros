@@ -80,7 +80,7 @@ class PF400():
 		self.plate_width = 123
 		self.plate_source_rotation = 0 # 90 to rotate 90 degrees
 		self.plate_target_rotation = 0 # 90 to rotate 90 degrees
-		self.plate_ratation_deck = [231.788, -27.154, 313.011, 342.317, 0.0, 683.702] # Set Peeler location
+		self.plate_ratation_deck = [262.550, 20.608, 119.290, 662.570, 0.0, 574.367] # Set Sciclops location for now
 
 	def connect(self):
 		"""
@@ -394,10 +394,10 @@ class PF400():
 	# SET COMMANDS
 
 	def set_gripper_open(self):
-		self.send_command("GripOpenPos " + self.gripper_open)
+		self.send_command("GripOpenPos " + str(self.gripper_open_state))
 		
 	def set_gripper_close(self):
-		self.send_command("GripClosePos " + self.gripper_close)
+		self.send_command("GripClosePos " + str(self.gripper_closed_state))
 
 	def set_plate_rotation(self, joint_states, rotation_degree = 0):
 		"""
@@ -407,6 +407,11 @@ class PF400():
 			- rotation_degree: 
 		"""
 		cartesian_coordinates, phi_angle, rail_pos = self.forward_kinematics(joint_states)
+
+		if rotation_degree == -90: # Yaw 90 to 0 degrees:
+			cartesian_coordinates[1] += 28
+		elif rotation_degree == 90:
+			cartesian_coordinates[1] -= 28
 
 		if cartesian_coordinates[1] < 0:
 			#Location is on the right side of the robot
@@ -510,7 +515,7 @@ class PF400():
 		theta1 = math.atan2(y_second_joint, x_second_joint) - gamma 
 		theta3 = phie - theta1 - theta2
 		
-		if [1] > 0 or (cartesian_coordinates[1] < 0 and math.degrees(theta1) < 0 and abs(math.degrees(theta1)) < abs(math.degrees(theta1 + 2 * gamma))):
+		if cartesian_coordinates[1] > 0 or (cartesian_coordinates[1] < 0 and math.degrees(theta1) < 0 and abs(math.degrees(theta1)) < abs(math.degrees(theta1 + 2 * gamma))):
 			# Robot is in the First Quadrant on the coordinate plane (x:+ , y:+)
 			Joint_2 = math.degrees(theta1)
 			Joint_3 = math.degrees(theta2) # Adding 360 degrees to Joint 3 to fix the pose. 
@@ -556,8 +561,10 @@ class PF400():
 		# Setting the gripper location to open or close. If there is no gripper position passed in, target_joint_angles will be used.
 		if gripper_close == True:
 			target_joint_angles[4] = self.gripper_closed_state
-		if gripper_open == True:
+		elif gripper_open == True:
 			target_joint_angles[4] = self.gripper_open_state
+		else:
+			target_joint_angles[4] = self.get_gripper_lenght()
 
 		move_command = "movej" + " " + str(profile) + " " + " ".join(map(str, target_joint_angles))
 
@@ -640,7 +647,8 @@ class PF400():
 		elif grab_plate_status[1] == "-1":
 			print("Plate is grabed")
 			self.plate_state = 1
-			self.gripper_closed_state = width
+			# self.gripper_closed_state = width
+			# self.set_gripper_close()
 
 		elif grab_plate_status[1] == "0" and width > 80: # Do not try smaller width 
 			print("No plate") 
@@ -796,8 +804,8 @@ class PF400():
 		abovePos = list(map(add, target_location, self.above))
 
 		self.move_all_joints_neutral(target_location)
-		self.send_command(self.create_move_joint_command(abovePos, slow_profile, True, False))
-		self.send_command(self.create_move_joint_command(target_location, slow_profile, True, False))
+		self.send_command(self.create_move_joint_command(abovePos, slow_profile))
+		self.send_command(self.create_move_joint_command(target_location, slow_profile))
 		self.release_plate()
 		self.move_in_one_axis(profile = 1, axis_x = 0, axis_y = 0, axis_z = 60)
 		self.move_all_joints_neutral(target_location)
@@ -808,20 +816,22 @@ class PF400():
 
 
 		if rotation_degree < 0:
-			target = self.set_plate_rotation(target, rotation_degree)
+			target = self.set_plate_rotation(target, -rotation_degree)
 
 		abovePos = list(map(add, target, self.above))
 
 		self.move_all_joints_neutral(target)
-		self.send_command(self.create_move_joint_command(abovePos, 1, True, False))
-		self.send_command(self.create_move_joint_command(target, 1, True, False))
+		self.send_command(self.create_move_joint_command(abovePos, 1))
+		self.send_command(self.create_move_joint_command(target, 1))
 		self.release_plate()
 		self.move_in_one_axis(profile = 1, axis_x = 0, axis_y = 0, axis_z = 60)
 
 		# Ratating gripper to grab the plate from other rotation
-		if rotation_degree > 0 :	
-			target = self.set_plate_rotation(target, rotation_degree)
-
+		# if rotation_degree > 0 :	
+		target = self.set_plate_rotation(target, rotation_degree)
+		
+		abovePos = list(map(add, target, self.above))
+		self.send_command(self.create_move_joint_command(abovePos, 1))
 		self.send_command(self.create_move_joint_command(target, 1, False, True))
 		self.grab_plate(self.plate_width,100,10)
 		self.move_in_one_axis(profile = 1, axis_x = 0, axis_y = 0, axis_z = 60)
@@ -844,11 +854,11 @@ class PF400():
 		self.plate_target_rotation = target_plate_rotation
 
 		# These two will fix plate rotation on the deck
-		if self.plate_source_rotation != 0 and source[3] > 400 and source[3] < 550:
-			source = self.set_plate_rotation(source, self.plate_source_rotation)
+		if self.plate_source_rotation != 0 and source[3] > 400 and source[3] < 570:
+			source = self.set_plate_rotation(source, -self.plate_source_rotation)
 		
-		if self.plate_target_rotation != 0 and target[3] > 400 and target[3] < 550: 
-			target = self.set_plate_rotation(target, self.plate_target_rotation)
+		if self.plate_target_rotation != 0 and target[3] > 400 and target[3] < 570: 
+			target = self.set_plate_rotation(target, -self.plate_target_rotation)
 
 
 		self.force_initialize_robot()
@@ -878,10 +888,10 @@ if __name__ == "__main__":
 	pos2= [197.185, 59.736, 90.509, 566.953, 82.069, -65.550] #OT2
 	thermocycler = [277.638, 39.029, 74.413, 602.159, 78.980, -910.338]
 
-	robot.transfer(pos1, pos2)
-	robot.transfer(pos2,pos1)
-	# robot.transfer(pos2, loc2)
-	# robot.transfer(loc2,pos1)
+	robot.transfer(pos1, pos2, 0, 90)
+	# robot.transfer(pos2,pos1,90,0)
+	robot.transfer(pos2, loc2 ,90,0)
+	robot.transfer(loc2,pos1,0,0)
 
 
 
