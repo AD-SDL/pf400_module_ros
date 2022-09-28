@@ -85,11 +85,15 @@ class PF400ClientNode(Node):
         '''
         # TODO: NEED NEW VARAIBLES FOR GRIPPER CLOSED LENGHT AND GRIPPER GRAP ANGLE 
         if request.action_handle == "transfer":
+            
+            source_plate_rotation = 0
+            target_plate_rotation = 0
 
             self.state = "BUSY"
             self.stateCallback()
             vars = eval(request.vars)
             print(vars)
+
 
             if 'source' not in vars.keys():
                 print("Pick up location is not provided")
@@ -105,13 +109,23 @@ class PF400ClientNode(Node):
             if len(vars.get('target')) != 6:
                 print("Position 2 should be six joint angles lenght")
                 return
-            
+                
+            if 'source_plate_rotation' not in vars.keys():
+                print("Setting source plate rotation to 0")
+            else:
+                source_plate_rotation = vars.get('source_plate_rotation')
+
+            if 'target_plate_rotation' not in vars.keys():
+                print("Setting target plate rotation to 0")
+            else:
+                target_plate_rotation = vars.get('target_plate_rotation')
+                
             source = vars.get('source')
             print("Source location: ", source)
             target = vars.get('target')
             print("Target location: ",target)
 
-            self.pf400.transfer(source, target)
+            self.pf400.transfer(source, target, source_plate_rotation, target_plate_rotation)
         
         if self.pf400.plate_state == -1:
             self.state = "ERROR"
