@@ -14,9 +14,9 @@ def forward():
     # joint_states =[231.788, -27.154, 313.011, 342.317, 0.0, 683.702]
     # joint_states = [264.584, -29.413, -100, 372.338, 0.0, 651.621]
     # joint_states = [190.561, -58.794, 73.902, 1, 126.8, -446.223]
-    # joint_states = [320.921, -27.747, 135.303, 699.950, 70.258, -0.102]
+    joint_states = [320.921, -27.747, 135.303, 699.950, 70.258, -0.102]
     # joint_states = [289.551, -21.918, 153.929, 526.774,	74.619, 574.345]
-    joint_states = [277.638, 39.029, 74.413, 602.149, 78.980, -910.338]
+    # joint_states = [277.638, 39.029, 74.413, 602.149, 78.980, -910.338]
     # joint_states = [289.546, -21.973, 198.569, 555.221, 555.221, 574.337]
 
 
@@ -50,9 +50,7 @@ def forward():
     cartesian_coordinates[2] = z
     phi = math.degrees(shoulder_angle) + adjusted_angle_j3 + math.degrees(gripper_angle)
 
-    if phi < 360:
-        yaw = phi%360
-    elif phi > 360 and phi < 540:
+    if phi > 0 and phi < 540:
         yaw = phi%360
     elif phi > 540 and phi<720:
         yaw = phi%360 - 360
@@ -64,15 +62,26 @@ def forward():
 
     print(round(x + joint_states[5], 3), round(y,3), round(z,3), round(phi,3))
 
-    return round(x,3), round(y,3), round(z,3), round(phi,3), joint_states[5]
+    return round(x,3), round(y,3), round(z,3), yaw,round(phi,3), joint_states[5]
 
 # TODO: ADD A YPR TO OPG CONVERTER FUNCTIONS
 
-def inverse_kinematics(x, y, z, phi):
+def inverse_kinematics(x, y, z, yaw, phi):
 
     Joint_1 = z
     xe = x
     ye = y
+
+    if phi < 360:
+        phi = yaw
+    elif phi > 360 and phi < 540:
+        phi = yaw + 360
+    elif phi > 540 and phi< 720:
+        phi = yaw + 720 
+    elif phi > 720 and phi < 900:
+        phi = yaw + 720 
+    elif phi > 900 and phi < 1080:
+        phi = yaw + 1440
 
     phie = math.radians(phi)
 
@@ -90,12 +99,12 @@ def inverse_kinematics(x, y, z, phi):
     theta1 = math.atan2(y_second_joint, x_second_joint) - gamma 
     theta3 = phie - theta1 - theta2
     
-    if y > 0 :
+    if y > 0 or (y < 0 and math.degrees(theta1) < 0 and abs(math.degrees(theta1)) < abs(math.degrees(theta1 + 2 * gamma))):
 
         # Robot is in the First Quadrant on the coordinate plane (x:+ , y:+)
-        Joint_2 = math.degrees(theta1)
-        Joint_3 = math.degrees(theta2) # Adding 360 degrees to Joint 3 to fix the pose. 
-        Joint_4 = math.degrees(theta3)
+        Joint_2 = round(math.degrees(theta1),3)
+        Joint_3 = round(math.degrees(theta2),3) # Adding 360 degrees to Joint 3 to fix the pose. 
+        Joint_4 = round( math.degrees(theta3),3)
         # print("theta1: ", Joint_2)
         # print("theta2: ", Joint_3) 
         # print("theta3: ", Joint_4)
@@ -103,20 +112,20 @@ def inverse_kinematics(x, y, z, phi):
     elif y < 0:
         # Robot is in the Forth Quadrant on the coordinate plane (x:+ , y:-)
         # Use the joint angles for Forth Quadrant
-        Joint_2 = math.degrees(theta1 + 2 * gamma)
-        Joint_3 = math.degrees(theta2 * - 1) + 360 # Adding 360 degrees to Joint 3 to fix the pose. 
-        Joint_4 = math.degrees(theta3 + 2 * (theta2 - gamma))
+        Joint_2 = round(math.degrees(theta1 + 2 * gamma),3)
+        Joint_3 = round(math.degrees(theta2 * - 1) + 360, 3)# Adding 360 degrees to Joint 3 to fix the pose. 
+        Joint_4 = round(math.degrees(theta3 + 2 * (theta2 - gamma)),3)
         # print("theta1: ", Joint_2)
         # print("theta2: ", Joint_3) 
         # print("theta3: ", Joint_4)
 
     return Joint_1, Joint_2, Joint_3, Joint_4
 
-x,y,z,phi,rail = forward()
-print(x,y,z,phi,rail)
+x,y,z,yaw,phi,rail = forward()
+# print(x,y,z,phi,rail)
 
 # x,y,z,phi = 724.476, -62.664, 289.546,  #161.72699999999998, -180.428, 289.551, 720.76	
-Joint_1, Joint_2, Joint_3, Joint_4 = inverse_kinematics(x,y,z,phi)
+Joint_1, Joint_2, Joint_3, Joint_4 = inverse_kinematics(x,y,z,yaw,phi)
 print(Joint_1, Joint_2, Joint_3, Joint_4)
 
 #----

@@ -20,7 +20,7 @@ class CAMERA():
         self.cam_left_qr_name = None
         self.cam_right_qr_name = None
 
-        # Store cartesian coordinates
+        # Store joint angles
         # Make sure linear axis lenght is removed from the x axis 
         self.locations = {"sciclops": [[262.550, 20.608, 119.290, 662.570, 0.0, 0],[-1]], 
                           "ot2_1": [[197.185, 59.736, 90.509, 566.953, 82.069, 0],[-1]],
@@ -58,7 +58,7 @@ class CAMERA():
 
         # TODO: Make sure that robot stops are always at the module origins
         # TODO: Find the target locations with respect to the origin locations
-        # TODO: In defult locations use cartesian location but then update them with new joint angle locations
+        # TODO: In defult locations use joint angles then update them with new joint angle locations
         # TODO: Assume that the defult locations are taken when all the modules where left side of the PF400
 
         module_lenght = 50.0

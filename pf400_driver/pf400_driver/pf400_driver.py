@@ -58,7 +58,7 @@ class PF400():
 		self.end_effector_lenght = 162
 
 		# Gripper variables
-		self.gripper_open_state = 95.0
+		self.gripper_open_state = 130.0
 		self.gripper_closed_state = 77.0
 		self.gripper_safe_height = 10.0
 		self.set_gripper_open()
@@ -77,9 +77,10 @@ class PF400():
 
 		# Plate variables
 		self.plate_state = 0
-		self.plate_width = 89
+		self.plate_width = 123
 		self.plate_source_rotation = 0 # 90 to rotate 90 degrees
 		self.plate_target_rotation = 0 # 90 to rotate 90 degrees
+		self.plate_ratation_deck = [231.788, -27.154, 313.011, 342.317, 0.0, 683.702] # Set Peeler location
 
 	def connect(self):
 		"""
@@ -413,7 +414,7 @@ class PF400():
 		"""
 		
 		if joint_states[2] > 180:
-			adjusted_angle_j3 =  joint_states[2] - 360  # fixing the quadrant with angle range
+			adjusted_angle_j3 =  joint_states[2] - 360  # Fixing the quadrant on the third joint. Joint 3 range is 10 to 350 instead of -180 to 180
 		else:
 			adjusted_angle_j3 = joint_states[2]
 
@@ -429,9 +430,7 @@ class PF400():
 		
 		phi = math.degrees(shoulder_angle) + adjusted_angle_j3 + math.degrees(gripper_angle)
 
-		if phi < 360:
-			yaw = phi%360
-		elif phi > 360 and phi < 540:
+		if phi > 0 and phi < 540:
 			yaw = phi%360
 		elif phi > 540 and phi<720:
 			yaw = phi%360 - 360
@@ -469,6 +468,17 @@ class PF400():
 		xe = cartesian_coordinates[0] - rail
 		ye = cartesian_coordinates[1]
 
+		if phi < 360:
+			phi = cartesian_coordinates[3]
+		elif phi > 360 and phi < 540:
+			phi = cartesian_coordinates[3] + 360
+		elif phi > 540 and phi< 720:
+			phi = cartesian_coordinates[3] + 720 
+		elif phi > 720 and phi < 900:
+			phi = cartesian_coordinates[3] + 720 
+		elif phi > 900 and phi < 1080:
+			phi = cartesian_coordinates[3] + 1440
+
 		phie = math.radians(phi)
 
 		x_second_joint = xe - self.end_effector_lenght * math.cos(phie) 
@@ -481,7 +491,7 @@ class PF400():
 		theta1 = math.atan2(y_second_joint, x_second_joint) - gamma 
 		theta3 = phie - theta1 - theta2
 		
-		if cartesian_coordinates[1] > 0 :
+		if [1] > 0 or (cartesian_coordinates[1] < 0 and math.degrees(theta1) < 0 and abs(math.degrees(theta1)) < abs(math.degrees(theta1 + 2 * gamma))):
 			# Robot is in the First Quadrant on the coordinate plane (x:+ , y:+)
 			Joint_2 = math.degrees(theta1)
 			Joint_3 = math.degrees(theta2) # Adding 360 degrees to Joint 3 to fix the pose. 
@@ -590,7 +600,7 @@ class PF400():
 		self.send_command(move_command)
 
 	## lower order commands
-	def grab_plate(self, width: int = 100, speed:int = 100, force: int = 10):
+	def grab_plate(self, width: int = 123, speed:int = 100, force: int = 10):
 		""" 
 		Description: 
 			Grabs the plate by appling additional force
@@ -608,21 +618,25 @@ class PF400():
 		
 		if len(grab_plate_status) < 2:
 			return
+
 		elif grab_plate_status[1] == "-1":
 			print("Plate is grabed")
 			self.plate_state = 1
-		elif grab_plate_status[1] == "0" and width >= 75: # Do not try smaller width 
+			self.gripper_closed_state = width
+
+		elif grab_plate_status[1] == "0" and width > 80: # Do not try smaller width 
 			print("No plate") 
 			width -= 1
 			self.grab_plate(width,speed,force)
-		elif width <= 75:
+
+		elif width <= 80:
 			print("PLATE WAS NOT FOUND!")
 			self.robot_state = "Missing Plate"
 			# TODO: Stop robot transfer here
 			self.plate_state = -1
 		return grab_plate_status
 
-	def release_plate(self, width: int = 100, speed:int = 100):
+	def release_plate(self, width: int = 130, speed:int = 100):
 		""" 
 		Description: 
 			Release the plate 
@@ -733,21 +747,22 @@ class PF400():
 		self.move_rails_neutral(target_location[0],target_location[5])
 
 
-	def pick_plate(self, target_location):
+	def pick_plate(self, source_location):
 		"""
         Description: 
         """
 		slow_profile = 1
 		fast_profile = 2
 
-		abovePos = list(map(add, target_location, self.above))
+		abovePos = list(map(add, source_location, self.above))
 
-		self.move_all_joints_neutral(target_location)
+		self.move_all_joints_neutral(source_location)
 		self.send_command(self.create_move_joint_command(abovePos, fast_profile, False, True))
-		self.send_command(self.create_move_joint_command(target_location, fast_profile, False, True))
+		self.send_command(self.create_move_joint_command(source_location, fast_profile, False, True))
+			
 		self.grab_plate(self.plate_width,100,10)
 		self.move_in_one_axis(profile = 1, axis_x = 0, axis_y = 0, axis_z = 60)
-		self.move_all_joints_neutral(target_location)
+		self.move_all_joints_neutral(source_location)
 
 		# TODO: USE BELOW MOVE_ONE_AXIS FUNCTIONS TO MOVE ABOVE AND FRONT OF THE EACH TARGET LOCATIONS
 		# self.move_in_one_axis_from_target(target_location, profile = 2, axis_x = 60, axis_y = 0, axis_z = 60)
@@ -769,17 +784,89 @@ class PF400():
 		self.move_in_one_axis(profile = 1, axis_x = 0, axis_y = 0, axis_z = 60)
 		self.move_all_joints_neutral(target_location)
 
+	def set_gripper_to_plate_rotation(self, joint_states, rotation_degree = 0):
+		"""
+		Description:
+		Parameters:
+			- joint_states:
+			- gripper_position: 0 for open, 1 for close 
+		"""
+		cartesian_coordinates, phi_angle, rail_pos = self.forward_kinematics(joint_states)
 
-	def transfer(self, source, target):
+		if cartesian_coordinates[1] < 0:
+			#Location is on the right side of the robot
+			cartesian_coordinates[3] += rotation_degree
+		elif cartesian_coordinates[1] > 0:
+			cartesian_coordinates[3] -= rotation_degree
+		
+		new_joint_angles = self.inverse_kinematics(cartesian_coordinates, phi_angle,rail_pos)
+
+		return new_joint_angles
+
+	def rotate_plate_on_deck(self, rotation_degree):
+		"""Uses the deck to ratate the plate between two transfers"""
+		target = self.plate_ratation_deck
+
+
+		if rotation_degree < 0:
+			target = self.set_gripper_to_plate_rotation(target, rotation_degree)
+
+		abovePos = list(map(add, target, self.above))
+
+		self.move_all_joints_neutral(target)
+		self.send_command(self.create_move_joint_command(abovePos, 1, True, False))
+		self.send_command(self.create_move_joint_command(target, 1, True, False))
+		self.release_plate()
+		self.move_in_one_axis(profile = 1, axis_x = 0, axis_y = 0, axis_z = 60)
+
+		# Ratating gripper to grab the plate from other rotation
+		if rotation_degree > 0 :	
+			target = self.set_gripper_to_plate_rotation(target, rotation_degree)
+
+		self.send_command(self.create_move_joint_command(target, 1, False, True))
+		self.grab_plate(self.plate_width,100,10)
+		self.move_in_one_axis(profile = 1, axis_x = 0, axis_y = 0, axis_z = 60)
+		self.move_all_joints_neutral(target)
+
+	def transfer(self, source:list, target:list, source_plate_rotation:int = 0, target_plate_rotation:int = 0):
 		"""
         Description: Plate transfer function that performs series of movements to pick and place the plates
+		Parameters: 
+			- source: Source location
+			- target: Targer location
+			- source_plate_rotation: 0 or 90 degrees
+			- target_plate_rotation: 0 or 90 degrees
+
+		Note: Plate rotation defines the rotation of the plate on the deck, not the grabing angle.
 		
         """
+
+		self.plate_source_rotation = source_plate_rotation
+		self.plate_target_rotation = target_plate_rotation
+
+		# These two will fix plate rotation on the deck
+		if self.plate_source_rotation != 0 and source[3] > 400 and source[3] < 550:
+			source = self.set_gripper_to_plate_rotation(source, self.plate_source_rotation)
+		
+		if self.plate_target_rotation != 0 and target[3] > 400 and target[3] < 550: 
+			target = self.set_gripper_to_plate_rotation(target, self.plate_target_rotation)
+
+
 		self.force_initialize_robot()
 		self.pick_plate(source)
+
 		if self.plate_state == -1: 
 			print("Transfer cannot be completed, missing plate!")
 			return # Stopping transfer here
+
+		if self.plate_source_rotation != 0 and self.plate_target_rotation == 0:
+			# Need a transition from 90 degree to 0 degree
+			self.rotate_plate_on_deck(-self.plate_source_rotation)
+
+		if self.plate_source_rotation == 0 and self.plate_target_rotation != 0:
+			self.rotate_plate_on_deck(self.plate_target_rotation)
+			# Need a transition from 0 degree to 90 degree
+
 		self.place_plate(target)
 
 if __name__ == "__main__":
