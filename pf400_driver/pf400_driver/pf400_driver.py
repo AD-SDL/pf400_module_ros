@@ -817,6 +817,7 @@ class PF400():
 
 		if rotation_degree < 0:
 			target = self.set_plate_rotation(target, -rotation_degree)
+			target[0]+= 5
 
 		abovePos = list(map(add, target, self.above))
 
@@ -827,7 +828,9 @@ class PF400():
 		self.move_in_one_axis(profile = 1, axis_x = 0, axis_y = 0, axis_z = 60)
 
 		# Ratating gripper to grab the plate from other rotation
-		# if rotation_degree > 0 :	
+		if rotation_degree < 0 :
+			target[0]-= 5
+
 		target = self.set_plate_rotation(target, rotation_degree)
 		
 		abovePos = list(map(add, target, self.above))
