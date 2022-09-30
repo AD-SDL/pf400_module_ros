@@ -882,7 +882,6 @@ class PF400():
 		elif target_plate_rotation.lower() == "narrow" or target_plate_rotation == "":
 			self.plate_target_rotation = 0
 
-
 		source = self.check_incorrect_plate_orientation(source, self.plate_source_rotation)
 		target = self.check_incorrect_plate_orientation(target, self.plate_target_rotation)
 
