@@ -772,44 +772,6 @@ class PF400():
 		# Setting the target location's linear rail position for pf400_neutral 
 		self.move_rails_neutral(target_location[0],target_location[5])
 
-
-	def pick_plate(self, source_location):
-		"""
-        Description: 
-        """
-		slow_profile = 1
-		fast_profile = 2
-
-		abovePos = list(map(add, source_location, self.above))
-
-		self.move_all_joints_neutral(source_location)
-		self.send_command(self.create_move_joint_command(abovePos, fast_profile, False, True))
-		self.send_command(self.create_move_joint_command(source_location, fast_profile, False, True))
-			
-		self.grab_plate(self.plate_width,100,10)
-		self.move_in_one_axis(profile = 1, axis_x = 0, axis_y = 0, axis_z = 60)
-		self.move_all_joints_neutral(source_location)
-
-		# TODO: USE BELOW MOVE_ONE_AXIS FUNCTIONS TO MOVE ABOVE AND FRONT OF THE EACH TARGET LOCATIONS
-		# self.move_in_one_axis_from_target(target_location, profile = 2, axis_x = 60, axis_y = 0, axis_z = 60)
-		# self.move_in_one_axis_from_target(target_location, profile = 1, axis_x = 0, axis_y = 0, axis_z = 60)
-
-	def place_plate(self, target_location):
-		"""
-        Description: 
-        """
-		slow_profile = 1
-		fast_profile = 2
-
-		abovePos = list(map(add, target_location, self.above))
-
-		self.move_all_joints_neutral(target_location)
-		self.send_command(self.create_move_joint_command(abovePos, slow_profile))
-		self.send_command(self.create_move_joint_command(target_location, slow_profile))
-		self.release_plate()
-		self.move_in_one_axis(profile = 1, axis_x = 0, axis_y = 0, axis_z = 60)
-		self.move_all_joints_neutral(target_location)
-
 	def rotate_plate_on_deck(self, rotation_degree):
 		"""Uses the deck to ratate the plate between two transfers"""
 		target = self.plate_ratation_deck
@@ -857,6 +819,42 @@ class PF400():
 
 		return goal_location	
 
+	def pick_plate(self, source_location):
+		"""
+        Description: 
+        """
+		slow_profile = 1
+		fast_profile = 2
+
+		abovePos = list(map(add, source_location, self.above))
+
+		self.move_all_joints_neutral(source_location)
+		self.send_command(self.create_move_joint_command(abovePos, fast_profile, False, True))
+		self.send_command(self.create_move_joint_command(source_location, fast_profile, False, True))
+			
+		self.grab_plate(self.plate_width,100,10)
+		self.move_in_one_axis(profile = 1, axis_x = 0, axis_y = 0, axis_z = 60)
+		self.move_all_joints_neutral(source_location)
+
+		# TODO: USE BELOW MOVE_ONE_AXIS FUNCTIONS TO MOVE ABOVE AND FRONT OF THE EACH TARGET LOCATIONS
+		# self.move_in_one_axis_from_target(target_location, profile = 2, axis_x = 60, axis_y = 0, axis_z = 60)
+		# self.move_in_one_axis_from_target(target_location, profile = 1, axis_x = 0, axis_y = 0, axis_z = 60)
+
+	def place_plate(self, target_location):
+		"""
+        Description: 
+        """
+		slow_profile = 1
+		fast_profile = 2
+
+		abovePos = list(map(add, target_location, self.above))
+
+		self.move_all_joints_neutral(target_location)
+		self.send_command(self.create_move_joint_command(abovePos, slow_profile))
+		self.send_command(self.create_move_joint_command(target_location, slow_profile))
+		self.release_plate()
+		self.move_in_one_axis(profile = 1, axis_x = 0, axis_y = 0, axis_z = 60)
+		self.move_all_joints_neutral(target_location)
 
 	def transfer(self, source:list, target:list, source_plate_rotation:str = "", target_plate_rotation:str= ""):
 		"""
