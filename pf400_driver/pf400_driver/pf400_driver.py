@@ -817,7 +817,7 @@ class PF400():
 
 		if rotation_degree < 0:
 			target = self.set_plate_rotation(target, -rotation_degree)
-			target[0]+=5
+			target[0]+= 5
 
 		abovePos = list(map(add, target, self.above))
 
