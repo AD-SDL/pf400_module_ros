@@ -839,20 +839,23 @@ class PF400():
 		self.move_in_one_axis(profile = 1, axis_x = 0, axis_y = 0, axis_z = 60)
 		self.move_all_joints_neutral(target)
 
-	def check_incorrect_plate_oriantation(self, goal_location, goal_rotation):
+	def check_incorrect_plate_orientation(self, goal_location, goal_rotation):
 		"""
-		Description: Fixes plate rotation on the goal location if it was recorded with an incorrect oriantation.
+		Description: Fixes plate rotation on the goal location if it was recorded with an incorrect orientation.
 		Parameters: - goal_location
 					- goal_roatation
 		Return: 
-			goal_location: - New goal location if the incorrect oriantation was found.
-						   - Same goal location if there oriantation was correct.
+			goal_location: - New goal location if the incorrect orientation was found.
+						   - Same goal location if there orientation was correct.
 		"""
-		# This will fix plate rotation on the goal location if it was recorded with an incorrect oriantation
+		# This will fix plate rotation on the goal location if it was recorded with an incorrect orientation
 		cartesian_goal, phi_source, rail_source = self.forward_kinematics(goal_location)
-
+		
+		# Checking yaw angle
 		if goal_rotation != 0 and cartesian_goal[3] > -10 and cartesian_goal[3] < 10:
 			goal_location = self.set_plate_rotation(goal_location, -goal_rotation)
+
+		return goal_location	
 
 
 	def transfer(self, source:list, target:list, source_plate_rotation:int = 0, target_plate_rotation:int = 0):
@@ -870,8 +873,8 @@ class PF400():
 		self.plate_source_rotation = source_plate_rotation
 		self.plate_target_rotation = target_plate_rotation
 
-		source = self.check_incorrect_plate_oriantation(source, source_plate_rotation)
-		target = self.check_incorrect_plate_oriantation(target, target_plate_rotation)
+		source = self.check_incorrect_plate_orientation(source, source_plate_rotation)
+		target = self.check_incorrect_plate_orientation(target, target_plate_rotation)
 
 		self.force_initialize_robot()
 		self.pick_plate(source)
