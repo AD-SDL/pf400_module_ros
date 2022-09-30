@@ -828,9 +828,8 @@ class PF400():
 		self.move_in_one_axis(profile = 1, axis_x = 0, axis_y = 0, axis_z = 60)
 
 		# Ratating gripper to grab the plate from other rotation
-		if rotation_degree < 0 :
-			target[0]-= 5
-
+		if rotation_degree < 0 :	
+			target[0] -= 5
 		target = self.set_plate_rotation(target, rotation_degree)
 		
 		abovePos = list(map(add, target, self.above))
@@ -839,6 +838,18 @@ class PF400():
 		self.grab_plate(self.plate_width,100,10)
 		self.move_in_one_axis(profile = 1, axis_x = 0, axis_y = 0, axis_z = 60)
 		self.move_all_joints_neutral(target)
+
+	def check_incorrect_plate_oriantation(self, goal_location):
+
+
+		# These two will fix plate rotation on the deck
+		cartesian_source, phi_source, rail_source = self.forward_kinematics(source)
+
+		if self.plate_source_rotation != 0 and cartesian_source[3] > -10 and cartesian_source[3] < 10:
+			source = self.set_plate_rotation(source, -self.plate_source_rotation)
+		
+		if self.plate_target_rotation != 0 and cartesian_target[3] > -10 and cartesian_target[3] < 10: 
+			target = self.set_plate_rotation(target, -self.plate_target_rotation)
 
 	def transfer(self, source:list, target:list, source_plate_rotation:int = 0, target_plate_rotation:int = 0):
 		"""
@@ -852,17 +863,11 @@ class PF400():
 		Note: Plate rotation defines the rotation of the plate on the deck, not the grabing angle.
 		
         """
-
 		self.plate_source_rotation = source_plate_rotation
 		self.plate_target_rotation = target_plate_rotation
 
-		# These two will fix plate rotation on the deck
-		if self.plate_source_rotation != 0 and source[3] > 400 and source[3] < 570:
-			source = self.set_plate_rotation(source, -self.plate_source_rotation)
-		
-		if self.plate_target_rotation != 0 and target[3] > 400 and target[3] < 570: 
-			target = self.set_plate_rotation(target, -self.plate_target_rotation)
-
+		source = self.check_incorrect_plate_oriantation(source)
+		target = self.check_incorrect_plate_oriantation(source)
 
 		self.force_initialize_robot()
 		self.pick_plate(source)
