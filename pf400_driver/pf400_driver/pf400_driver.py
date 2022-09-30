@@ -858,7 +858,7 @@ class PF400():
 		return goal_location	
 
 
-	def transfer(self, source:list, target:list, source_plate_rotation:int = 0, target_plate_rotation:int = 0):
+	def transfer(self, source:list, target:list, source_plate_rotation:str = "", target_plate_rotation:str= ""):
 		"""
         Description: Plate transfer function that performs series of movements to pick and place the plates
 		Parameters: 
@@ -870,11 +870,20 @@ class PF400():
 		Note: Plate rotation defines the rotation of the plate on the deck, not the grabing angle.
 		
         """
-		self.plate_source_rotation = source_plate_rotation
-		self.plate_target_rotation = target_plate_rotation
+		if source_plate_rotation.lower() == "wide":
+			self.plate_source_rotation = 90
 
-		source = self.check_incorrect_plate_orientation(source, source_plate_rotation)
-		target = self.check_incorrect_plate_orientation(target, target_plate_rotation)
+		elif source_plate_rotation.lower() == "narrow" or source_plate_rotation == "":
+			self.plate_source_rotation = 0
+
+		if target_plate_rotation.lower() == "wide":
+			self.plate_target_rotation = 90
+
+		elif target_plate_rotation.lower() == "narrow" or target_plate_rotation == "":
+			self.plate_target_rotation = 0
+
+		source = self.check_incorrect_plate_orientation(source, self.plate_source_rotation)
+		target = self.check_incorrect_plate_orientation(target, self.plate_target_rotation)
 
 		self.force_initialize_robot()
 		self.pick_plate(source)
