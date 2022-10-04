@@ -112,12 +112,12 @@ class PF400ClientNode(Node):
             if 'source_plate_rotation' not in vars.keys():
                 print("Setting source plate rotation to 0")
             else:
-                source_plate_rotation = vars.get('source_plate_rotation')
+                source_plate_rotation = str(vars.get('source_plate_rotation'))
 
             if 'target_plate_rotation' not in vars.keys():
                 print("Setting target plate rotation to 0")
             else:
-                target_plate_rotation = vars.get('target_plate_rotation') 
+                target_plate_rotation = str(vars.get('target_plate_rotation'))
 
             source = vars.get('source')
             print("Source location: ", source)
