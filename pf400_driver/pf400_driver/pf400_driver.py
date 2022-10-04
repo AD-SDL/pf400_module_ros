@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import rclpy
+# import rclpy
 import profile
 import telnetlib
 import threading
@@ -9,8 +9,8 @@ import math
 from operator import add
 from time import sleep
 
-from pf400_driver.motion_profiles import motion_profiles
-from pf400_driver.error_codes import error_codes
+from motion_profiles import motion_profiles
+from error_codes import error_codes
 
 class PF400():
 	commandLock = threading.Lock()
@@ -409,9 +409,11 @@ class PF400():
 		cartesian_coordinates, phi_angle, rail_pos = self.forward_kinematics(joint_states)
 
 		if rotation_degree == -90: # Yaw 90 to 0 degrees:
-			cartesian_coordinates[1] += 27
+			cartesian_coordinates[1] += 29
+			cartesian_coordinates[0] -= 3.5
 		elif rotation_degree == 90:
-			cartesian_coordinates[1] -= 27
+			cartesian_coordinates[1] -= 29
+			cartesian_coordinates[0] += 3.5
 
 		if cartesian_coordinates[1] < 0:
 			#Location is on the right side of the robot
@@ -910,12 +912,17 @@ if __name__ == "__main__":
 	loc2 = [231.788, -27.154, 313.011, 342.317, 0.0, 683.702] #Sealer
 	pos1= [262.550, 20.608, 119.290, 662.570, 0.0, 574.367] #Hudson
 	pos2= [197.185, 59.736, 90.509, 566.953, 82.069, -65.550] #OT2
-	thermocycler = [277.638, 39.029, 74.413, 602.159, 78.980, -910.338]
+	thermocycler = [281.0, 4.271, 95.676, 706.535, 126, -916.454]  
+	thermo2 = [279.948, 40.849, 75.130, 598.739, 79.208, -916.456] 
 
-	robot.transfer(pos1, pos2, 0, 90)
+	robot.transfer(pos1, pos2, "narrow", "wide")
+	robot.transfer(pos2, thermo2, "wide", "wide")
+
+	robot.transfer(thermo2, pos1, "wide", "narrow")
+
 	# robot.transfer(pos2,pos1,90,0)
-	robot.transfer(pos2, loc2 ,90,0)
-	robot.transfer(loc2,pos1,0,0)
+	# robot.transfer(thermo2, pos1 ,"wide","narrow")
+	# robot.transfer(loc2,pos1,0,0)
 
 
 
