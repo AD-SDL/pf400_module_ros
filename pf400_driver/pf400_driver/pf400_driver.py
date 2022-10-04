@@ -409,9 +409,9 @@ class PF400():
 		cartesian_coordinates, phi_angle, rail_pos = self.forward_kinematics(joint_states)
 
 		if rotation_degree == -90: # Yaw 90 to 0 degrees:
-			cartesian_coordinates[1] += 28
+			cartesian_coordinates[1] += 27
 		elif rotation_degree == 90:
-			cartesian_coordinates[1] -= 28
+			cartesian_coordinates[1] -= 27
 
 		if cartesian_coordinates[1] < 0:
 			#Location is on the right side of the robot
