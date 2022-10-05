@@ -3,7 +3,6 @@ import cv2
 from time import sleep
 
 from threading import Thread
-
 from pf400_driver.pf400_driver import PF400
 qr_name = "TEST"
 
@@ -29,6 +28,7 @@ class CAMERA(PF400):
                           "sealer": [[231.788, -27.154, 313.011, 342.317, 0.0, 0.0],[-1]],
                           "Module1": [[0,0,0,0,0,0],[-1]],
                           "thermocycler": [[0,0,0,0,0,0],[-1]]}
+        self.module_lenght = 50.0
 
         self.start_location = self.get_joint_states()
         self.start_location[5] = -990
@@ -61,7 +61,6 @@ class CAMERA(PF400):
         # TODO: In defult locations use joint angles then update them with new joint angle locations
         # TODO: Assume that the defult locations are taken when all the modules where left side of the PF400
 
-        module_lenght = 50.0
         left_cam_data = self.cam_left_qr_name
         right_cam_data = self.cam_right_qr_name
         self.move_all_joints_neutral()
@@ -71,18 +70,31 @@ class CAMERA(PF400):
             self.scan_next_row()
 
             if self.cam_left_qr_name != left_cam_data and self.cam_left_qr_name in self.locations.keys():
-                self.locations[self.cam_left_qr_name][0] = self.calctulate_module_location(self.locations[self.cam_left_qr_name][0])
+                self.locations[self.cam_left_qr_name][0][5] = self.start_location[5]
                 self.locations[self.cam_left_qr_name][1][0] = 0 # Zero means this modules is found in the workcell
                 left_cam_data = self.cam_left_qr_name
+                print(self.locations[self.cam_left_qr_name][0])
 
             if self.cam_right_qr_name != right_cam_data and self.cam_right_qr_name in self.locations.keys():
-                reverse_target_on_x_axis = module_lenght - (self.locations[self.cam_right_qr_name][0][0] - self.robot_x_offset)
-                self.locations[self.cam_right_qr_name][0] = self.calctulate_module_location(self.locations[self.cam_right_qr_name][0], y_direction = -1, reverse_x = reverse_target_on_x_axis)
+                #TODO:Change this to a function (def reverse_module_location)
+                
+                cartesian,phi,rail = self.forward_kinematics(self.locations[self.cam_right_qr_name][0])
+                print(cartesian)
+                # print(cartesian[0] - rail)
+                reverse_target_on_x_axis = self.module_lenght - (cartesian[0] - rail)
+                # print(reverse_target_on_x_axis)
+                cartesian[0] = reverse_target_on_x_axis + self.start_location[5] # New x axis
+                cartesian[1] = -cartesian[1] #Switch arm from left to right on y axis
+                cartesian[3] -= 180 
+                # print(cartesian[2])
+                self.locations[self.cam_right_qr_name][0] = self.inverse_kinematics(cartesian, phi, self.start_location[5])
+                print(self.locations[self.cam_right_qr_name][0])
                 self.locations[self.cam_right_qr_name][1][0] = 0
+                
                 right_cam_data = self.cam_right_qr_name
 
             self.start_location[5] += 660
-                     
+
         print("Workcell exploration completed")
 
         return self.locations
@@ -118,9 +130,6 @@ class CAMERA(PF400):
         return target_loc
 
         
-
-
-
 if __name__ == "__main__":
 
     cam = CAMERA()

@@ -15,7 +15,7 @@ class KINEMATICS():
         """
         Desciption: Calculates the forward kinematics for a given array of joint_states. 
         Paramiters:
-            - joint_states : 6 joint states of the target location/
+            - joint_states : 6 joint states of the target location
         Return:
             - cartesian_coordinates: Returns the calculated cartesian coordinates of the given joint states
             - phi: Phi angle in degress to be used for inverse kinematics
@@ -60,7 +60,7 @@ class KINEMATICS():
 
         return cartesian_coordinates, round(phi,3), joint_states[5] 
 
-    def inverse_kinematics(self, cartesian_coordinates:list, phi:float, rail:float = 0):
+    def inverse_kinematics(self, cartesian_coordinates:list, phi:float, rail:float = 0.0):
 
         """
         Desciption: Calculates the inverse kinematics for a given array of cartesian coordinates. 
