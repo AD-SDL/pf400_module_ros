@@ -14,7 +14,6 @@ from pf400_driver.error_codes import error_codes
 from pf400_driver.pf400_kinematics import KINEMATICS
 
 class PF400(KINEMATICS):
-	super.__init__()
 	commandLock = threading.Lock()
 
 	def __init__(self, host= "192.168.50.50", port = 10100, mode = 0):
@@ -28,6 +27,7 @@ class PF400(KINEMATICS):
 			- If a second motion command is sent while the referenced robot is moving, the second command is blocked and will not reply until the first motion is complete.
 
         """
+		super().__init__() # PF40 kinematics
 
 		print("Initializing connection...")
 		self.host = host
@@ -377,7 +377,6 @@ class PF400(KINEMATICS):
 			out_msg2 = self.send_command(profile2)
 
 		elif len(profile_dict) == 8:
-
 
 			profile3 = 'Profile 3'
 			for key, value in profile_dict.items():

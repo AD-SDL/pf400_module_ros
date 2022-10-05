@@ -5,13 +5,14 @@ from time import sleep
 from threading import Thread
 
 from pf400_driver.pf400_driver import PF400
-
 qr_name = "TEST"
 
-class CAMERA():
+class CAMERA(PF400):
 
     def __init__(self):
-            
+
+        super().__init__("192.168.50.50", 10100)    
+
         self.scanner = cv2.VideoCapture(0)
         self.detector = cv2.QRCodeDetector()
         (self.grabbed, self.frame) = self.scanner.read()
@@ -29,8 +30,7 @@ class CAMERA():
                           "Module1": [[0,0,0,0,0,0],[-1]],
                           "thermocycler": [[0,0,0,0,0,0],[-1]]}
 
-        self.robot = PF400("192.168.50.50", 10100)
-        self.start_location = self.robot.get_joint_states()
+        self.start_location = self.get_joint_states()
         self.start_location[5] = -990
 
     def scan_qr_code(self):  
@@ -64,7 +64,7 @@ class CAMERA():
         module_lenght = 50.0
         left_cam_data = self.cam_left_qr_name
         right_cam_data = self.cam_right_qr_name
-        self.robot.move_all_joints_neutral()
+        self.move_all_joints_neutral()
 
         for i in range(4):
 
@@ -76,7 +76,7 @@ class CAMERA():
                 left_cam_data = self.cam_left_qr_name
 
             if self.cam_right_qr_name != right_cam_data and self.cam_right_qr_name in self.locations.keys():
-                reverse_target_on_x_axis = module_lenght - (self.locations[self.cam_right_qr_name][0][0] - self.robot.robot_x_offset)
+                reverse_target_on_x_axis = module_lenght - (self.locations[self.cam_right_qr_name][0][0] - self.robot_x_offset)
                 self.locations[self.cam_right_qr_name][0] = self.calctulate_module_location(self.locations[self.cam_right_qr_name][0], y_direction = -1, reverse_x = reverse_target_on_x_axis)
                 self.locations[self.cam_right_qr_name][1][0] = 0
                 right_cam_data = self.cam_right_qr_name
@@ -90,7 +90,7 @@ class CAMERA():
     def scan_next_row(self):
 
         # Move to next row
-        self.robot.send_command(self.robot.create_move_joint_command(self.start_location, 2, True, False))
+        self.send_command(self.create_move_joint_command(self.start_location, 2, True, False))
         # Scan the next row
         self.scan_qr_code()
 
@@ -99,14 +99,14 @@ class CAMERA():
     def calctulate_module_location(self, target_loc, y_direction = 1, reverse_x = 0.0, offset_y = 0.0):
         
         if reverse_x != 0:
-            x = reverse_x # Add self.robot.robot_x_offset here ???
+            x = reverse_x # Add self.robot_x_offset here ???
         else:    
             x = target_loc[0] 
         y = (target_loc[1] + offset_y) * y_direction
         z = target_loc[2]
         phi = target_loc[3]
 
-        target_joint_angles = self.robot.inverse_kinematics(x,y,z,phi)
+        target_joint_angles = self.inverse_kinematics(x,y,z,phi)
         
         target_loc[0] = target_loc[2] # Setting z hight as the first joint angle for the tower
         target_loc[1] = target_joint_angles[0][0]
