@@ -478,7 +478,7 @@ class PF400(KINEMATICS):
 		# First move robot on linear rail
 		current_joint_state = self.get_joint_states()
 		current_joint_state[5] = target_location[5]
-		self.send_command(self.move_joint(current_joint_state))
+		self.move_joint(current_joint_state)
 
 		# Find the cartesian coordinates of the target joint states
 		cartesian_coordinates = self.forward_kinematics(target_location)
@@ -623,7 +623,7 @@ class PF400(KINEMATICS):
 		gripper_neutral = self.get_joint_states()
 		gripper_neutral[3] = 536.757
 
-		self.send_command(self.move_joint(gripper_neutral,1))
+		self.move_joint(gripper_neutral,1)
 
 
 	def move_arm_neutral(self):
@@ -636,7 +636,7 @@ class PF400(KINEMATICS):
 		arm_neutral[5] = current_location[5]
 	
 
-		self.send_command(self.move_joint(arm_neutral, 1))
+		self.move_joint(arm_neutral, 1)
 
 	def move_rails_neutral(self, v_rail:float = None, h_rail:float = None):
 		# Setting the target location's linear rail position for pf400_neutral 
@@ -651,7 +651,7 @@ class PF400(KINEMATICS):
 		self.neutral_joints[0] = v_rail + 60.0
 		self.neutral_joints[5] = h_rail
 
-		self.send_command(self.move_joint(self.neutral_joints))
+		self.move_joint(self.neutral_joints)
 
 	def move_all_joints_neutral(self, target_location = None):
 		"""
@@ -678,8 +678,8 @@ class PF400(KINEMATICS):
 		abovePos = list(map(add, target, self.above))
 
 		self.move_all_joints_neutral(target)
-		self.send_command(self.move_joint(abovePos, 1))
-		self.send_command(self.move_joint(target, 1))
+		self.move_joint(abovePos, 1)
+		self.move_joint(target, 1)
 		self.release_plate()
 		self.move_in_one_axis(profile = 1, axis_x = 0, axis_y = 0, axis_z = 60)
 
@@ -689,8 +689,8 @@ class PF400(KINEMATICS):
 		target = self.set_plate_rotation(target, rotation_degree)
 		
 		abovePos = list(map(add, target, self.above))
-		self.send_command(self.move_joint(abovePos, 1))
-		self.send_command(self.move_joint(target, 1, False, True))
+		self.move_joint(abovePos, 1)
+		self.move_joint(target, 1, False, True)
 		self.grab_plate(self.plate_width,100,10)
 		self.move_in_one_axis(profile = 1, axis_x = 0, axis_y = 0, axis_z = 60)
 		self.move_all_joints_neutral(target)
