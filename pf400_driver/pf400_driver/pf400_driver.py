@@ -53,11 +53,6 @@ class PF400(KINEMATICS):
 		self.connect()
 		self.init_connection_mode()
 		self.force_initialize_robot()
-		
-		# Robot kinematics
-		# self.shoulder_lenght = 302
-		# self.elbow_lenght = 289
-		# self.end_effector_lenght = 162
 
 		# Gripper variables
 		self.gripper_open_state = 130.0
@@ -208,39 +203,6 @@ class PF400(KINEMATICS):
 
 		return out_msg
 
-	def set_profile(self, wait:int = 0.1, profile_dict:dict = {"0":0}):
-		"""
-		Decription: Sets and saves the motion profiles (defined in robot data) to the robot. 
-					If user defines a custom profile, this profile will saved onto motion profile 3 on the robot
-		Parameters: 
-				- profile_dict: Custom motion profile
-		"""  
-		if len(profile_dict) == 1:
-			
-			cmd = 'Profile 1'
-			for key, value in self.motion_profiles[0].items():
-				cmd += ' ' + str(value)
-			cmd2 = 'Profile 2'
-			for key, value in self.motion_profiles[1].items():
-				cmd2 += ' ' + str(value)
-		
-
-			out_msg = self.send_command(cmd)
-			out_msg2 = self.send_command(cmd2)
-
-		elif len(profile_dict) == 8:
-
-
-			cmd = 'Profile 3'
-			for key, value in profile_dict.items():
-				cmd += ' ' + str(value)
-
-			out_msg = self.send_command(cmd)
-			
-		else:
-			raise Exception("Motion profile takes 8 arguments, {} where given".format(len(profile_dict)))
-
-		return out_msg 
 
 	def initialize_robot(self):
 		"""
@@ -280,7 +242,22 @@ class PF400(KINEMATICS):
 			print("Robot is not intilized! Intilizing now...")
 			self.initialize_robot()
 			self.force_initialize_robot()
-
+	
+	def refresh_joint_state(self):
+		"""
+        Description: 
+        """
+		joint_array = self.get_joint_states()
+		multipliers = [
+			0.001,			# J1, Z
+			math.pi / 180,	# J2, shoulder
+			math.pi / 180,	# J3, elbow
+			math.pi / 180,	# J4, wrist
+			0.0005, 		# J5, gripper (urdf is 1/2 scale)
+			0.0005, 		# J6, rail
+		]
+		self.joint_state.raw_position = joint_array
+		self.joint_state.position = [state * multiplier for state, multiplier in zip(joint_array, multipliers)]
 	# GET COMMANDS
 
 	def get_robot_movement_state(self):
@@ -353,22 +330,6 @@ class PF400(KINEMATICS):
 		joints = joints[1:] 
 		return [float(x) for x in joints]
 
-	def refresh_joint_state(self):
-		"""
-        Description: 
-        """
-		joint_array = self.get_joint_states()
-		multipliers = [
-			0.001,			# J1, Z
-			math.pi / 180,	# J2, shoulder
-			math.pi / 180,	# J3, elbow
-			math.pi / 180,	# J4, wrist
-			0.0005, 		# J5, gripper (urdf is 1/2 scale)
-			0.0005, 		# J6, rail
-		]
-		self.joint_state.raw_position = joint_array
-		self.joint_state.position = [state * multiplier for state, multiplier in zip(joint_array, multipliers)]
-
 	def get_cartesian_coordinates(self):
 		"""
         Description: This function finds the current cartesian coordinates and angles of the robot.
@@ -394,6 +355,40 @@ class PF400(KINEMATICS):
 		return joint_angles[4]
 
 	# SET COMMANDS
+	
+	def set_profile(self, wait:int = 0.1, profile_dict:dict = {"0":0}):
+		"""
+		Decription: Sets and saves the motion profiles (defined in robot data) to the robot. 
+					If user defines a custom profile, this profile will saved onto motion profile 3 on the robot
+		Parameters: 
+				- profile_dict: Custom motion profile
+		"""  
+		if len(profile_dict) == 1:
+			
+			profile1 = 'Profile 1'
+			for key, value in self.motion_profiles[0].items():
+				profile1 += ' ' + str(value)
+			profile2 = 'Profile 2'
+			for key, value in self.motion_profiles[1].items():
+				profile2 += ' ' + str(value)
+		
+
+			out_msg = self.send_command(profile1)
+			out_msg2 = self.send_command(profile2)
+
+		elif len(profile_dict) == 8:
+
+
+			profile3 = 'Profile 3'
+			for key, value in profile_dict.items():
+				profile3 += ' ' + str(value)
+
+			out_msg = self.send_command(profile3)
+			
+		else:
+			raise Exception("Motion profile takes 8 arguments, {} where given".format(len(profile_dict)))
+
+		return out_msg 
 
 	def set_gripper_open(self):
 		self.send_command("GripOpenPos " + str(self.gripper_open_state))
@@ -426,14 +421,26 @@ class PF400(KINEMATICS):
 		new_joint_angles = self.inverse_kinematics(cartesian_coordinates, phi_angle, rail_pos)
 
 		return new_joint_angles
+		
+	def check_incorrect_plate_orientation(self, goal_location, goal_rotation):
+		"""
+		Description: Fixes plate rotation on the goal location if it was recorded with an incorrect orientation.
+		Parameters: - goal_location
+					- goal_roatation
+		Return: 
+			goal_location: - New goal location if the incorrect orientation was found.
+						   - Same goal location if there orientation was correct.
+		"""
+		# This will fix plate rotation on the goal location if it was recorded with an incorrect orientation
+		cartesian_goal, phi_source, rail_source = self.forward_kinematics(goal_location)
+		self.forward_kinematics()
+		# Checking yaw angle
+		if goal_rotation != 0 and cartesian_goal[3] > -10 and cartesian_goal[3] < 10:
+			goal_location = self.set_plate_rotation(goal_location, -goal_rotation)
+
+		return goal_location	
 
 	# MOVE COMMANDS
-	def move_cartesian(self, target_cartesian_coordinates, profile:int =2):
-
-		move_command = "MoveC"+ " " + str(profile) + " " + " ".join(map(str, target_cartesian_coordinates))
-
-		return self.send_command(move_command)
-
 	def move_joint(self, target_joint_angles, profile:int = 1, gripper_close: bool = False, gripper_open: bool = False):
 		"""
 		Description: Creates the movement commands with the given robot_location, profile, gripper closed and gripper open info
@@ -462,6 +469,11 @@ class PF400(KINEMATICS):
 
 		return self.send_command(move_command)		
 
+	def move_cartesian(self, target_cartesian_coordinates, profile:int =2):
+
+		move_command = "MoveC"+ " " + str(profile) + " " + " ".join(map(str, target_cartesian_coordinates))
+
+		return self.send_command(move_command)
 	
 
 	def move_in_one_axis_from_target(self, target_location, profile:int = 1, axis_x:int= 0,axis_y:int= 0, axis_z:int= 0):
@@ -555,11 +567,11 @@ class PF400(KINEMATICS):
 		Description: 
 			Release the plate 
 		Parameters:
-			- width: Open width, in mm.
+			- width: Open width, in mm. Larger than the widest corners of the plates.
 			- speed: Percent speed to open fingers.  1 to 100.
 		Returns:
-			- Plate released
-			- 
+			- release_plate_status == "0" -> Plate released
+			- release_plate_status == "1" -> Plate is not released
 		"""
 
 		release_plate_status = self.send_command("ReleasePlate " + str(width)+ " " + str(speed)).split(" ")
@@ -592,7 +604,7 @@ class PF400(KINEMATICS):
 					- target: Target location to move the sigle joint 
 					
 		"""
-		self.send_command("moveoneaxis " + str(joint_num) + str(target) + str(profile)) 
+		return self.send_command("moveoneaxis " + str(joint_num) + str(target) + str(profile)) 
 
 	def move_multiple_joint(self, target1, target2):
 		""" Moves extra two joints to their targets"""
@@ -666,14 +678,17 @@ class PF400(KINEMATICS):
 		# Setting the target location's linear rail position for pf400_neutral 
 		self.move_rails_neutral(target_location[0],target_location[5])
 
-	def rotate_plate_on_deck(self, rotation_degree):
-		"""Uses the deck to ratate the plate between two transfers"""
+	def rotate_plate_on_deck(self, rotation_degree:int):
+		"""
+		Description: Uses the rotation deck to ratate the plate between two transfers
+		Parameters: - rotation_degree: Rotation degree.
+		"""
 		target = self.plate_ratation_deck
-
-
+		
+		# Fixing the offset on the z axis
 		if rotation_degree < 0:
 			target = self.set_plate_rotation(target, -rotation_degree)
-			target[0]+= 5
+			target[0] += 5 #Setting vertical rail 5 mm higher
 
 		abovePos = list(map(add, target, self.above))
 
@@ -682,10 +697,12 @@ class PF400(KINEMATICS):
 		self.move_joint(target, 1)
 		self.release_plate()
 		self.move_in_one_axis(profile = 1, axis_x = 0, axis_y = 0, axis_z = 60)
+		
+		# Fixing the offset on the z axis
+		if rotation_degree < 0 :	
+			target[0] -= 5 #Setting vertical rail 5 mm lower
 
 		# Ratating gripper to grab the plate from other rotation
-		if rotation_degree < 0 :	
-			target[0] -= 5
 		target = self.set_plate_rotation(target, rotation_degree)
 		
 		abovePos = list(map(add, target, self.above))
@@ -695,23 +712,6 @@ class PF400(KINEMATICS):
 		self.move_in_one_axis(profile = 1, axis_x = 0, axis_y = 0, axis_z = 60)
 		self.move_all_joints_neutral(target)
 
-	def check_incorrect_plate_orientation(self, goal_location, goal_rotation):
-		"""
-		Description: Fixes plate rotation on the goal location if it was recorded with an incorrect orientation.
-		Parameters: - goal_location
-					- goal_roatation
-		Return: 
-			goal_location: - New goal location if the incorrect orientation was found.
-						   - Same goal location if there orientation was correct.
-		"""
-		# This will fix plate rotation on the goal location if it was recorded with an incorrect orientation
-		cartesian_goal, phi_source, rail_source = self.forward_kinematics(goal_location)
-		self.forward_kinematics()
-		# Checking yaw angle
-		if goal_rotation != 0 and cartesian_goal[3] > -10 and cartesian_goal[3] < 10:
-			goal_location = self.set_plate_rotation(goal_location, -goal_rotation)
-
-		return goal_location	
 
 	def pick_plate(self, source_location):
 		"""
@@ -723,8 +723,8 @@ class PF400(KINEMATICS):
 		abovePos = list(map(add, source_location, self.above))
 
 		self.move_all_joints_neutral(source_location)
-		self.send_command(self.move_joint(abovePos, fast_profile, False, True))
-		self.send_command(self.move_joint(source_location, fast_profile, False, True))
+		self.move_joint(abovePos, fast_profile, False, True)
+		self.move_joint(source_location, fast_profile, False, True)
 			
 		self.grab_plate(self.plate_width,100,10)
 		self.move_in_one_axis(profile = 1, axis_x = 0, axis_y = 0, axis_z = 60)
@@ -744,8 +744,8 @@ class PF400(KINEMATICS):
 		abovePos = list(map(add, target_location, self.above))
 
 		self.move_all_joints_neutral(target_location)
-		self.send_command(self.move_joint(abovePos, slow_profile))
-		self.send_command(self.move_joint(target_location, slow_profile))
+		self.move_joint(abovePos, slow_profile)
+		self.move_joint(target_location, slow_profile)
 		self.release_plate()
 		self.move_in_one_axis(profile = 1, axis_x = 0, axis_y = 0, axis_z = 60)
 		self.move_all_joints_neutral(target_location)
@@ -789,8 +789,8 @@ class PF400(KINEMATICS):
 			self.rotate_plate_on_deck(-self.plate_source_rotation)
 
 		if self.plate_source_rotation == 0 and self.plate_target_rotation != 0:
-			self.rotate_plate_on_deck(self.plate_target_rotation)
 			# Need a transition from 0 degree to 90 degree
+			self.rotate_plate_on_deck(self.plate_target_rotation)
 
 		self.place_plate(target)
 
