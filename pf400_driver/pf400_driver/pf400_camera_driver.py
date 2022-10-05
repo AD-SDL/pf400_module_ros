@@ -28,7 +28,7 @@ class CAMERA(PF400):
                           "sealer": [[231.788, -27.154, 313.011, 342.317, 0.0, 0.0],[-1]],
                           "Module1": [[0,0,0,0,0,0],[-1]],
                           "thermocycler": [[0,0,0,0,0,0],[-1]]}
-        self.module_lenght = 50.0
+        self.module_lenght = 500.0
 
         self.start_location = self.get_joint_states()
         self.start_location[5] = -990
@@ -60,6 +60,8 @@ class CAMERA(PF400):
         # TODO: Find the target locations with respect to the origin locations
         # TODO: In defult locations use joint angles then update them with new joint angle locations
         # TODO: Assume that the defult locations are taken when all the modules where left side of the PF400
+        # TODO: Find module lenght and update it in the code
+        # TODO: Figure out how to deal with rotation offset on the -180 rotation
 
         left_cam_data = self.cam_left_qr_name
         right_cam_data = self.cam_right_qr_name
@@ -77,7 +79,7 @@ class CAMERA(PF400):
 
             if self.cam_right_qr_name != right_cam_data and self.cam_right_qr_name in self.locations.keys():
                 #TODO:Change this to a function (def reverse_module_location)
-                
+
                 cartesian,phi,rail = self.forward_kinematics(self.locations[self.cam_right_qr_name][0])
                 print(cartesian)
                 # print(cartesian[0] - rail)
