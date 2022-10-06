@@ -680,6 +680,7 @@ class PF400(KINEMATICS):
 
 	def remove_lid(self, target, target_plate_rotation):
 		"""Remove the lid from the plate"""
+		# TODO: TAKE PLATE TYPE AS A VARAIBLE TO CALCULATE LID HIGHT
 		self.force_initialize_robot()
 
 		if target_plate_rotation.lower() == "wide":
@@ -692,9 +693,10 @@ class PF400(KINEMATICS):
 		self.pick_plate(target)
 		self.place_plate(self.plate_lid_deck)
 
-
 	def replace_lid(self, target, target_plate_rotation):
-		"""Replae the lid on the plate"""
+		"""Replace the lid on the plate"""
+		# TODO: TAKE PLATE TYPE AS A VARAIBLE TO CALCULATE LID HIGHT
+
 		self.force_initialize_robot()
 
 		if target_plate_rotation.lower() == "wide":
@@ -709,7 +711,7 @@ class PF400(KINEMATICS):
 
 	def rotate_plate_on_deck(self, rotation_degree:int):
 		"""
-		Description: Uses the rotation deck to ratate the plate between two transfers
+		Description: Uses the rotation deck to rotate the plate between two transfers
 		Parameters: - rotation_degree: Rotation degree.
 		"""
 		target = self.plate_ratation_deck
