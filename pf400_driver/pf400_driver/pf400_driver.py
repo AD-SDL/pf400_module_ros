@@ -78,6 +78,7 @@ class PF400(KINEMATICS):
 		self.plate_source_rotation = 0 # 90 to rotate 90 degrees
 		self.plate_target_rotation = 0 # 90 to rotate 90 degrees
 		self.plate_ratation_deck = [262.550, 20.608, 119.290, 662.570, 0.0, 574.367] # Set Sciclops location for now
+		self.plate_lid_deck = [262.550, 20.608, 119.290, 662.570, 0.0, 574.367] # Set Sciclops location for now
 
 	def connect(self):
 		"""
@@ -676,6 +677,35 @@ class PF400(KINEMATICS):
 		self.move_arm_neutral()
 		# Setting the target location's linear rail position for pf400_neutral 
 		self.move_rails_neutral(target_location[0],target_location[5])
+
+	def remove_lid(self, target, target_plate_rotation):
+		"""Remove the lid from the plate"""
+		self.force_initialize_robot()
+
+		if target_plate_rotation.lower() == "wide":
+			self.plate_target_rotation = 90
+		elif target_plate_rotation.lower() == "narrow" or target_plate_rotation == "":
+			self.plate_target_rotation = 0
+		
+		target = self.check_incorrect_plate_orientation(target, self.plate_target_rotation)
+		target[0] += 10
+		self.pick_plate(target)
+		self.place_plate(self.plate_lid_deck)
+
+
+	def replace_lid(self, target, target_plate_rotation):
+		"""Replae the lid on the plate"""
+		self.force_initialize_robot()
+
+		if target_plate_rotation.lower() == "wide":
+			self.plate_target_rotation = 90
+		elif target_plate_rotation.lower() == "narrow" or target_plate_rotation == "":
+			self.plate_target_rotation = 0
+
+		self.pick_plate(self.plate_lid_deck)
+		target = self.check_incorrect_plate_orientation(target, self.plate_target_rotation)
+		target[0] += 10
+		self.place_plate(target)
 
 	def rotate_plate_on_deck(self, rotation_degree:int):
 		"""
