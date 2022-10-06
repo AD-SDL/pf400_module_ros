@@ -130,6 +130,7 @@ class CAMERA(PF400):
         target_loc[5] = self.start_location[5] 
         
         return target_loc
+        pass
 
         
 if __name__ == "__main__":
