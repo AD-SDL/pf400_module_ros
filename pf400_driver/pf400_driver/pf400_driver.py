@@ -1,17 +1,18 @@
 #!/usr/bin/env python3
 
-import rclpy
+# import rclpy
 import profile
 import telnetlib
 import threading
+import copy
 
 import math
 from operator import add
 from time import sleep
 
-from pf400_driver.motion_profiles import motion_profiles
-from pf400_driver.error_codes import error_codes
-from pf400_driver.pf400_kinematics import KINEMATICS
+from motion_profiles import motion_profiles
+from error_codes import error_codes
+from pf400_kinematics import KINEMATICS
 
 class PF400(KINEMATICS):
 	commandLock = threading.Lock()
@@ -78,7 +79,7 @@ class PF400(KINEMATICS):
 		self.plate_source_rotation = 0 # 90 to rotate 90 degrees
 		self.plate_target_rotation = 0 # 90 to rotate 90 degrees
 		self.plate_ratation_deck = [262.550, 20.608, 119.290, 662.570, 0.0, 574.367] # Set Sciclops location for now
-		self.plate_lid_deck = [262.550, 20.608, 119.290, 662.570, 0.0, 574.367] # Set Sciclops location for now
+		self.plate_lid_deck = [260.550, 20.608, 119.290, 662.570, 0.0, 574.367] # Set Sciclops location for now
 
 	def connect(self):
 		"""
@@ -433,7 +434,6 @@ class PF400(KINEMATICS):
 		"""
 		# This will fix plate rotation on the goal location if it was recorded with an incorrect orientation
 		cartesian_goal, phi_source, rail_source = self.forward_kinematics(goal_location)
-		self.forward_kinematics()
 		# Checking yaw angle
 		if goal_rotation != 0 and cartesian_goal[3] > -10 and cartesian_goal[3] < 10:
 			goal_location = self.set_plate_rotation(goal_location, -goal_rotation)
@@ -678,35 +678,48 @@ class PF400(KINEMATICS):
 		# Setting the target location's linear rail position for pf400_neutral 
 		self.move_rails_neutral(target_location[0],target_location[5])
 
-	def remove_lid(self, target, target_plate_rotation):
+	def remove_lid(self, target_loc, target_plate_rotation:str = ""):
 		"""Remove the lid from the plate"""
 		# TODO: TAKE PLATE TYPE AS A VARAIBLE TO CALCULATE LID HIGHT
+		target = copy.deepcopy(target_loc)
 		self.force_initialize_robot()
 
 		if target_plate_rotation.lower() == "wide":
 			self.plate_target_rotation = 90
+
 		elif target_plate_rotation.lower() == "narrow" or target_plate_rotation == "":
-			self.plate_target_rotation = 0
+			self.plate_target_rotation = 0	
 		
 		target = self.check_incorrect_plate_orientation(target, self.plate_target_rotation)
-		target[0] += 10
+		target[0] += 7
 		self.pick_plate(target)
+
+		if self.plate_target_rotation == 90:
+			# Need a transition from 90 degree to 0 degree
+			self.rotate_plate_on_deck(-self.plate_target_rotation)
+
 		self.place_plate(self.plate_lid_deck)
 
-	def replace_lid(self, target, target_plate_rotation):
+	def replace_lid(self, target_loc, target_plate_rotation:str = ""):
 		"""Replace the lid on the plate"""
 		# TODO: TAKE PLATE TYPE AS A VARAIBLE TO CALCULATE LID HIGHT
+		target = copy.deepcopy(target_loc)
 
 		self.force_initialize_robot()
 
 		if target_plate_rotation.lower() == "wide":
 			self.plate_target_rotation = 90
+
 		elif target_plate_rotation.lower() == "narrow" or target_plate_rotation == "":
 			self.plate_target_rotation = 0
 
 		self.pick_plate(self.plate_lid_deck)
+		if self.plate_target_rotation == 90:
+			# Need a transition from 90 degree to 0 degree
+			self.rotate_plate_on_deck(self.plate_target_rotation)
+
 		target = self.check_incorrect_plate_orientation(target, self.plate_target_rotation)
-		target[0] += 10
+		target[0] += 7
 		self.place_plate(target)
 
 	def rotate_plate_on_deck(self, rotation_degree:int):
@@ -717,7 +730,7 @@ class PF400(KINEMATICS):
 		target = self.plate_ratation_deck
 		
 		# Fixing the offset on the z axis
-		if rotation_degree < 0:
+		if rotation_degree == -90:
 			target = self.set_plate_rotation(target, -rotation_degree)
 			target[0] += 5 #Setting vertical rail 5 mm higher
 
@@ -730,7 +743,7 @@ class PF400(KINEMATICS):
 		self.move_in_one_axis(profile = 1, axis_x = 0, axis_y = 0, axis_z = 60)
 		
 		# Fixing the offset on the z axis
-		if rotation_degree < 0 :	
+		if rotation_degree == -90 :	
 			target[0] -= 5 #Setting vertical rail 5 mm lower
 
 		# Ratating gripper to grab the plate from other rotation
@@ -754,9 +767,8 @@ class PF400(KINEMATICS):
 		abovePos = list(map(add, source_location, self.above))
 
 		self.move_all_joints_neutral(source_location)
-		self.move_joint(abovePos, fast_profile, False, True)
+		self.move_joint(abovePos, fast_profile)
 		self.move_joint(source_location, fast_profile, False, True)
-			
 		self.grab_plate(self.plate_width,100,10)
 		self.move_in_one_axis(profile = 1, axis_x = 0, axis_y = 0, axis_z = 60)
 		self.move_all_joints_neutral(source_location)
@@ -781,7 +793,7 @@ class PF400(KINEMATICS):
 		self.move_in_one_axis(profile = 1, axis_x = 0, axis_y = 0, axis_z = 60)
 		self.move_all_joints_neutral(target_location)
 
-	def transfer(self, source:list, target:list, source_plate_rotation:str = "", target_plate_rotation:str= ""):
+	def transfer(self, source_loc:list, target_loc:list, source_plate_rotation:str = "", target_plate_rotation:str= ""):
 		"""
         Description: Plate transfer function that performs series of movements to pick and place the plates
 		Parameters: 
@@ -793,20 +805,23 @@ class PF400(KINEMATICS):
 		Note: Plate rotation defines the rotation of the plate on the deck, not the grabing angle.
 		
         """
+		source = copy.deepcopy(source_loc)
+		target = copy.deepcopy(target_loc)
+
 		if source_plate_rotation.lower() == "wide":
-			self.plate_source_rotation = 90
+			plate_source_rotation = 90
 
 		elif source_plate_rotation.lower() == "narrow" or source_plate_rotation == "":
-			self.plate_source_rotation = 0
+			plate_source_rotation = 0
 
 		if target_plate_rotation.lower() == "wide":
-			self.plate_target_rotation = 90
+			plate_target_rotation = 90
 
 		elif target_plate_rotation.lower() == "narrow" or target_plate_rotation == "":
-			self.plate_target_rotation = 0
+			plate_target_rotation = 0
 
-		source = self.check_incorrect_plate_orientation(source, self.plate_source_rotation)
-		target = self.check_incorrect_plate_orientation(target, self.plate_target_rotation)
+		source = self.check_incorrect_plate_orientation(source, plate_source_rotation)
+		target = self.check_incorrect_plate_orientation(target, plate_target_rotation)
 
 		self.force_initialize_robot()
 		self.pick_plate(source)
@@ -815,13 +830,13 @@ class PF400(KINEMATICS):
 			print("Transfer cannot be completed, missing plate!")
 			return # Stopping transfer here
 
-		if self.plate_source_rotation != 0 and self.plate_target_rotation == 0:
+		if plate_source_rotation == 90 and plate_target_rotation == 0:
 			# Need a transition from 90 degree to 0 degree
-			self.rotate_plate_on_deck(-self.plate_source_rotation)
+			self.rotate_plate_on_deck(-plate_source_rotation)
 
-		if self.plate_source_rotation == 0 and self.plate_target_rotation != 0:
+		elif plate_source_rotation == 0 and plate_target_rotation == 90:
 			# Need a transition from 0 degree to 90 degree
-			self.rotate_plate_on_deck(self.plate_target_rotation)
+			self.rotate_plate_on_deck(plate_target_rotation)
 
 		self.place_plate(target)
 
@@ -832,15 +847,28 @@ if __name__ == "__main__":
 	loc1 = [262.550, 20.608, 119.290, 662.570, 126.0, 574.367] #Hudson
 	loc2 = [231.788, -27.154, 313.011, 342.317, 0.0, 683.702] #Sealer
 	pos1= [262.550, 20.608, 119.290, 662.570, 0.0, 574.367] #Hudson
+	pos11= [262.550, 20.608, 119.290, 662.570, 0.0, 574.367] #Hudson
+
 	pos2= [197.185, 59.736, 90.509, 566.953, 82.069, -65.550] #OT2
+	pos22= [197.185, 59.736, 90.509, 566.953, 82.069, -65.550] #OT2
+
 	thermocycler = [281.0, 4.271, 95.676, 706.535, 126, -916.454]  
 	thermo2 = [279.948, 40.849, 75.130, 598.739, 79.208, -916.456] 
+	peeler = [264.584, -29.413, 284.376, 372.338, 0.0, 651.621]
+	peeler2 = [264.584, -29.413, 284.376, 372.338, 0.0, 651.621]
 
 	robot.transfer(pos1, pos2, "narrow", "wide")
-	robot.transfer(pos2, thermo2, "wide", "wide")
+	# robot.remove_lid(pos2, "wide")
+	# robot.replace_lid(pos2, "wide")
+	robot.transfer(pos2, pos1, "wide", "narrow")
 
-	robot.transfer(thermo2, pos1, "wide", "narrow")
+	robot.transfer(pos1, peeler, "narrow", "narrow")
+	# robot.remove_lid(peeler)
+	# robot.replace_lid(peeler)
+	# print(peeler)
+	robot.transfer(peeler, pos1, "narrow", "narrow")
 
+	# robot.transfer(thermo2, pos1, "wide", "narrow")
 	# robot.transfer(pos2,pos1,90,0)
 	# robot.transfer(thermo2, pos1 ,"wide","narrow")
 	# robot.transfer(loc2,pos1,0,0)
