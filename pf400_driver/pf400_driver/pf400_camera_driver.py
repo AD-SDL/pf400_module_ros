@@ -3,7 +3,7 @@ import cv2
 from time import sleep
 
 from threading import Thread
-from pf400_driver.pf400_driver import PF400
+from pf400_driver import PF400
 qr_name = "TEST"
 
 class CAMERA(PF400):
@@ -26,11 +26,12 @@ class CAMERA(PF400):
                           "ot2_1": [[197.185, 59.736, 90.509, 566.953, 82.069, 0],[-1]],
                           "ot2_2": [[0,0,0,0,0,0],[-1]],
                           "sealer": [[231.788, -27.154, 313.011, 342.317, 0.0, 0.0],[-1]],
-                          "Module1": [[0,0,0,0,0,0],[-1]],
+                          "Module1": [[262.550, 20.608, 119.290, 662.570, 0.0, 0],[-1]],
                           "thermocycler": [[0,0,0,0,0,0],[-1]]}
-        self.module_lenght = 500.0
+        self.module_lenght = 571.0      
+        # TODO: TABLE LENGHT IS MORE THAN ARM REACH. FIND THE FURTHEST REACH AND ADD THE RAIL LENGHT ON TOP TO FILL THE GAP 685.8
+        self.start_location = self.neutral_joints 
 
-        self.start_location = self.get_joint_states()
         self.start_location[5] = -990
 
     def scan_qr_code(self):  
@@ -62,25 +63,24 @@ class CAMERA(PF400):
         # TODO: Assume that the defult locations are taken when all the modules where left side of the PF400
         # TODO: Find module lenght and update it in the code
         # TODO: Figure out how to deal with rotation offset on the -180 rotation
-
+        # self.move_all_joints_neutral()
         left_cam_data = self.cam_left_qr_name
         right_cam_data = self.cam_right_qr_name
-        self.move_all_joints_neutral()
 
         for i in range(4):
 
             self.scan_next_row()
 
-            if self.cam_left_qr_name != left_cam_data and self.cam_left_qr_name in self.locations.keys():
-                self.locations[self.cam_left_qr_name][0][5] = self.start_location[5]
-                self.locations[self.cam_left_qr_name][1][0] = 0 # Zero means this modules is found in the workcell
-                left_cam_data = self.cam_left_qr_name
-                print(self.locations[self.cam_left_qr_name][0])
+            # if self.cam_left_qr_name != left_cam_data and self.cam_left_qr_name in self.locations.keys():
+            #     self.locations[self.cam_left_qr_name][0][5] = self.start_location[5]
+            #     self.locations[self.cam_left_qr_name][1][0] = 0 # Zero means this modules is found in the workcell
+            #     left_cam_data = self.cam_left_qr_name
+            #     print(self.locations[self.cam_left_qr_name][0])
 
-            if self.cam_right_qr_name != right_cam_data and self.cam_right_qr_name in self.locations.keys():
+            if self.cam_left_qr_name != right_cam_data and self.cam_left_qr_name in self.locations.keys():
                 #TODO:Change this to a function (def reverse_module_location)
 
-                cartesian,phi,rail = self.forward_kinematics(self.locations[self.cam_right_qr_name][0])
+                cartesian,phi,rail = self.forward_kinematics(self.locations[self.cam_left_qr_name][0])
                 print(cartesian)
                 # print(cartesian[0] - rail)
                 reverse_target_on_x_axis = self.module_lenght - (cartesian[0] - rail)
@@ -89,12 +89,14 @@ class CAMERA(PF400):
                 cartesian[1] = -cartesian[1] #Switch arm from left to right on y axis
                 cartesian[3] -= 180 
                 # print(cartesian[2])
-                self.locations[self.cam_right_qr_name][0] = self.inverse_kinematics(cartesian, phi, self.start_location[5])
-                print(self.locations[self.cam_right_qr_name][0])
-                self.locations[self.cam_right_qr_name][1][0] = 0
+                print(self.start_location[5])
+                print(cartesian)
+                self.locations[self.cam_left_qr_name][0] = self.inverse_kinematics(cartesian_coordinates = cartesian, phi = phi, rail = self.start_location[5])
+                print(self.locations[self.cam_left_qr_name][0])
+                self.locations[self.cam_left_qr_name][1][0] = 0
                 
-                right_cam_data = self.cam_right_qr_name
-
+                right_cam_data = self.cam_left_qr_name
+            
             self.start_location[5] += 660
 
         print("Workcell exploration completed")
@@ -104,7 +106,7 @@ class CAMERA(PF400):
     def scan_next_row(self):
 
         # Move to next row
-        self.send_command(self.create_move_joint_command(self.start_location, 2, True, False))
+        self.move_joint(self.start_location, 2)
         # Scan the next row
         self.scan_qr_code()
 

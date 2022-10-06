@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# import rclpy
+import rclpy
 import profile
 import telnetlib
 import threading
@@ -10,9 +10,9 @@ import math
 from operator import add
 from time import sleep
 
-from motion_profiles import motion_profiles
-from error_codes import error_codes
-from pf400_kinematics import KINEMATICS
+from pf400_driver.motion_profiles import motion_profiles
+from pf400_driver.error_codes import error_codes
+from pf400_driver.pf400_kinematics import KINEMATICS
 
 class PF400(KINEMATICS):
 	commandLock = threading.Lock()
@@ -849,30 +849,30 @@ if __name__ == "__main__":
 	pos1= [262.550, 20.608, 119.290, 662.570, 0.0, 574.367] #Hudson
 	pos11= [262.550, 20.608, 119.290, 662.570, 0.0, 574.367] #Hudson
 
-	pos2= [197.185, 59.736, 90.509, 566.953, 82.069, -65.550] #OT2
-	pos22= [197.185, 59.736, 90.509, 566.953, 82.069, -65.550] #OT2
+	# pos2= [197.185, 59.736, 90.509, 566.953, 82.069, -65.550] #OT2
+	# pos22= [197.185, 59.736, 90.509, 566.953, 82.069, -65.550] #OT2
 
-	thermocycler = [281.0, 4.271, 95.676, 706.535, 126, -916.454]  
-	thermo2 = [279.948, 40.849, 75.130, 598.739, 79.208, -916.456] 
-	peeler = [264.584, -29.413, 284.376, 372.338, 0.0, 651.621]
-	peeler2 = [264.584, -29.413, 284.376, 372.338, 0.0, 651.621]
+	# thermocycler = [281.0, 4.271, 95.676, 706.535, 126, -916.454]  
+	# thermo2 = [279.948, 40.849, 75.130, 598.739, 79.208, -916.456] 
+	# peeler = [264.584, -29.413, 284.376, 372.338, 0.0, 651.621]
+	# peeler2 = [264.584, -29.413, 284.376, 372.338, 0.0, 651.621]
 
-	robot.transfer(pos1, pos2, "narrow", "wide")
+	# robot.transfer(pos1, pos2, "narrow", "wide")
 	# robot.remove_lid(pos2, "wide")
 	# robot.replace_lid(pos2, "wide")
-	robot.transfer(pos2, pos1, "wide", "narrow")
+	# robot.transfer(pos2, pos1, "wide", "narrow")
 
-	robot.transfer(pos1, peeler, "narrow", "narrow")
+	# robot.transfer(pos1, peeler, "narrow", "narrow")
 	# robot.remove_lid(peeler)
 	# robot.replace_lid(peeler)
 	# print(peeler)
-	robot.transfer(peeler, pos1, "narrow", "narrow")
+	# robot.transfer(peeler, pos1, "narrow", "narrow")
 
 	# robot.transfer(thermo2, pos1, "wide", "narrow")
 	# robot.transfer(pos2,pos1,90,0)
 	# robot.transfer(thermo2, pos1 ,"wide","narrow")
 	# robot.transfer(loc2,pos1,0,0)
-
+	robot.move_joint([262.55, -23.64349487517494, 347.28258625587307, 658.8289086193018, 123.0, 574.367])
 
 
 
