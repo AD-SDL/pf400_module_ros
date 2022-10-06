@@ -125,7 +125,57 @@ class PF400ClientNode(Node):
             print("Target location: ",target)
 
             self.pf400.transfer(source, target, source_plate_rotation, target_plate_rotation)
-        
+
+        elif request.action_handle == "remove_lid":
+            target_plate_rotation = ""
+    
+            self.state = "BUSY"
+            self.stateCallback()
+            vars = eval(request.vars)
+            print(vars)
+
+            if 'target' not in vars.keys():
+                print("Drop off up location is not provided")
+                return 
+            if len(vars.get('target')) != 6:
+                print("Position 2 should be six joint angles lenght")
+                return
+
+            if 'target_plate_rotation' not in vars.keys():
+                print("Setting target plate rotation to 0")
+            else:
+                target_plate_rotation = str(vars.get('target_plate_rotation'))
+            
+            target = vars.get('target')
+            print("Target location: ",target)
+
+            self.pf400.remove_lid(target, target_plate_rotation)
+
+        elif request.action_handle == "replace_lid":
+            target_plate_rotation = ""
+    
+            self.state = "BUSY"
+            self.stateCallback()
+            vars = eval(request.vars)
+            print(vars)
+
+            if 'target' not in vars.keys():
+                print("Drop off up location is not provided")
+                return 
+            if len(vars.get('target')) != 6:
+                print("Position 2 should be six joint angles lenght")
+                return
+
+            if 'target_plate_rotation' not in vars.keys():
+                print("Setting target plate rotation to 0")
+            else:
+                target_plate_rotation = str(vars.get('target_plate_rotation'))
+            
+            target = vars.get('target')
+            print("Target location: ",target)
+
+            self.pf400.replace_lid(target, target_plate_rotation)
+
         if self.pf400.plate_state == -1:
             self.state = "ERROR"
             self.get_logger().error("Transfer cannot be completed, missing plate!")
