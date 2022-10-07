@@ -2,39 +2,37 @@
 A repository for PF400 Collaborative Robot Arm driver, including user manuals and remote control interfaces.
 
 ## PF400 Remote Client
-Python interface that allows remote commands to be executed using simple string messages over TCP/IP on PF400 cobot.  `/pf400_client/pf400_client.py`
+Python interface that allows remote commands to be executed using simple string messages over telnet socket on PF400 cobot.  `pf400_module/pf400_driver/pf400_driver/pf400_driver.py`
 
 - PF400 is the main object that will be used for operations such as remote connection as well as sending movement commands.
-- Programs are sent to the 192.168.0.1 IP address and 10x00 port numbers (first robot port number: 10100). 
-- Robot data will be loaded from `/utils/robot_data.json` which contains motion profiles and joint locations.
+- Programs are sent to the 192.168.50.50 IP address and 10x00 port numbers (first robot port number: 10100). 
+<!-- - Robot data will be loaded from `/utils/robot_data.json` which contains motion profiles and joint locations. -->
 - A program sent to robot will be executed immediately unless there is a prior operation running on the robot. 
 - If a second motion command is sent while the referenced robot is moving, the second command is blocked and will not reply until the first motion is complete.
+## pf400_camera_driver 
 
-### Current features
-* Robot initilazation (enable power, home robot joints, attach robot to the software and check robot state)
-* Set motion profile
-* Locate current location
-* Stop movement 
-* Move to one location
+This is a sub class of the PF400 class, which includes more specific functions that will be utilized only in Rapid Prototyping Lab. `/pf400_module/pf400_driver/pf400_driver/pf400_camera_driver.py`
 
-## rpl_pf400 
+- This class is designed to move PF400 robot in the workcell and also discovere the module location by using two cameras with OpenCV algorithms.
+## pf400_camera_driver 
 
 This is a sub class of the PF400 class, which includes more specific functions that will be utilized only in Rapid Prototyping Lab.
 
-- This class is designed to send commands to the PF400 robot that is located in Rapid Prototyping Lab.
-- The functions are only valid for this specific lab setup.
-
+- This class is designed to move PF400 robot in the workcell and also discovere the module location by using two cameras with OpenCV algorithms.
 ### Current features
-
-* Perform pick up and drop off plate operations from the OT2s, plate racks and table locations 
-* Send complex programs such as transfer plate between two robots or execute full plate transfer between each robot.
-* Teach/edit locations which are already exist in the robot data file. 
-
+* Robot initilazation (enable power, home robot joints, attach robot to the software and check robot state)
+* Robot Forward & Inverse kinematic calcuations to caalculate desired locations switch between cooardinate systems
+* Plate transfer between two locations
+* Plate rotation to change the grab angle between wide and narrow
+* Remove & Replace plate lid
+* Workcell discovery to locate module locations 
+## pf400_client 
+This a ROS2 wrapper that accepts service calls from wei_client with string messages to execute transfers between source and target locations.
 
 # Development
 ## Enable remote connections on PF400
-- Enter IP address of the PF400 (192.168.0.1) in a web browser and then clink on Admin.
-- Go to startup configuration under wizards and setup tools. Make sure that "Tcp_cmd_server" project is loaded to be automatically compiled when the robot is turned on.
+- Enter IP address of the PF400 (192.168.50.50) in a web browser and then clink on Admin.
+- Go to startup configuration under wizards and setup tools. Make sure that "Tcp_cmd_server_pa" project is loaded to be automatically compiled when the robot is turned on.
 - Go to Control Panels and then Operator Control panel. Verify that TCP Command Server is running. 
 
 ![Control Panel TCP Server](https://github.com/AD-SDL/PF400_cobot/blob/master/resources/diagrams-figures/control-panel.png)
@@ -43,26 +41,33 @@ This is a sub class of the PF400 class, which includes more specific functions t
 
 ![Free Joints](https://github.com/AD-SDL/PF400_cobot/blob/master/resources/diagrams-figures/free-joint-mode.png)
 
-## Install
+## Python Install
 
-    conda create -n rpl-test python=3.8
-    conda activate rpl-test
-
-    git clone https://github.com/AD-SDL/pf400_driver.git
-    cd pf400_driver
-    #pip install -r requirements.txt
-    pip install -e . 
+- `conda create -n rpl-test python=3.8`
+- `conda activate rpl-test`
+- `git clone https://github.com/AD-SDL/pf400_module.git`
+- `cd pf400_driver`
+- `#pip install -r requirements.txt`
+- `pip install -e .`
 
 Better to install in develop-mode while the config is still changing
 
-This will install arm_driver_pkg and pf400client packages
-
 ## Ros Install
+- `cd ~`
+- `source /opt/ros/foxy/setup.bash`
+- `mkdir -p ~/pf400_ws/src`
+- `cd ~/pf400_ws/src`
+- `git clone https://github.com/AD-SDL/pf400_module.git`
+- `cd ~/pf400_ws`
+- `rosdep update && rosdep install -i --from-path src`
+- `sudo apt install python3-colcon-common-extensions`
+- `colcon build`
+- `source install/setup.bash`
 
 ## Create new configuration
 
 ## Logging
-
+CURRENTLY DEFECTIVE
 Logs go to the "running" PC `/pf400_logs/robot_client_logs.log`
 
 ## Resources
