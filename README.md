@@ -17,7 +17,7 @@ This is a sub class of the PF400 class, which includes more specific functions t
 
 ### Current features
 * Robot initilazation (enable power, home robot joints, attach robot to the software and check robot state)
-* Robot Forward & Inverse kinematic calcuations to caalculate desired locations switch between cooardinate systems
+* Robot Forward & Inverse kinematic calcuations to calculate desired locations and switch between cooardinate systems
 * Plate transfer between two locations
 * Plate rotation to change the grab angle between wide and narrow
 * Remove & Replace plate lid
@@ -64,7 +64,7 @@ Better to install in develop-mode while the config is still changing
 
 ## Logging
 CURRENTLY DEFECTIVE
-Logs go to the "running" PC `/pf400_logs/robot_client_logs.log`
+- Logs go to the "running" PC `/pf400_logs/robot_client_logs.log`
 
 ## Resources
 
