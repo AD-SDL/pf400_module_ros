@@ -14,11 +14,7 @@ Python interface that allows remote commands to be executed using simple string 
 This is a sub class of the PF400 class, which includes more specific functions that will be utilized only in Rapid Prototyping Lab. `/pf400_module/pf400_driver/pf400_driver/pf400_camera_driver.py`
 
 - This class is designed to move PF400 robot in the workcell and also discovere the module location by using two cameras with OpenCV algorithms.
-## pf400_camera_driver 
 
-This is a sub class of the PF400 class, which includes more specific functions that will be utilized only in Rapid Prototyping Lab.
-
-- This class is designed to move PF400 robot in the workcell and also discovere the module location by using two cameras with OpenCV algorithms.
 ### Current features
 * Robot initilazation (enable power, home robot joints, attach robot to the software and check robot state)
 * Robot Forward & Inverse kinematic calcuations to caalculate desired locations switch between cooardinate systems
