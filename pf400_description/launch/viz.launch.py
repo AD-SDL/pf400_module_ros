@@ -12,7 +12,7 @@ def generate_launch_description():
 
     use_sim_time = LaunchConfiguration('use_sim_time', default='false')
 
-    urdf_file_name = 'PF3400SX.urdf'
+    urdf_file_name = 'urdf/PF3400SX.urdf'
 
     urdf = os.path.join(
         get_package_share_directory('pf400_description'),
@@ -33,9 +33,9 @@ def generate_launch_description():
         #     name='pf400_joint_publisher'
         # ),
         Node(
-            package='robot_state_publisher',
-            executable='robot_state_publisher',
-            name='robot_state_publisher',
+            package='rviz2',
+            executable='rviz2',
+            name='pf400DescriptionNode',
             output='screen',
             parameters=[{'use_sim_time': use_sim_time,'robot_description': robot_desc}],
             arguments=[urdf]

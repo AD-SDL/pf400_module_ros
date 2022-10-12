@@ -18,7 +18,7 @@
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="package://pf400_description/meshes/PF3400_Z_Column.STL" scale="0.001 0.001 0.001"/>
+        <mesh filename="package://pf400_description/meshes/PF3400_Z_Column.STL" scale="0.001 0.001 0.0021"/>
       </geometry>
       <material name="white"/>
     </visual>
@@ -85,6 +85,7 @@
   </link>
 
 
+
   <!-- Joints -->
 
   <joint name="J1" type="prismatic">
@@ -92,7 +93,7 @@
     <child link="z_carriage"/>
     <axis xyz="0 0 1"/>
     <origin xyz="0.03005 -0.0198 0.17535" rpy="0 0 0"/>
-    <limit effort="1000.0" lower="0.0015" upper="0.4015" velocity="0.5"/>
+    <limit effort="1000.0" lower="0.0015" upper="2.02" velocity="0.5"/>
   </joint>
 
   <joint name="J2" type="revolute">
