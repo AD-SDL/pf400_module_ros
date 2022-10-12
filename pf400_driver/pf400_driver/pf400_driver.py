@@ -28,7 +28,7 @@ class PF400(KINEMATICS):
 			- If a second motion command is sent while the referenced robot is moving, the second command is blocked and will not reply until the first motion is complete.
 
         """
-		super().__init__() # PF40 kinematics
+		super().__init__() # PF400 kinematics
 
 		print("Initializing connection...")
 		self.host = host
