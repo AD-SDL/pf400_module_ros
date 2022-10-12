@@ -66,6 +66,11 @@ Visualization Manager:
         Expand Link Details: false
         Expand Tree: false
         Link Tree Style: Links in Alphabetic Order
+        base_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
         hand:
           Alpha: 1
           Show Axes: false
@@ -82,6 +87,11 @@ Visualization Manager:
           Show Trail: false
           Value: true
         outer_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        rail_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
@@ -112,6 +122,8 @@ Visualization Manager:
       Frame Timeout: 15
       Frames:
         All Enabled: true
+        base_link:
+          Value: true
         hand:
           Value: true
         inner_link:
@@ -119,6 +131,8 @@ Visualization Manager:
         left_finger:
           Value: true
         outer_link:
+          Value: true
+        rail_link:
           Value: true
         right_finger:
           Value: true
@@ -132,24 +146,29 @@ Visualization Manager:
       Show Axes: true
       Show Names: true
       Tree:
-        z_column:
-          z_carriage:
-            inner_link:
-              outer_link:
-                hand:
-                  left_finger:
-                    {}
-                  right_finger:
-                    {}
+        base_link:
+          rail_link:
+            z_column:
+              z_carriage:
+                inner_link:
+                  outer_link:
+                    hand:
+                      left_finger:
+                        {}
+                      right_finger:
+                        {}
       Update Interval: 0
       Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
     Default Light: true
-    Fixed Frame: z_column
+    Fixed Frame: base_link
     Frame Rate: 30
   Name: root
+  RobotModel:
+    Description Source: Topic
+    Description Topic: /robot_description
   Tools:
     - Class: rviz/Interact
       Hide Inactive Objects: true

@@ -9,17 +9,12 @@ from launch_ros.substitutions import FindPackageShare
  
 def generate_launch_description():
  
-  # Set the path to this package.
   pkg_share = FindPackageShare(package='pf400_description').find('pf400_description')
  
-  # Set the path to the RViz configuration settings
   default_rviz_config_path = os.path.join(pkg_share, 'config/StandardSettings.rviz')
  
-  # Set the path to the URDF file
-  default_urdf_model_path = os.path.join(pkg_share, 'urdf/PF3400SX.urdf')
+  default_urdf_model_path = os.path.join(pkg_share, 'urdf/PF400.urdf') # Fix the vertical rail scale
  
-  ########### YOU DO NOT NEED TO CHANGE ANYTHING BELOW THIS LINE ##############  
-  # Launch configuration variables specific to simulation
   gui = LaunchConfiguration('gui')
   urdf_model = LaunchConfiguration('urdf_model')
   rviz_config_file = LaunchConfiguration('rviz_config_file')
@@ -27,7 +22,6 @@ def generate_launch_description():
   use_rviz = LaunchConfiguration('use_rviz')
   use_sim_time = LaunchConfiguration('use_sim_time')
  
-  # Declare the launch arguments  
   declare_urdf_model_path_cmd = DeclareLaunchArgument(
     name='urdf_model', 
     default_value=default_urdf_model_path, 
@@ -58,7 +52,6 @@ def generate_launch_description():
     default_value='False',
     description='Use simulation (Gazebo) clock if true')
     
-  # Specify the actions
  
   # Publish the joint state values for the non-fixed joints in the URDF file.
   start_joint_state_publisher_cmd = Node(

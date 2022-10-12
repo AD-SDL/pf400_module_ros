@@ -3,7 +3,7 @@
      Commit Version: 1.6.0-4-g7f85cfe  Build Version: 1.6.7995.38578
      For more information, please see http://wiki.ros.org/sw_urdf_exporter -->
 <robot
-  name="PF400_mate lineer_axis">
+  name="pf400_description">
   <link
     name="base_link">
     <inertial>
@@ -26,7 +26,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://PF400_mate lineer_axis/meshes/base_link.STL" />
+          filename="package://pf400_description/meshes/base_link.STL" />
       </geometry>
       <material
         name="">
@@ -40,7 +40,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://PF400_mate lineer_axis/meshes/base_link.STL" />
+          filename="package://pf400_description/meshes/base_link.STL" />
       </geometry>
     </collision>
   </link>
@@ -66,7 +66,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://PF400_mate lineer_axis/meshes/rail.STL" />
+          filename="package://pf400_description/meshes/rail.STL" />
       </geometry>
       <material
         name="">
@@ -80,7 +80,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://PF400_mate lineer_axis/meshes/rail.STL" />
+          filename="package://pf400_description/meshes/rail.STL" />
       </geometry>
     </collision>
   </link>
@@ -124,7 +124,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://PF400_mate lineer_axis/meshes/tower.STL" />
+          filename="package://pf400_description/meshes/tower.STL" />
       </geometry>
       <material
         name="">
@@ -138,7 +138,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://PF400_mate lineer_axis/meshes/tower.STL" />
+          filename="package://pf400_description/meshes/tower.STL" />
       </geometry>
     </collision>
   </link>
@@ -182,7 +182,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://PF400_mate lineer_axis/meshes/inner_link.STL" />
+          filename="package://pf400_description/meshes/inner_link.STL" />
       </geometry>
       <material
         name="">
@@ -196,7 +196,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://PF400_mate lineer_axis/meshes/inner_link.STL" />
+          filename="package://pf400_description/meshes/inner_link.STL" />
       </geometry>
     </collision>
   </link>
@@ -240,7 +240,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://PF400_mate lineer_axis/meshes/outer_link.STL" />
+          filename="package://pf400_description/meshes/outer_link.STL" />
       </geometry>
       <material
         name="">
@@ -254,7 +254,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://PF400_mate lineer_axis/meshes/outer_link.STL" />
+          filename="package://pf400_description/meshes/outer_link.STL" />
       </geometry>
     </collision>
   </link>
@@ -298,7 +298,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://PF400_mate lineer_axis/meshes/end_effector.STL" />
+          filename="package://pf400_description/meshes/end_effector.STL" />
       </geometry>
       <material
         name="">
@@ -312,7 +312,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://PF400_mate lineer_axis/meshes/end_effector.STL" />
+          filename="package://pf400_description/meshes/end_effector.STL" />
       </geometry>
     </collision>
   </link>
