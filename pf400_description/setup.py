@@ -27,6 +27,7 @@ setup(
     entry_points={
         'console_scripts': [
             'pf400_joint_pub = pf400_description.TCSJointPub:main',
+            'joint_publisher = pf400_description.joint_publisher:main'
         ],
     },
 )
