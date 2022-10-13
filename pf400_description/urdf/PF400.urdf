@@ -10,8 +10,6 @@
     <color rgba="0.6 0.6 0.6 1"/>
   </material>
 
-
-
   <!-- Links -->
   <link name="base_link">
     <visual>
