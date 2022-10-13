@@ -6,14 +6,24 @@ from launch.conditions import IfCondition, UnlessCondition
 from launch.substitutions import Command, LaunchConfiguration
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
+from ament_index_python.packages import get_package_share_directory
+
  
 def generate_launch_description():
  
   pkg_share = FindPackageShare(package='pf400_description').find('pf400_description')
  
-  default_rviz_config_path = os.path.join(pkg_share, 'config/StandardSettings.rviz')
+  # default_rviz_config_path = os.path.join(pkg_share, 'config/StandardSettings.rviz')
  
-  default_urdf_model_path = os.path.join(pkg_share, 'urdf/PF400.urdf') # Fix the vertical rail scale
+  # default_urdf_model_path = os.path.join(pkg_share, 'urdf/PF400.urdf') # Fix the vertical rail scale
+
+  pkg_name = 'pf400_description'
+  pkg_dir = os.popen('/bin/bash -c "source /usr/share/colcon_cd/function/colcon_cd.sh && colcon_cd %s && pwd"' % pkg_name).read().strip()
+
+  urdf_file_name = 'urdf/PF400.urdf'
+
+  default_urdf_model_path = os.path.join(get_package_share_directory('pf400_description'),urdf_file_name)
+  default_rviz_config_path =  os.path.join(pkg_dir, 'config', 'StandardSettings.rviz')   
  
   gui = LaunchConfiguration('gui')
   urdf_model = LaunchConfiguration('urdf_model')
@@ -96,18 +106,18 @@ def generate_launch_description():
   ld = LaunchDescription()
  
   # Declare the launch options
-  # ld.add_action(declare_urdf_model_path_cmd)
-  # ld.add_action(declare_rviz_config_file_cmd)
-  # ld.add_action(declare_use_joint_state_publisher_cmd)
-  # ld.add_action(declare_use_robot_state_pub_cmd)  
-  # ld.add_action(declare_use_rviz_cmd) 
-  # ld.add_action(declare_use_sim_time_cmd)
+  ld.add_action(declare_urdf_model_path_cmd)
+  ld.add_action(declare_rviz_config_file_cmd)
+  ld.add_action(declare_use_joint_state_publisher_cmd)
+  ld.add_action(declare_use_robot_state_pub_cmd)  
+  ld.add_action(declare_use_rviz_cmd) 
+  ld.add_action(declare_use_sim_time_cmd)
  
   # # Add any actions
   # ld.add_action(start_joint_state_publisher_cmd)
   # ld.add_action(start_joint_state_publisher_gui_node)
-  # ld.add_action(start_robot_state_publisher_cmd)
-  # ld.add_action(start_rviz_cmd)
+  ld.add_action(start_robot_state_publisher_cmd)
+  ld.add_action(start_rviz_cmd)
   ld.add_action(start_joint_publisher)
  
   return ld

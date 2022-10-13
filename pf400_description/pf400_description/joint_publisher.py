@@ -49,12 +49,19 @@ class PF400JointPublisher(Node):
         # self.pf400.force_initilize()
      
         joint_states  = self.pf400.get_joint_states()
-        joint_states[0] *= 0.001  
-        joint_states[0] *= math.pi / 180  
-        joint_states[0] *= math.pi / 180  
-        joint_states[0] *= math.pi / 180  
-        joint_states[0] *= 0.0005  
-        joint_states[0] *= 0.001  
+        print(joint_states)
+        # joint_states[0] *= 0.001  
+        # joint_states[1] *= math.pi / 180  
+        # joint_states[2] *= math.pi / 180  
+        # joint_states[3] *= math.pi / 180  
+        # joint_states[4] *= 0.0005  
+        # joint_states[5] *= 0.01  
+        joint_states[0] = 2.0
+        joint_states[1] = 1.6  
+        joint_states[2] = 5.0 
+        joint_states[3] = 10.0
+        joint_states[4] = 0.0  
+        joint_states[5] = 0.7 
 
         self.get_logger().info("joint_states")
 
@@ -71,9 +78,12 @@ class PF400JointPublisher(Node):
         pub_msg.position = joint_states
         joint_publisher = self.create_publisher(JointState,'joint_states',10)
         # joint_publisher.position = joint_states
+        rate = self.create_rate(10)
 
         # Publish the heartbeat
-        joint_publisher.publish(pub_msg)
+        while rclpy.ok():
+            joint_publisher.publish(pub_msg)
+            rate.sleep()
 
 
 
