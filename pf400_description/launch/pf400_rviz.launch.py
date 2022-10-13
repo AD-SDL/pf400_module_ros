@@ -92,6 +92,13 @@ def generate_launch_description():
     name='rviz2',
     output='screen',
     arguments=['-d', rviz_config_file])
+
+  pf400_joint_publisher = Node(
+    package = "pf400_description",
+    executable = 'joint_publisher',
+    name = 'pf400_joint_publisher',
+    output = 'screen'
+  )
    
   # Create the launch description and populate
   ld = LaunchDescription()
@@ -109,5 +116,6 @@ def generate_launch_description():
   ld.add_action(start_joint_state_publisher_gui_node)
   ld.add_action(start_robot_state_publisher_cmd)
   ld.add_action(start_rviz_cmd)
+  ld.add_action(pf400_joint_publisher)
  
   return ld
