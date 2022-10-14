@@ -85,7 +85,7 @@
     <visual>
       <origin xyz="0 0 0.074" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="package://pf400_description/meshes/PF3400_Left_Finger.STL" scale="0.001 0.001 0.001"/>
+        <mesh filename="package://pf400_description/meshes/pf400_left_finger.STL" scale="0.001 0.001 0.001"/>
       </geometry>
       <material name="aluminum"/>
     </visual>
@@ -95,7 +95,7 @@
     <visual>
       <origin xyz="0 0 0.074" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="package://pf400_description/meshes/PF3400_Right_Finger.STL" scale="0.001 0.001 0.001"/>
+        <mesh filename="package://pf400_description/meshes/pf400_right_finger.STL" scale="0.001 0.001 0.001"/>
       </geometry>
       <material name="aluminum"/>
     </visual>
