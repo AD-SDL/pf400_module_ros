@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 import os
 from glob import glob
 
-install_requires_list = []
+install_requires_list = ["setuptools"]
 # with open('requirements.txt') as reqs:
 #     for line in reqs.readlines():
 #         req = line.strip()
