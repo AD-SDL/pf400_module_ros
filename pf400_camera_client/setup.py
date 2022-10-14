@@ -3,12 +3,12 @@ import os
 from glob import glob
 
 install_requires_list = []
-with open('requirements.txt') as reqs:
-    for line in reqs.readlines():
-        req = line.strip()
-        if not req or req.startswith('#'):
-            continue
-        install_requires_list.append(req)
+# with open('requirements.txt') as reqs:
+#     for line in reqs.readlines():
+#         req = line.strip()
+#         if not req or req.startswith('#'):
+#             continue
+#         install_requires_list.append(req)
 
 package_name = 'pf400_camera_client'
 
