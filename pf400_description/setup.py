@@ -15,6 +15,7 @@ setup(
         (os.path.join('share', package_name, 'launch'), glob('launch/*.launch.py')),
         (os.path.join('share', package_name, 'urdf'), glob('urdf/*.urdf')),
         (os.path.join('share', package_name, 'meshes'), glob('meshes/*')),
+        (os.path.join('share', package_name), glob('config/*'))  
     ],
 
     install_requires=['setuptools'],
@@ -27,7 +28,7 @@ setup(
     entry_points={
         'console_scripts': [
             'pf400_joint_pub = pf400_description.TCSJointPub:main',
-            'joint_publisher = pf400_description.joint_publisher:main'
+            'pf400_description_client = pf400_description.pf400_description_client:main'
         ],
     },
 )
