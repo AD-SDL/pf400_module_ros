@@ -1,13 +1,7 @@
-
 import os
-from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument
-from launch.conditions import IfCondition, UnlessCondition
-from launch.substitutions import Command, LaunchConfiguration
-from launch_ros.actions import Node
-from launch_ros.substitutions import FindPackageShare
 
-import os
+from ament_index_python.packages import get_package_share_directory
+
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
 from launch.conditions import IfCondition, UnlessCondition
@@ -16,10 +10,10 @@ from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
  
 def generate_launch_description():
+
  
   pkg_share = FindPackageShare(package='pf400_description').find('pf400_description')
- 
-  default_rviz_config_path = os.path.join(pkg_share, 'config/StandardSettings.rviz')
+  default_rviz_config_path = os.path.join(pkg_share, 'config/pf400_rviz_config.rviz')
  
   default_urdf_model_path = os.path.join(pkg_share, 'urdf/PF400.urdf') # Fix the vertical rail scale
  
@@ -80,8 +74,7 @@ def generate_launch_description():
     condition=IfCondition(use_robot_state_pub),
     package='robot_state_publisher',
     executable='robot_state_publisher',
-    parameters=[{'use_sim_time': use_sim_time, 
-    'robot_description': Command(['xacro ', urdf_model])}],
+    parameters=[{'use_sim_time': use_sim_time, 'robot_description': Command(['xacro ', urdf_model])}],
     arguments=[default_urdf_model_path])
  
   # Launch RViz
@@ -93,10 +86,11 @@ def generate_launch_description():
     output='screen',
     arguments=['-d', rviz_config_file])
 
-  pf400_joint_publisher = Node(
+
+  pf400_description_client = Node(
     package = "pf400_description",
-    executable = 'joint_publisher',
-    name = 'joint_state_publisher',
+    executable = 'pf400_description_client',
+    name = 'PF400DescriptionNode',
     output = 'screen'
   )
    
@@ -112,10 +106,10 @@ def generate_launch_description():
   ld.add_action(declare_use_sim_time_cmd)
  
   # Add any actions
-  # ld.add_action(start_joint_state_publisher_cmd)
-  # ld.add_action(start_joint_state_publisher_gui_node)
+  ld.add_action(start_joint_state_publisher_cmd)
+  ld.add_action(start_joint_state_publisher_gui_node)
   ld.add_action(start_robot_state_publisher_cmd)
   ld.add_action(start_rviz_cmd)
-  ld.add_action(pf400_joint_publisher)
+  # ld.add_action(pf400_description_client)
  
   return ld
