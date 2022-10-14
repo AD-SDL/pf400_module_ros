@@ -41,11 +41,12 @@ class PF400DescriptionClient(Node):
 
     def joint_state_publisher_callback(self):
         while rclpy.ok():
-            joint_stastes = [0.01,-1.34,1.86,-3.03,0.05,0.05,0.91]
+            # joint_states = self.pf400.refresh_joint_state()
             pf400_joint_msg = JointState()
             pf400_joint_msg.header = Header()
             pf400_joint_msg.header.stamp = self.get_clock().now().to_msg()
             pf400_joint_msg.name = ['J1', 'J2', 'J3', 'J4', 'J5','J5_mirror', 'J6']
+            # pf400_joint_msg.position = joint_states
             pf400_joint_msg.position = [0.01, -1.34, 1.86, -3.03, 0.05, 0.05, 0.91]
             pf400_joint_msg.velocity = []
             pf400_joint_msg.effort = []
