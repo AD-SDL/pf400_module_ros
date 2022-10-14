@@ -28,7 +28,7 @@ class PF400(KINEMATICS):
 			- If a second motion command is sent while the referenced robot is moving, the second command is blocked and will not reply until the first motion is complete.
 
         """
-		super().__init__() # PF40 kinematics
+		super().__init__() # PF400 kinematics
 
 		print("Initializing connection...")
 		self.host = host
@@ -64,6 +64,7 @@ class PF400(KINEMATICS):
 		self.gripper_state = self.get_gripper_state()
 
 		# Arm variables
+		self.joint_state_position = [0,0,0,0,0,0,0]
 		self.neutral_joints = [400.0, 1.400, 177.101, 536.757, self.gripper_closed_state, 0.0]	
 		self.module_left_dist = -420.0
 		self.module_right_dist = 220.0
@@ -249,17 +250,23 @@ class PF400(KINEMATICS):
 		"""
         Description: 
         """
-		joint_array = self.get_joint_states()
-		multipliers = [
-			0.001,			# J1, Z
-			math.pi / 180,	# J2, shoulder
-			math.pi / 180,	# J3, elbow
-			math.pi / 180,	# J4, wrist
-			0.0005, 		# J5, gripper (urdf is 1/2 scale)
-			0.0005, 		# J6, rail
-		]
-		self.joint_state.raw_position = joint_array
-		self.joint_state.position = [state * multiplier for state, multiplier in zip(joint_array, multipliers)]
+		self.connection.write(("wherej".encode("ascii") + b"\n"))
+	
+		joint_array = self.connection.read_until(b"\r\n").rstrip().decode("ascii")
+
+		if joint_array != "" and joint_array in self.error_codes:
+			self.handle_error_output(joint_array)
+		
+		self.joint_state_position[0] = joint_array[0] * 0.001 # J1, Tower
+		self.joint_state_position[1] = joint_array[1] * math.pi / 180	# J2, shoulder
+		self.joint_state_position[2] = joint_array[2] * math.pi / 180	# J3, elbow
+		self.joint_state_position[3] = joint_array[3] * math.pi / 180,	# J4, wrist
+		self.joint_state_position[4] = joint_array[4] * 0.0005 # J5, gripper (urdf is 1/2 scale)
+		self.joint_state_position[4] = joint_array[5] * 0.0005 # J5, gripper (urdf is 1/2 scale)
+		self.joint_state_position[5] = joint_array[6] * 0.001 # J6, rail
+
+		return self.joint_state_position
+
 	# GET COMMANDS
 
 	def get_robot_movement_state(self):

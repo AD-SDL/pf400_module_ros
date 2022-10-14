@@ -15,19 +15,20 @@ setup(
         (os.path.join('share', package_name, 'launch'), glob('launch/*.launch.py')),
         (os.path.join('share', package_name, 'urdf'), glob('urdf/*.urdf')),
         (os.path.join('share', package_name, 'meshes'), glob('meshes/*')),
+        (os.path.join('share', package_name), glob('config/*'))  
     ],
+
     install_requires=['setuptools'],
     zip_safe=True,
-    maintainer='Rafael Vescovi',
-    maintainer_email='ravescovi@anl.gov',
+    maintainer='Doga Ozgulbas, Rafael Vescovi',
+    maintainer_email='dozgulbas@anl.gov, ravescovi@anl.gov',
     description='TODO: Package description',
     license='TODO: License declaration',
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
             'pf400_joint_pub = pf400_description.TCSJointPub:main',
-            'pf400_joint_control = pf400_description.jointControlNode:main',
-            'demo_client = pf400_description.demoClient:main',
+            'pf400_description_client = pf400_description.pf400_description_client:main'
         ],
     },
 )

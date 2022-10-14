@@ -50,7 +50,7 @@ class PF400ClientNode(Node):
 
     def stateCallback(self):
         '''
-        Publishes the peeler state to the 'state' topic. 
+        Publishes the pf400 state to the 'state' topic. 
         '''
         msg = String()
         msg.data = 'State: %s' % self.state
