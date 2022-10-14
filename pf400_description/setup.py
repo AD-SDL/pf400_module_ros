@@ -19,8 +19,8 @@ setup(
 
     install_requires=['setuptools'],
     zip_safe=True,
-    maintainer='Rafael Vescovi',
-    maintainer_email='ravescovi@anl.gov',
+    maintainer='Doga Ozgulbas, Rafael Vescovi',
+    maintainer_email='dozgulbas@anl.gov, ravescovi@anl.gov',
     description='TODO: Package description',
     license='TODO: License declaration',
     tests_require=['pytest'],

@@ -96,7 +96,7 @@ def generate_launch_description():
   pf400_joint_publisher = Node(
     package = "pf400_description",
     executable = 'joint_publisher',
-    name = 'pf400_joint_publisher',
+    name = 'joint_state_publisher',
     output = 'screen'
   )
    
@@ -112,8 +112,8 @@ def generate_launch_description():
   ld.add_action(declare_use_sim_time_cmd)
  
   # Add any actions
-  ld.add_action(start_joint_state_publisher_cmd)
-  ld.add_action(start_joint_state_publisher_gui_node)
+  # ld.add_action(start_joint_state_publisher_cmd)
+  # ld.add_action(start_joint_state_publisher_gui_node)
   ld.add_action(start_robot_state_publisher_cmd)
   ld.add_action(start_rviz_cmd)
   ld.add_action(pf400_joint_publisher)
