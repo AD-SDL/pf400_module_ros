@@ -2,7 +2,7 @@ import os
 from setuptools import setup, find_packages
 
 
-install_requires = []
+install_requires = ["setuptools"]
 # with open('requirements.txt') as reqs:
 #     for line in reqs.readlines():
 #         req = line.strip()

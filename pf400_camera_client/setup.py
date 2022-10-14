@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 import os
 from glob import glob
 
-install_requires_list = []
+install_requires_list = ["setuptools", "opencv-python"]
 # with open('requirements.txt') as reqs:
 #     for line in reqs.readlines():
 #         req = line.strip()
