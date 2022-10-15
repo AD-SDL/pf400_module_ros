@@ -39,7 +39,7 @@ This a ROS2 wrapper that accepts service calls from wei_client with string messa
 
 ## Rviz Visualization
 
-- 'ros2 launch pf400_description pf400_rviz.launch'.
+- 'ros2 launch pf400_description pf400_rviz.launch'
 
 ![RViz Visualization](https://github.com/AD-SDL/PF400_cobot/blob/doga_dev/resources/diagrams-figures/pf400-rviz.png)
 
