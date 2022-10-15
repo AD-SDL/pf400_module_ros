@@ -37,6 +37,11 @@ This a ROS2 wrapper that accepts service calls from wei_client with string messa
 
 ![Free Joints](https://github.com/AD-SDL/PF400_cobot/blob/master/resources/diagrams-figures/free-joint-mode.png)
 
+## RViz Visualization
+
+- 'ros2 launch pf400_description pf400_rviz.launch'
+![RViz Visualization](https://github.com/AD-SDL/PF400_cobot/blob/master/resources/diagrams-figures/PF400_Rviz.png)
+
 ## Python Install
 
 - `conda create -n rpl-test python=3.8`
