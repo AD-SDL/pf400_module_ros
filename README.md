@@ -41,7 +41,7 @@ This a ROS2 wrapper that accepts service calls from wei_client with string messa
 
 - 'ros2 launch pf400_description pf400_rviz.launch'.
 
-![RViz Visualization](https://github.com/AD-SDL/PF400_cobot/blob/master/resources/diagrams-figures/pf400-rviz.png)
+![RViz Visualization](https://github.com/AD-SDL/PF400_cobot/blob/doga_dev/resources/diagrams-figures/pf400-rviz.png)
 
 ## Python Install
 
