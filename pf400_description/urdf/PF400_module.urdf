@@ -180,7 +180,7 @@
     <limit effort="1000.0" lower="0" upper="0" velocity="0.5"/>
   </joint>
 
-  <joint name="Module_table" type="fixed">
+  <joint name="module_table" type="fixed">
     <parent link="pf400_module"/>
     <child link="rail_base"/>
     <axis xyz="0 0 1"/>

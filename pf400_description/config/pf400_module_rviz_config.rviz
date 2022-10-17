@@ -69,11 +69,7 @@ Visualization Manager:
         Expand Link Details: false
         Expand Tree: false
         Link Tree Style: Links in Alphabetic Order
-        rail_base:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
+
         hand:
           Alpha: 1
           Show Axes: false
@@ -100,6 +96,11 @@ Visualization Manager:
           Show Trail: false
           Value: true
         rail:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        rail_base:
           Alpha: 1
           Show Axes: false
           Show Trail: false
@@ -132,8 +133,6 @@ Visualization Manager:
       Frame Timeout: 15
       Frames:
         All Enabled: true
-        base_link:
-          Value: true
         hand:
           Value: true
         inner_link:
@@ -144,7 +143,9 @@ Visualization Manager:
           Value: true
         pf400_module:
           Value: true  
-        rail_link:
+        rail_base:
+          Value: true
+        rail:
           Value: true
         right_finger:
           Value: true
@@ -159,8 +160,8 @@ Visualization Manager:
       Show Names: true
       Tree:
         pf400_module:
-          base_link:
-            rail_link:
+          rail_base:
+            rail:
               z_column:
                 z_carriage:
                   inner_link:
