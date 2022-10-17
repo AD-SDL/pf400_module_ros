@@ -94,6 +94,11 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
+        pf400_module:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
         rail:
           Alpha: 1
           Show Axes: false
@@ -121,11 +126,56 @@ Visualization Manager:
       TF Prefix: ""
       Update Interval: 0
       Value: true
-      Visual Enabled: true
+      Visual Enabled: true    
+    - Class: rviz/TF
+      Enabled: true
+      Frame Timeout: 15
+      Frames:
+        All Enabled: true
+        base_link:
+          Value: true
+        hand:
+          Value: true
+        inner_link:
+          Value: true
+        left_finger:
+          Value: true
+        outer_link:
+          Value: true
+        pf400_module:
+          Value: true  
+        rail_link:
+          Value: true
+        right_finger:
+          Value: true
+        z_carriage:
+          Value: true
+        z_column:
+          Value: true
+      Marker Scale: 0.15000000596046448
+      Name: TF
+      Show Arrows: true
+      Show Axes: true
+      Show Names: true
+      Tree:
+        pf400_module:
+          base_link:
+            rail_link:
+              z_column:
+                z_carriage:
+                  inner_link:
+                    outer_link:
+                      hand:
+                        left_finger:
+                          {}
+                        right_finger:
+                          {}
+      Update Interval: 0
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
-    Fixed Frame: rail_base
+    Fixed Frame: pf400_module
     Frame Rate: 30
   Name: root
   Tools:

@@ -11,6 +11,17 @@
   </material>
 
   <!-- Links -->
+
+  <link name="pf400_module">
+    <visual>
+      <origin xyz="0.125 -0.0198 0" rpy="0 0 1.5708"/>
+      <geometry>
+        <mesh filename="package://pf400_description/meshes/pf400_module.STL" scale="1 1 1"/>
+      </geometry>
+      <material name="white"/>
+    </visual>
+  </link>
+
   <link name="rail_base">
     <visual>
       <origin xyz="0.125 -0.0198 0" rpy="0 0 1.5708"/>
@@ -19,8 +30,8 @@
       </geometry>
       <material name="white"/>
     </visual>
-
   </link>
+
   <link name="rail">
     <visual>
       <origin xyz="0.1309 -0.0198 0.0320" rpy="1.5708 0 1.5708"/>
@@ -166,6 +177,14 @@
     <child link="z_column"/>
     <axis xyz="0 1 0"/>
     <origin xyz="0.03005 -0.0198 0.05" rpy="0 0 0"/>
+    <limit effort="1000.0" lower="0" upper="0" velocity="0.5"/>
+  </joint>
+
+  <joint name="Module_table" type="fixed">
+    <parent link="pf400_module"/>
+    <child link="rail_base"/>
+    <axis xyz="0 0 1"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
     <limit effort="1000.0" lower="0" upper="0" velocity="0.5"/>
   </joint>
 
