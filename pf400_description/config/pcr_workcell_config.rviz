@@ -4,10 +4,7 @@ Panels:
     Name: Displays
     Property Tree Widget:
       Expanded:
-        - /RobotModel1
         - /RobotModel1/Description Topic1
-        - /RobotModel1/Links1
-        - /TF1
       Splitter Ratio: 0.5
     Tree Height: 439
   - Class: rviz_common/Selection
@@ -32,7 +29,7 @@ Visualization Manager:
   Class: ""
   Displays:
     - Alpha: 0.5
-      Cell Size: 1
+      Cell Size: 0.10000000149011612
       Class: rviz_default_plugins/Grid
       Color: 160; 160; 164
       Enabled: true
@@ -46,7 +43,7 @@ Visualization Manager:
         Y: 0
         Z: 0
       Plane: XY
-      Plane Cell Count: 10
+      Plane Cell Count: 80
       Reference Frame: <Fixed Frame>
       Value: true
     - Alpha: 1
@@ -261,26 +258,26 @@ Visualization Manager:
   Value: true
   Views:
     Current:
-      Class: rviz_default_plugins/Orbit
-      Distance: 7.2261152267456055
+      Class: rviz_default_plugins/ThirdPersonFollower
+      Distance: 5.758517265319824
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: -0.5202189683914185
-        Y: 1.0177350044250488
-        Z: 1.6425964832305908
-      Focal Shape Fixed Size: true
+        X: 0.9477843046188354
+        Y: 0.5808911323547363
+        Z: 0
+      Focal Shape Fixed Size: false
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.3903973698616028
+      Pitch: 0.5953983664512634
       Target Frame: <Fixed Frame>
-      Value: Orbit (rviz)
-      Yaw: 2.2753872871398926
+      Value: ThirdPersonFollower (rviz_default_plugins)
+      Yaw: 0.7303982377052307
     Saved: ~
 Window Geometry:
   Displays:
