@@ -13,7 +13,7 @@ def generate_launch_description():
 
  
   pkg_share = FindPackageShare(package='pf400_description').find('pf400_description')
-  default_rviz_config_path = os.path.join(pkg_share, 'config/pf400_module_rviz_config.rviz')
+  default_rviz_config_path = os.path.join(pkg_share, 'config/workcell_config.rviz')
  
   default_urdf_model_path = os.path.join(pkg_share, 'urdf/PF400_module.urdf') 
  

@@ -6,6 +6,10 @@
     <color rgba="1 1 1 1"/>
   </material>
 
+  <material name="dark_blue">
+    <color rgba="1 1 1 1"/>
+  </material>
+
   <material name="aluminum">
     <color rgba="0.6 0.6 0.6 1"/>
   </material>
@@ -38,7 +42,7 @@
       <geometry>
         <mesh filename="package://pf400_description/meshes/module_cart.stl" scale="1 1 1"/>
       </geometry>
-      <material name="white"/>
+      <material name="aluminum"/>
     </visual>
   </link>
 
@@ -48,7 +52,7 @@
       <geometry>
         <mesh filename="package://pf400_description/meshes/module_cart.stl" scale="1 1 1"/>
       </geometry>
-      <material name="white"/>
+      <material name="aluminum"/>
     </visual>
   </link>
 
@@ -58,7 +62,7 @@
       <geometry>
         <mesh filename="package://pf400_description/meshes/module_cart.stl" scale="1 1 1"/>
       </geometry>
-      <material name="white"/>
+      <material name="aluminum"/>
     </visual>
   </link>
 
@@ -68,7 +72,7 @@
       <geometry>
         <mesh filename="package://pf400_description/meshes/module_cart.stl" scale="1 1 1"/>
       </geometry>
-      <material name="white"/>
+      <material name="aluminum"/>
     </visual>
   </link>
 
@@ -78,7 +82,7 @@
       <geometry>
         <mesh filename="package://pf400_description/meshes/module_cart.stl" scale="1 1 1"/>
       </geometry>
-      <material name="white"/>
+      <material name="aluminum"/>
     </visual>
   </link>
   
@@ -88,7 +92,7 @@
       <geometry>
         <mesh filename="package://pf400_description/meshes/module_cart.stl" scale="1 1 1"/>
       </geometry>
-      <material name="white"/>
+      <material name="aluminum"/>
     </visual>
   </link>
 
@@ -98,7 +102,7 @@
       <geometry>
         <mesh filename="package://pf400_description/meshes/module_cart.stl" scale="1 1 1"/>
       </geometry>
-      <material name="white"/>
+      <material name="aluminum"/>
     </visual>
   </link>
 
@@ -108,7 +112,7 @@
       <geometry>
         <mesh filename="package://pf400_description/meshes/module_cart.stl" scale="1 1 1"/>
       </geometry>
-      <material name="white"/>
+      <material name="aluminum"/>
     </visual>
   </link>
 
