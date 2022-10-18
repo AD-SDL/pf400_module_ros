@@ -1,5 +1,6 @@
 import os
-
+from os.path import dirname, abspath
+d = dirname(dirname(abspath(__file__)))
 from ament_index_python.packages import get_package_share_directory
 
 from launch import LaunchDescription
@@ -11,9 +12,11 @@ from launch_ros.substitutions import FindPackageShare
  
 def generate_launch_description():
 
- 
+  # config path = dirname(dirname(abspath(__file__)))
+
   pkg_share = FindPackageShare(package='pf400_description').find('pf400_description')
   default_rviz_config_path = os.path.join(pkg_share, 'config/pcr_workcell_config.rviz')
+  print(default_rviz_config_path)
  
   default_urdf_model_path = os.path.join(pkg_share, 'urdf/pcr_workcell.urdf') 
  

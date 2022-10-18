@@ -11,7 +11,7 @@
   </material>
 
   <material name="dark_blue">
-    <color rgba="0.011764705882352941 0.027450980392156862 0.39215686274509803 1.0"/>
+    <color rgba="0.011764705882352941 0.027450980392156862 0.29215686274509803 1.0"/>
   </material>
 
   <material name="darkbluegrey" >
@@ -34,7 +34,7 @@
       <geometry>
         <mesh filename="package://pf400_description/meshes/OT2.STL" scale="0.001 0.001 0.001"/>
       </geometry>
-      <material name="white"/>
+      <material name="aluminum"/>
     </visual>
   </link>
 
@@ -44,7 +44,7 @@
       <geometry>
         <mesh filename="package://pf400_description/meshes/OT2.STL" scale="0.001 0.001 0.001"/>
       </geometry>
-      <material name="white"/>
+      <material name="aluminum"/>
     </visual>
   </link>
 
@@ -54,7 +54,7 @@
       <geometry>
         <mesh filename="package://pf400_description/meshes/module_cart.stl" scale="1 1 1"/>
       </geometry>
-      <material name="aluminum"/>
+      <material name="dark_blue"/>
     </visual>
   </link>
 
@@ -64,7 +64,7 @@
       <geometry>
         <mesh filename="package://pf400_description/meshes/module_cart.stl" scale="1 1 1"/>
       </geometry>
-      <material name="aluminum"/>
+      <material name="dark_blue"/>
     </visual>
   </link>
 
@@ -74,7 +74,7 @@
       <geometry>
         <mesh filename="package://pf400_description/meshes/module_cart.stl" scale="1 1 1"/>
       </geometry>
-      <material name="aluminum"/>
+      <material name="dark_blue"/>
     </visual>
   </link>
 
@@ -84,7 +84,7 @@
       <geometry>
         <mesh filename="package://pf400_description/meshes/module_cart.stl" scale="1 1 1"/>
       </geometry>
-      <material name="aluminum"/>
+      <material name="dark_blue"/>
     </visual>
   </link>
 
@@ -94,7 +94,7 @@
       <geometry>
         <mesh filename="package://pf400_description/meshes/module_cart.stl" scale="1 1 1"/>
       </geometry>
-      <material name="aluminum"/>
+      <material name="dark_blue"/>
     </visual>
   </link>
   
@@ -104,7 +104,7 @@
       <geometry>
         <mesh filename="package://pf400_description/meshes/module_cart.stl" scale="1 1 1"/>
       </geometry>
-      <material name="aluminum"/>
+      <material name="dark_blue"/>
     </visual>
   </link>
 
@@ -114,7 +114,7 @@
       <geometry>
         <mesh filename="package://pf400_description/meshes/module_cart.stl" scale="1 1 1"/>
       </geometry>
-      <material name="aluminum"/>
+      <material name="dark_blue"/>
     </visual>
   </link>
 
@@ -124,7 +124,7 @@
       <geometry>
         <mesh filename="package://pf400_description/meshes/module_cart.stl" scale="1 1 1"/>
       </geometry>
-      <material name="aluminum"/>
+      <material name="dark_blue"/>
     </visual>
   </link>
 
@@ -134,7 +134,7 @@
       <geometry>
         <mesh filename="package://pf400_description/meshes/PF400_module.STL" scale="0.001 0.001 0.001"/>
       </geometry>
-      <material name="white"/>
+      <material name="dark_blue"/>
     </visual>
   </link>
 
