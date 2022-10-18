@@ -14,7 +14,17 @@
 
   <link name="OT2">
     <visual>
-      <origin xyz="1.10 0.89 0" rpy="1.5708 0 0"/>
+      <origin xyz="0.36 0.94 1.01" rpy="1.5708 0 0"/>
+      <geometry>
+        <mesh filename="package://pf400_description/meshes/OT2.STL" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="white"/>
+    </visual>
+  </link>
+
+  <link name="OT2_2">
+    <visual>
+      <origin xyz="0.975 -1.02 1.01" rpy="1.5708 0 3.1416"/>
       <geometry>
         <mesh filename="package://pf400_description/meshes/OT2.STL" scale="0.001 0.001 0.001"/>
       </geometry>
@@ -24,7 +34,7 @@
 
   <link name="module_cart_link_1">
     <visual>
-      <origin xyz="1.10 0.89 0" rpy="0 0 0"/>
+      <origin xyz="1.32 0.847 0" rpy="0 0 0"/>
       <geometry>
         <mesh filename="package://pf400_description/meshes/module_cart.stl" scale="1 1 1"/>
       </geometry>
@@ -34,7 +44,7 @@
 
   <link name="module_cart_link_2">
     <visual>
-      <origin xyz="0.29 0.89 0" rpy="0 0 0"/>
+      <origin xyz="0.51 0.847 0" rpy="0 0 0"/>
       <geometry>
         <mesh filename="package://pf400_description/meshes/module_cart.stl" scale="1 1 1"/>
       </geometry>
@@ -44,7 +54,7 @@
 
   <link name="module_cart_link_3">
     <visual>
-      <origin xyz="-0.588 0.89 0" rpy="0 0 0"/>
+      <origin xyz="-0.368 0.847 0" rpy="0 0 0"/>
       <geometry>
         <mesh filename="package://pf400_description/meshes/module_cart.stl" scale="1 1 1"/>
       </geometry>
@@ -54,7 +64,7 @@
 
   <link name="module_cart_link_4">
     <visual>
-      <origin xyz="-1.4 0.89 0" rpy="0 0 0"/>
+      <origin xyz="-1.18 0.847 0" rpy="0 0 0"/>
       <geometry>
         <mesh filename="package://pf400_description/meshes/module_cart.stl" scale="1 1 1"/>
       </geometry>
@@ -64,7 +74,7 @@
 
   <link name="module_cart_link_5">
     <visual>
-      <origin xyz="1.10  -0.505 0" rpy="0 0 0"/>
+      <origin xyz="1.32  -0.548 0" rpy="0 0 0"/>
       <geometry>
         <mesh filename="package://pf400_description/meshes/module_cart.stl" scale="1 1 1"/>
       </geometry>
@@ -74,7 +84,7 @@
   
   <link name="module_cart_link_6">
     <visual>
-      <origin xyz="0.29 -0.505 0" rpy="0 0 0"/>
+      <origin xyz="0.51 -0.548 0" rpy="0 0 0"/>
       <geometry>
         <mesh filename="package://pf400_description/meshes/module_cart.stl" scale="1 1 1"/>
       </geometry>
@@ -84,7 +94,7 @@
 
   <link name="module_cart_link_7">
     <visual>
-      <origin xyz="-0.588 -0.505 0" rpy="0 0 0"/>
+      <origin xyz="-0.368 -0.548 0" rpy="0 0 0"/>
       <geometry>
         <mesh filename="package://pf400_description/meshes/module_cart.stl" scale="1 1 1"/>
       </geometry>
@@ -94,7 +104,7 @@
 
   <link name="module_cart_link_8">
     <visual>
-      <origin xyz="-1.4 -0.505 0" rpy="0 0 0"/>
+      <origin xyz="-1.18 -0.548 0" rpy="0 0 0"/>
       <geometry>
         <mesh filename="package://pf400_description/meshes/module_cart.stl" scale="1 1 1"/>
       </geometry>
@@ -104,7 +114,7 @@
 
   <link name="pf400_module">
     <visual>
-      <origin xyz="-1.63 2.39 -1.11" rpy="1.5708 0 0"/>
+      <origin xyz="-1.63 2.347 -1.11" rpy="1.5708 0 0"/>
       <geometry>
         <mesh filename="package://pf400_description/meshes/PF400_module.STL" scale="0.001 0.001 0.001"/>
       </geometry>
@@ -350,5 +360,12 @@
     <limit effort="1000.0" lower="0" upper="0" velocity="0.5"/>
   </joint>
 
+  <joint name="OT2_2" type="fixed">
+    <parent link="OT2"/>
+    <child link="OT2_2"/>
+    <axis xyz="0 0 1"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <limit effort="1000.0" lower="0" upper="0" velocity="0.5"/>
+  </joint>
 
 </robot>
