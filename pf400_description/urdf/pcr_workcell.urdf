@@ -10,9 +10,16 @@
     <color rgba="0 0 0.8 1"/>
   </material>
 
-
   <material name="dark_blue">
-    <color rgba="1 1 1 1"/>
+    <color rgba="0.011764705882352941 0.027450980392156862 0.39215686274509803 1.0"/>
+  </material>
+
+  <material name="darkbluegrey" >
+    <color rgba="0.12156862745098039 0.23137254901960785 0.30196078431372547 1.0" />
+  </material>
+  
+  <material name="darkbluegreen" >
+    <color rgba="0.0 0.3215686274509804 0.28627450980392155 1.0" />
   </material>
 
   <material name="aluminum">
