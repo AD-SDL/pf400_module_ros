@@ -12,11 +12,51 @@
 
   <!-- Links -->
 
+  <link name="module_cart_link_1">
+    <visual>
+      <origin xyz="1.10 0.89 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://pf400_description/meshes/module_cart.stl" scale="1 1 1"/>
+      </geometry>
+      <material name="white"/>
+    </visual>
+  </link>
+
+  <link name="module_cart_link_2">
+    <visual>
+      <origin xyz="1.10 0.89 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://pf400_description/meshes/module_cart.stl" scale="1 1 1"/>
+      </geometry>
+      <material name="white"/>
+    </visual>
+  </link>
+
+  <link name="module_cart_link_3">
+    <visual>
+      <origin xyz="0.10 0.89 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://pf400_description/meshes/module_cart.stl" scale="1 1 1"/>
+      </geometry>
+      <material name="white"/>
+    </visual>
+  </link>
+
+  <link name="module_cart_link_4">
+    <visual>
+      <origin xyz="1.10 0.89 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://pf400_description/meshes/module_cart.stl" scale="1 1 1"/>
+      </geometry>
+      <material name="white"/>
+    </visual>
+  </link>
+
   <link name="pf400_module">
     <visual>
-      <origin xyz="1.5 -1.915 -0.9" rpy="1.5708 0 3.14"/>
+      <origin xyz="1.85 -2.39 -1.11" rpy="1.5708 0 3.14"/>
       <geometry>
-        <mesh filename="package://pf400_description/meshes/PF400_module.STL" scale="0.0008 0.0008 0.0008"/>
+        <mesh filename="package://pf400_description/meshes/PF400_module.STL" scale="0.001 0.001 0.001"/>
       </geometry>
       <material name="white"/>
     </visual>
@@ -24,7 +64,7 @@
 
   <link name="rail_base">
     <visual>
-      <origin xyz="0.125 -0.0198 0.8" rpy="0 0 1.5708"/>
+      <origin xyz="0.125 -0.0198 1.015" rpy="0 0 1.5708"/>
       <geometry>
         <mesh filename="package://pf400_description/meshes/rail_base.STL" scale="1 1 1"/>
       </geometry>
@@ -34,7 +74,7 @@
 
   <link name="rail">
     <visual>
-      <origin xyz="0.1309 -0.0198 0.8320" rpy="1.5708 0 1.5708"/>
+      <origin xyz="0.1309 -0.0198 1.047" rpy="1.5708 0 1.5708"/>
       <geometry>
         <mesh filename="package://pf400_description/meshes/rail.STL" scale="1 1 1"/>
       </geometry>
@@ -44,7 +84,7 @@
 
   <link name="z_column">
     <visual>
-      <origin xyz="0 0 0.874" rpy="0 0 0"/>
+      <origin xyz="0 0 1.089" rpy="0 0 0"/>
       <geometry>
         <mesh filename="package://pf400_description/meshes/PF400_Z_Column.STL" scale="0.001 0.001 0.00132"/>
       </geometry>
@@ -54,7 +94,7 @@
 
   <link name="z_carriage">
     <visual>
-      <origin xyz="0 0 0.874" rpy="0 0 0"/>
+      <origin xyz="0 0 1.089" rpy="0 0 0"/>
       <geometry>
         <mesh filename="package://pf400_description/meshes/PF400_Z_Carriage.STL" scale="0.001 0.001 0.001"/>
       </geometry>
@@ -64,7 +104,7 @@
 
   <link name="inner_link">
     <visual>
-      <origin xyz="0 0 0.874" rpy="0 0 0"/>
+      <origin xyz="0 0 1.089" rpy="0 0 0"/>
       <geometry>
         <mesh filename="package://pf400_description/meshes/PF400_Inner_Link.STL" scale="0.001 0.001 0.001"/>
       </geometry>
@@ -74,7 +114,7 @@
 
   <link name="outer_link">
     <visual>
-      <origin xyz="0 0 0.874" rpy="0 0 0"/>
+      <origin xyz="0 0 1.089" rpy="0 0 0"/>
       <geometry>
         <mesh filename="package://pf400_description/meshes/PF400_Outer_Link.STL" scale="0.001 0.001 0.001"/>
       </geometry>
@@ -84,7 +124,7 @@
 
   <link name="hand">
     <visual>
-      <origin xyz="0 0 0.874" rpy="0 0 0"/>
+      <origin xyz="0 0 1.089" rpy="0 0 0"/>
       <geometry>
         <mesh filename="package://pf400_description/meshes/PF400_Hand.STL" scale="0.001 0.001 0.001"/>
       </geometry>
@@ -94,7 +134,7 @@
 
   <link name="left_finger">
     <visual>
-      <origin xyz="-0.02 -0.053 0.853" rpy="0 0 0"/>
+      <origin xyz="-0.02 -0.053 1.063" rpy="0 0 0"/>
       <geometry>
         <mesh filename="package://pf400_description/meshes/pf400_left_finger.STL" scale="0.001 0.001 0.001"/>
       </geometry>
@@ -104,7 +144,7 @@
 
   <link name="right_finger">
     <visual>
-      <origin xyz="-0.021 -0.028 0.905" rpy="-1.5708 0 0"/>
+      <origin xyz="-0.021 -0.028 1.12" rpy="-1.5708 0 0"/>
       <geometry>
         <mesh filename="package://pf400_description/meshes/pf400_right_finger.STL" scale="0.001 0.001 0.001"/>
       </geometry>
@@ -183,6 +223,38 @@
   <joint name="module_table" type="fixed">
     <parent link="pf400_module"/>
     <child link="rail_base"/>
+    <axis xyz="0 0 1"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <limit effort="1000.0" lower="0" upper="0" velocity="0.5"/>
+  </joint>
+
+  <joint name="module_cart_link_1" type="fixed">
+    <parent link="module_cart_link_1"/>
+    <child link="pf400_module"/>
+    <axis xyz="0 0 1"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <limit effort="1000.0" lower="0" upper="0" velocity="0.5"/>
+  </joint>
+  
+  <joint name="module_cart_link_2" type="fixed">
+    <parent link="module_cart_link_2"/>
+    <child link="module_cart_link_1"/>
+    <axis xyz="0 0 1"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <limit effort="1000.0" lower="0" upper="0" velocity="0.5"/>
+  </joint>
+
+  <joint name="module_cart_link_3" type="fixed">
+    <parent link="module_cart_link_3"/>
+    <child link="module_cart_link_2"/>
+    <axis xyz="0 0 1"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <limit effort="1000.0" lower="0" upper="0" velocity="0.5"/>
+  </joint>
+
+  <joint name="module_cart_link_4" type="fixed">
+    <parent link="module_cart_link_4"/>
+    <child link="module_cart_link_3"/>
     <axis xyz="0 0 1"/>
     <origin xyz="0 0 0" rpy="0 0 0"/>
     <limit effort="1000.0" lower="0" upper="0" velocity="0.5"/>
