@@ -1,6 +1,5 @@
 import os
-from os.path import dirname, abspath
-d = dirname(dirname(abspath(__file__)))
+
 from ament_index_python.packages import get_package_share_directory
 
 from launch import LaunchDescription
