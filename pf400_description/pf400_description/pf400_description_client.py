@@ -1,5 +1,5 @@
 import rclpy
-from rclpy.node import Node
+from rclpy.node import Node, MutuallyExclusiveCallbackGroup
 # from rclpy.clock import clock
 
 from threading import Thread
@@ -22,24 +22,24 @@ class PF400DescriptionClient(Node):
         timer_period = 0.5  # seconds
 
         self.state = "UNKNOWN"
+        my_callback_group = MutuallyExclusiveCallbackGroup()
 
+        self.joint_publisher = self.create_publisher(JointState,'joint_states',10)
+        self.joint_state_handler = self.create_timer(timer_period, callback = self.joint_state_publisher_callback,qos_profile =1,  callback_group= my_callback_group)
+
+        self.statePub = self.create_publisher(String, NODE_NAME + '/state', 10)
+        self.stateTimer = self.create_timer(timer_period, callback = self.stateCallback, callback_group=my_callback_group)
+        
         # self.joint_publisher = self.create_publisher(JointState,'joint_states',10)
         # self.joint_state_handler = self.create_timer(timer_period, self.joint_state_publisher_callback)
 
-        # # self.stateTimer = self.create_timer(timer_period, self.stateCallback)
         # self.statePub = self.create_publisher(String, NODE_NAME + '/state', 10)
         # self.stateTimer = self.create_timer(timer_period, self.stateCallback)
         
-        self.joint_publisher = self.create_publisher(JointState,'joint_states',10)
-        # self.joint_state_handler = self.create_timer(timer_period, self.joint_state_publisher_callback)
-
-        self.statePub = self.create_publisher(String, NODE_NAME + '/state', 10)
-        self.stateTimer = self.create_timer(timer_period, self.stateCallback)
-        
-        stateTimer = Thread(target=self.stateCallback)
-        joint_state_thread = Thread(target=self.joint_state_publisher_callback)
-        joint_state_thread.start()
-        stateTimer.start()
+        # stateTimer = Thread(target=self.stateCallback)
+        # joint_state_thread = Thread(target=self.joint_state_publisher_callback)
+        # joint_state_thread.start()
+        # stateTimer.start()
 
     
     def stateCallback(self):
