@@ -253,18 +253,20 @@ class PF400(KINEMATICS):
 		self.connection.write(("wherej".encode("ascii") + b"\n"))
 	
 		joint_array = self.connection.read_until(b"\r\n").rstrip().decode("ascii")
-
+		
+		
 		if joint_array != "" and joint_array in self.error_codes:
 			self.handle_error_output(joint_array)
-		
-		self.joint_state_position[0] = joint_array[0] * 0.001 # J1, Tower
-		self.joint_state_position[1] = joint_array[1] * math.pi / 180	# J2, shoulder
-		self.joint_state_position[2] = joint_array[2] * math.pi / 180	# J3, elbow
-		self.joint_state_position[3] = joint_array[3] * math.pi / 180,	# J4, wrist
-		self.joint_state_position[4] = joint_array[4] * 0.0005 # J5, gripper (urdf is 1/2 scale)
-		self.joint_state_position[4] = joint_array[5] * 0.0005 # J5, gripper (urdf is 1/2 scale)
-		self.joint_state_position[5] = joint_array[6] * 0.001 # J6, rail
 
+		joint_array = joint_array.split(' ')
+		self.joint_state_position[0] = float(joint_array[1]) * 0.001 # J1, Tower
+		self.joint_state_position[1] = float(joint_array[2]) * math.pi / 180	# J2, shoulder
+		self.joint_state_position[2] = float(joint_array[3]) * math.pi / 180	# J3, elbow
+		self.joint_state_position[3] = float(joint_array[4]) * math.pi / 180	# J4, wrist
+		self.joint_state_position[4] = float(joint_array[5]) * 0.0005 # J5, gripper (urdf is 1/2 scale)
+		self.joint_state_position[5] = float(joint_array[5]) * 0.0005 # J5, gripper (urdf is 1/2 scale)
+		self.joint_state_position[6] = float(joint_array[6]) * 0.001 # J6, rail
+		
 		return self.joint_state_position
 
 	# GET COMMANDS
