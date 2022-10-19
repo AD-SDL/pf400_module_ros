@@ -1,5 +1,9 @@
 import rclpy
-from rclpy.node import Node, MutuallyExclusiveCallbackGroup
+from rclpy.executors import MultiThreadedExecutor
+
+from rclpy.node import Node
+from rclpy.executors import MultiThreadedExecutor
+from rclpy.callback_groups import MutuallyExclusiveCallbackGroup, ReentrantCallbackGroup
 # from rclpy.clock import clock
 
 from threading import Thread
@@ -13,23 +17,19 @@ from pf400_driver.pf400_driver import PF400
 
 class PF400DescriptionClient(Node):
 
-    def __init__(self, NODE_NAME = 'PF400DescriptionNode'):
+    def __init__(self, NODE_NAME = 'PF400DescriptionNode', robot = None,joint_cb_group = None):
         super().__init__(NODE_NAME)
 
-        self.pf400 = PF400("192.168.50.50", "10100")
-        self.pf400.initialize_robot()
-
+        self.pf400 = robot
         timer_period = 0.5  # seconds
 
         self.state = "UNKNOWN"
-        my_callback_group = MutuallyExclusiveCallbackGroup()
+        
+
 
         self.joint_publisher = self.create_publisher(JointState,'joint_states',10)
-        self.joint_state_handler = self.create_timer(timer_period, callback = self.joint_state_publisher_callback,qos_profile =1,  callback_group= my_callback_group)
-
-        self.statePub = self.create_publisher(String, NODE_NAME + '/state', 10)
-        self.stateTimer = self.create_timer(timer_period, callback = self.stateCallback, callback_group=my_callback_group)
-        
+        self.joint_state_handler = self.create_timer(timer_period, callback = self.joint_state_publisher_callback, callback_group = joint_cb_group)
+  
         # self.joint_publisher = self.create_publisher(JointState,'joint_states',10)
         # self.joint_state_handler = self.create_timer(timer_period, self.joint_state_publisher_callback)
 
@@ -41,6 +41,37 @@ class PF400DescriptionClient(Node):
         # joint_state_thread.start()
         # stateTimer.start()
 
+    def joint_state_publisher_callback(self):
+        while rclpy.ok():
+            joint_states = self.pf400.refresh_joint_state()
+            pf400_joint_msg = JointState()
+            pf400_joint_msg.header = Header()
+            pf400_joint_msg.header.stamp = self.get_clock().now().to_msg()
+            pf400_joint_msg.name = ['J1', 'J2', 'J3', 'J4', 'J5','J5_mirror', 'J6']
+            pf400_joint_msg.position = joint_states
+            # print(joint_states)
+
+            # pf400_joint_msg.position = [0.01, -1.34, 1.86, -3.03, 0.05, 0.05, 0.91]
+            pf400_joint_msg.velocity = []
+            pf400_joint_msg.effort = []
+
+            self.joint_publisher.publish(pf400_joint_msg)
+            # self.get_logger().info('Publishing: "%s"' % pf400_joint_msg.position)
+
+class PF400StateClient(Node):
+
+    def __init__(self, NODE_NAME = 'PF400StateNode', robot = None, state_cb_group = None):
+        super().__init__(NODE_NAME)
+
+        self.pf400 = robot
+
+        timer_period = 0.5  # seconds
+
+        self.state = "UNKNOWN"
+        # state_cb_group = ReentrantCallbackGroup()
+        print("BUGGGG+++++++++++++")
+        self.statePub = self.create_publisher(String, NODE_NAME + '/state', 10)
+        self.stateTimer = self.create_timer(timer_period, callback = self.stateCallback, callback_group = state_cb_group)
     
     def stateCallback(self):
         '''
@@ -57,38 +88,32 @@ class PF400DescriptionClient(Node):
         pos2= [197.185, 59.736, 90.509, 566.953, 82.069, -65.550] #OT2
 
         # self.pf400.move_joints(loc2)
+        print("HERE__________________")
         self.pf400.transfer(peeler, loc2 ,"narrow","narrow")
-
-    def joint_state_publisher_callback(self):
-        while rclpy.ok():
-            joint_states = self.pf400.refresh_joint_state()
-            pf400_joint_msg = JointState()
-            pf400_joint_msg.header = Header()
-            pf400_joint_msg.header.stamp = self.get_clock().now().to_msg()
-            pf400_joint_msg.name = ['J1', 'J2', 'J3', 'J4', 'J5','J5_mirror', 'J6']
-            pf400_joint_msg.position = joint_states
-            print(joint_states)
-
-            # pf400_joint_msg.position = [0.01, -1.34, 1.86, -3.03, 0.05, 0.05, 0.91]
-            pf400_joint_msg.velocity = []
-            pf400_joint_msg.effort = []
-
-            self.joint_publisher.publish(pf400_joint_msg)
-            # self.get_logger().info('Publishing: "%s"' % pf400_joint_msg.position)
 
 
 def main(args=None):
     rclpy.init(args=args)
 
-    pf400_joint_state_publisher = PF400DescriptionClient()
+    pf400 = PF400()
+    pf400.initialize_robot()
+    joint_cb_group = ReentrantCallbackGroup()
+    pf400_joint_state_publisher = PF400DescriptionClient(robot = pf400,joint_cb_group= joint_cb_group)
+    state = PF400StateClient(robot = pf400, state_cb_group=joint_cb_group)
 
-    rclpy.spin(pf400_joint_state_publisher)
+    executor = MultiThreadedExecutor()
+    executor.add_node(pf400_joint_state_publisher)
+    executor.add_node(state)
+    # rclpy.spin(pf400_joint_state_publisher)
 
-    # Destroy the node explicitly
-    # (optional - otherwise it will be done automatically
-    # when the garbage collector destroys the node object)
+    try:
+        pf400_joint_state_publisher.get_logger().info('Beginning client, shut down with CTRL-C')
+        executor.spin()
+    except KeyboardInterrupt:
+        pf400_joint_state_publisher.get_logger().info('Keyboard interrupt, shutting down.\n')
     pf400_joint_state_publisher.destroy_node()
     rclpy.shutdown()
+
 
 
 if __name__ == '__main__':
