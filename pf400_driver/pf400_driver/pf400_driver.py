@@ -859,7 +859,7 @@ class PF400(KINEMATICS):
 		self.place_plate(target)
 
 if __name__ == "__main__":
-
+ 
 	# from pf400_driver.pf400_driver import PF400
 	robot = PF400("192.168.50.50", 10100)
 	loc1 = [262.550, 20.608, 119.290, 662.570, 126.0, 574.367] #Hudson
