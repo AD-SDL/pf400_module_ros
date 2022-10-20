@@ -39,9 +39,6 @@ class PF400ClientNode(Node):
         self.statePub = self.create_publisher(String, NODE_NAME + '/state', 10)
         self.stateTimer = self.create_timer(timer_period, self.stateCallback)
 
-        # self.whereSrv = self.create_service(Empty, NODE_NAME + "/pf400_whereJ", self.whereJCallback)
-        # self.moveSrv = self.create_service(MoveJ, NODE_NAME + "/pf400_moveJ", self.moveJCallback)
-
         self.action_handler = self.create_service(WeiActions, NODE_NAME + "/action_handler", self.actionCallback)
         self.description_handler = self.create_service(WeiDescription, NODE_NAME + "/description_handler", self.descriptionCallback)
 

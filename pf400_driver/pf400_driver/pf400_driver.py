@@ -53,8 +53,11 @@ class PF400(KINEMATICS):
 		# Initialize robot 
 		self.connect()
 		self.init_connection_mode()
-		self.force_initialize_robot()
-
+		if port == 10100:
+			self.force_initialize_robot()
+		elif port == 10000:
+			self.status_port_initilization()
+			
 		# Gripper variables
 		self.gripper_open_state = 130.0
 		self.gripper_closed_state = 77.0
@@ -127,6 +130,7 @@ class PF400(KINEMATICS):
 			return response		
 
 		finally:
+		
 			self.commandLock.release()
 
 	# INITIALIZE COMMANDS 
@@ -245,27 +249,34 @@ class PF400(KINEMATICS):
 			print("Robot is not intilized! Intilizing now...")
 			self.initialize_robot()
 			self.force_initialize_robot()
-	
+
+	def status_port_initilization(self):
+
+		self.send_command("selectRobot 1")
+		self.enable_power()
+
 	def refresh_joint_state(self):
 		"""
         Description: 
         """
-		self.connection.write(("wherej".encode("ascii") + b"\n"))
-	
-		joint_array = self.connection.read_until(b"\r\n").rstrip().decode("ascii")
 
+		self.connection.write(("wherej".encode("ascii") + b"\n"))
+		joint_array = self.connection.read_until(b"\r\n").rstrip().decode("ascii")
+		
+		
 		if joint_array != "" and joint_array in self.error_codes:
 			self.handle_error_output(joint_array)
-		
-		self.joint_state_position[0] = joint_array[0] * 0.001 # J1, Tower
-		self.joint_state_position[1] = joint_array[1] * math.pi / 180	# J2, shoulder
-		self.joint_state_position[2] = joint_array[2] * math.pi / 180	# J3, elbow
-		self.joint_state_position[3] = joint_array[3] * math.pi / 180,	# J4, wrist
-		self.joint_state_position[4] = joint_array[4] * 0.0005 # J5, gripper (urdf is 1/2 scale)
-		self.joint_state_position[4] = joint_array[5] * 0.0005 # J5, gripper (urdf is 1/2 scale)
-		self.joint_state_position[5] = joint_array[6] * 0.001 # J6, rail
 
+		joint_array = joint_array.split(' ')
+		self.joint_state_position[0] = float(joint_array[1]) * 0.001 # J1, Tower
+		self.joint_state_position[1] = float(joint_array[2]) * math.pi / 180	# J2, shoulder
+		self.joint_state_position[2] = float(joint_array[3]) * math.pi / 180	# J3, elbow
+		self.joint_state_position[3] = float(joint_array[4]) * math.pi / 180	# J4, wrist
+		self.joint_state_position[4] = float(joint_array[5]) * 0.0005 # J5, gripper (urdf is 1/2 scale)
+		self.joint_state_position[5] = float(joint_array[5]) * 0.0005 # J5, gripper (urdf is 1/2 scale)
+		self.joint_state_position[6] = float(joint_array[6]) * 0.001 # J6, rail
 		return self.joint_state_position
+
 
 	# GET COMMANDS
 
@@ -284,7 +295,7 @@ class PF400(KINEMATICS):
 		if movement_state != "" and movement_state in self.error_codes:
 			self.handle_error_output(movement_state)
 		else:
-			self.movement_state = int(movement_state.split()[1])
+			self.movement_state = int(float(movement_state.split()[1]))
 			
 	def get_overall_state(self):
 			"""
@@ -848,26 +859,28 @@ class PF400(KINEMATICS):
 		self.place_plate(target)
 
 if __name__ == "__main__":
-
+ 
 	# from pf400_driver.pf400_driver import PF400
 	robot = PF400("192.168.50.50", 10100)
 	loc1 = [262.550, 20.608, 119.290, 662.570, 126.0, 574.367] #Hudson
 	loc2 = [231.788, -27.154, 313.011, 342.317, 0.0, 683.702] #Sealer
 	pos1= [262.550, 20.608, 119.290, 662.570, 0.0, 574.367] #Hudson
-	pos11= [262.550, 20.608, 119.290, 662.570, 0.0, 574.367] #Hudson
 
-	# pos2= [197.185, 59.736, 90.509, 566.953, 82.069, -65.550] #OT2
-	# pos22= [197.185, 59.736, 90.509, 566.953, 82.069, -65.550] #OT2
+	pos2= [197.185, 59.736, 90.509, 566.953, 82.069, -65.550] #OT2
 
 	# thermocycler = [281.0, 4.271, 95.676, 706.535, 126, -916.454]  
 	# thermo2 = [279.948, 40.849, 75.130, 598.739, 79.208, -916.456] 
-	# peeler = [264.584, -29.413, 284.376, 372.338, 0.0, 651.621]
+	peeler = [264.584, -29.413, 284.376, 372.338, 0.0, 651.621]
 	# peeler2 = [264.584, -29.413, 284.376, 372.338, 0.0, 651.621]
 
-	# robot.transfer(pos1, pos2, "narrow", "wide")
+	robot.transfer(pos1, pos2, "narrow", "wide")
 	# robot.remove_lid(pos2, "wide")
 	# robot.replace_lid(pos2, "wide")
-	# robot.transfer(pos2, pos1, "wide", "narrow")
+	robot.transfer(pos2, loc2, "wide", "narrow")
+	robot.transfer(loc2, peeler, "narrow", "narrow")
+	robot.transfer(peeler, pos1, "narrow", "narrow")
+
+
 
 	# robot.transfer(pos1, peeler, "narrow", "narrow")
 	# robot.remove_lid(peeler)
@@ -879,7 +892,7 @@ if __name__ == "__main__":
 	# robot.transfer(pos2,pos1,90,0)
 	# robot.transfer(thermo2, pos1 ,"wide","narrow")
 	# robot.transfer(loc2,pos1,0,0)
-	robot.move_joint([262.55, -23.64349487517494, 347.28258625587307, 658.8289086193018, 123.0, 574.367])
+	# robot.move_joint([262.55, -23.64349487517494, 347.28258625587307, 658.8289086193018, 123.0, 574.367])
 
 
 
