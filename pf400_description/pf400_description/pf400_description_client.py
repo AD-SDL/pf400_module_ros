@@ -33,8 +33,7 @@ class PF400DescriptionClient(Node):
 
         self.joint_publisher = self.create_publisher(JointState,'joint_states', 10, callback_group = joint_cb_group)
         self.joint_state_handler = self.create_timer(timer_period, callback = self.joint_state_publisher_callback, callback_group = joint_cb_group)
-       
-
+    
     
     def stateCallback(self):
         '''
