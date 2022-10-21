@@ -32,17 +32,25 @@
     <visual>
       <origin xyz="0.36 0.94 1.01" rpy="1.5708 0 0"/>
       <geometry>
-        <mesh filename="package://pf400_description/meshes/OT2.STL" scale="0.001 0.001 0.001"/>
+        <mesh filename="package://pf400_description/meshes/OT_2_without_pipette.STL" scale="0.001 0.001 0.001"/>
       </geometry>
       <material name="aluminum"/>
     </visual>
   </link>
-
+  <link name="OT2_pipette_base">
+    <visual>
+      <origin xyz="0.52 1.15 1.01" rpy="1.5708 0 0"/>
+      <geometry>
+        <mesh filename="package://pf400_description/meshes/ot2_pipette_base.STL" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="aluminum"/>
+    </visual>
+  </link>
   <link name="OT2_2">
     <visual>
       <origin xyz="0.975 -1.02 1.01" rpy="1.5708 0 3.1416"/>
       <geometry>
-        <mesh filename="package://pf400_description/meshes/OT2.STL" scale="0.001 0.001 0.001"/>
+        <mesh filename="package://pf400_description/meshes/OT_2_without_pipette.STL" scale="0.001 0.001 0.001"/>
       </geometry>
       <material name="aluminum"/>
     </visual>
@@ -375,6 +383,15 @@
     <origin xyz="0 0 0" rpy="0 0 0"/>
     <limit effort="1000.0" lower="0" upper="0" velocity="0.5"/>
   </joint>
+
+  <joint name="pipette_rail_x" type="floating">
+    <parent link="OT2"/>
+    <child link="OT2_pipette_base"/>
+    <axis xyz="-1 -1 0"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <limit effort="1000.0" lower="0" upper="0.2" velocity="0.5"/>
+  </joint>
+
 
   <joint name="OT2_2" type="fixed">
     <parent link="OT2"/>
