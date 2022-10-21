@@ -19,7 +19,7 @@
   </material>
   
   <material name="darkbluegreen" >
-    <color rgba="0.0 0.3215686274509804 0.28627450980392155 1.0" />
+    <color rgba="0.0 0.1 0.13 1.0" />
   </material>
 
   <material name="aluminum">
@@ -54,7 +54,7 @@
       <geometry>
         <mesh filename="package://pf400_description/meshes/module_cart.stl" scale="1 1 1"/>
       </geometry>
-      <material name="dark_blue"/>
+      <material name="darkbluegreen"/>
     </visual>
   </link>
 
@@ -64,7 +64,7 @@
       <geometry>
         <mesh filename="package://pf400_description/meshes/module_cart.stl" scale="1 1 1"/>
       </geometry>
-      <material name="dark_blue"/>
+      <material name="darkbluegreen"/>
     </visual>
   </link>
 
@@ -74,7 +74,7 @@
       <geometry>
         <mesh filename="package://pf400_description/meshes/module_cart.stl" scale="1 1 1"/>
       </geometry>
-      <material name="dark_blue"/>
+      <material name="darkbluegreen"/>
     </visual>
   </link>
 
@@ -84,7 +84,7 @@
       <geometry>
         <mesh filename="package://pf400_description/meshes/module_cart.stl" scale="1 1 1"/>
       </geometry>
-      <material name="dark_blue"/>
+      <material name="darkbluegreen"/>
     </visual>
   </link>
 
@@ -94,7 +94,7 @@
       <geometry>
         <mesh filename="package://pf400_description/meshes/module_cart.stl" scale="1 1 1"/>
       </geometry>
-      <material name="dark_blue"/>
+      <material name="darkbluegreen"/>
     </visual>
   </link>
   
@@ -104,7 +104,7 @@
       <geometry>
         <mesh filename="package://pf400_description/meshes/module_cart.stl" scale="1 1 1"/>
       </geometry>
-      <material name="dark_blue"/>
+      <material name="darkbluegreen"/>
     </visual>
   </link>
 
@@ -114,7 +114,7 @@
       <geometry>
         <mesh filename="package://pf400_description/meshes/module_cart.stl" scale="1 1 1"/>
       </geometry>
-      <material name="dark_blue"/>
+      <material name="darkbluegreen"/>
     </visual>
   </link>
 
@@ -124,7 +124,7 @@
       <geometry>
         <mesh filename="package://pf400_description/meshes/module_cart.stl" scale="1 1 1"/>
       </geometry>
-      <material name="dark_blue"/>
+      <material name="darkbluegreen"/>
     </visual>
   </link>
 
@@ -134,7 +134,7 @@
       <geometry>
         <mesh filename="package://pf400_description/meshes/PF400_module.STL" scale="0.001 0.001 0.001"/>
       </geometry>
-      <material name="dark_blue"/>
+      <material name="darkbluegreen"/>
     </visual>
   </link>
 
