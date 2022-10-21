@@ -7,7 +7,8 @@ from std_srvs.srv import Empty
 
 from time import sleep
 
-# from pf400_module_services.srv import pf400WhereJ 
+from threading import Thread
+
 from wei_services.srv import WeiDescription 
 from wei_services.srv import WeiActions  
 
@@ -37,7 +38,9 @@ class PF400ClientNode(Node):
 
         self.stateTimer = self.create_timer(timer_period, self.stateCallback)
         self.statePub = self.create_publisher(String, NODE_NAME + '/state', 10)
-        self.stateTimer = self.create_timer(timer_period, self.stateCallback)
+        # self.stateTimer = self.create_timer(timer_period, self.stateCallback)
+        state_thread = Thread(target = self.stateCallback)
+        state_thread.start()
 
         self.action_handler = self.create_service(WeiActions, NODE_NAME + "/action_handler", self.actionCallback)
         self.description_handler = self.create_service(WeiDescription, NODE_NAME + "/description_handler", self.descriptionCallback)
@@ -49,11 +52,19 @@ class PF400ClientNode(Node):
         '''
         Publishes the pf400 state to the 'state' topic. 
         '''
+        state = self.pf400.movement_state
+        if state == 0:
+            self.state = "POWER OFF"
+        elif state == 1:
+            self.state = "READY"
+        elif state == 2 or state == 3:
+            self.state = "BUSY"
         msg = String()
         msg.data = 'State: %s' % self.state
         self.statePub.publish(msg)
         self.get_logger().info('Publishing: "%s"' % msg.data)
-        self.state = "READY"
+        sleep(0.5)
+        
 
     def descriptionCallback(self, request, response):
         """The descriptionCallback function is a service that can be called to showcase the available actions a robot
@@ -79,14 +90,30 @@ class PF400ClientNode(Node):
         '''
         The actionCallback function is a service that can be called to execute the available actions the robot
         can preform.
+        arameters:
+        -----------
+        request: str
+            Request to the robot to deliver actions
+        response: str
+            The actions a robot can do, will be populated during execution
+
+        Returns
+        -------
+        str
+            The robot steps it can do
+        """
         '''
         # TODO: NEED NEW VARAIBLES FOR GRIPPER CLOSED LENGHT AND GRIPPER GRAP ANGLE 
         if request.action_handle == "transfer":
+
+            while self.state != "READY":
+                print("Waiting for PF400 to switch READY state...")
+
             source_plate_rotation = ""
             target_plate_rotation = ""
             
-            self.state = "BUSY"
-            self.stateCallback()
+            # self.state = "BUSY"
+            # self.stateCallback()
             vars = eval(request.vars)
             print(vars)
 
@@ -124,10 +151,14 @@ class PF400ClientNode(Node):
             self.pf400.transfer(source, target, source_plate_rotation, target_plate_rotation)
 
         elif request.action_handle == "remove_lid":
+
+            while self.state != "READY":
+                print("Waiting for PF400 to switch READY state...")
+
             target_plate_rotation = ""
     
-            self.state = "BUSY"
-            self.stateCallback()
+            # self.state = "BUSY"
+            # self.stateCallback()
             vars = eval(request.vars)
             print(vars)
 
@@ -149,10 +180,14 @@ class PF400ClientNode(Node):
             self.pf400.remove_lid(target, target_plate_rotation)
 
         elif request.action_handle == "replace_lid":
+
+            while self.state != "READY":
+                print("Waiting for PF400 to switch READY state...")
+
             target_plate_rotation = ""
     
-            self.state = "BUSY"
-            self.stateCallback()
+            # self.state = "BUSY"
+            # self.stateCallback()
             vars = eval(request.vars)
             print(vars)
 

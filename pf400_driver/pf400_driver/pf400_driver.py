@@ -47,7 +47,7 @@ class PF400(KINEMATICS):
 		self.attach_state = "0"
 		self.home_state = "1"
 		self.initialization_state = "0"
-		self.movement_state = -2
+		self.movement_state = self.get_robot_movement_state()
 		self.robot_state = "Normal"
 
 		# Initialize robot 
