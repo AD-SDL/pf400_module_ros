@@ -11,15 +11,14 @@ from time import sleep
 from wei_services.srv import WeiDescription 
 from wei_services.srv import WeiActions  
 
-from pf400_driver.pf400_driver import PF400
-from pf400_driver.pf400_camera_driver import CAMERA
 
-class PlateCameraNode(Node):
+
+class CameraModuleClient(Node):
     '''
     The jointControlNode inputs data from the 'action' topic, providing a set of commands for the driver to execute. It then receives feedback, 
     based on the executed command and publishes the state of the peeler and a description of the peeler to the respective topics.
     '''
-    def __init__(self, NODE_NAME = "Plate_Camera_Node"):
+    def __init__(self, NODE_NAME = "Camera_Module_Client"):
         '''
         The init function is neccesary for the peelerNode class to initialize all variables, parameters, and other functions.
         Inside the function the parameters exist, and calls to other functions and services are made so they can be executed in main.
@@ -27,7 +26,7 @@ class PlateCameraNode(Node):
 
         super().__init__(NODE_NAME)
         
-        print("PF400 camera client is online") 
+        print("Camera module client is online") 
 
         self.state = "UNKNOWN"
 
@@ -83,9 +82,9 @@ class PlateCameraNode(Node):
 
 def main(args = None):
 
-    NAME = "PF400_Camera_Node"
+    NAME = "Camera_Module_Client"
     rclpy.init(args=args)  # initialize Ros2 communication
-    node = PF400CameraNode(NODE_NAME=NAME)
+    node = CameraModuleClient(NODE_NAME=NAME)
     rclpy.spin(node)     # keep Ros2 communication open for action node
     rclpy.shutdown()     # kill Ros2 communication
 

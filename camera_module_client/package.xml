@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-  <name>plate_camera_client</name>
+  <name>camera_module_client</name>
   <version>0.0.1</version>
-  <description>Plate camera client package</description>
+  <description>Camera module client package</description>
   <maintainer email="dozgulbas@anl.gov">Doga Ozgulbas</maintainer>
   <license>MIT License</license>
 

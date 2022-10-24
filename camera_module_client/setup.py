@@ -10,7 +10,7 @@ install_requires_list = ["setuptools", "opencv-python"]
 #             continue
 #         install_requires_list.append(req)
 
-package_name = 'plate_camera_client'
+package_name = 'camera_module_client'
 
 setup(
     name = package_name,
@@ -32,7 +32,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'plate_camera_client = plate_camera_client.plate_camera_client:main'
+            'camera_module_client = camera_module_client.camera_module_client:main'
         ],
     },
 )
