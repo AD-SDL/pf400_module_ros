@@ -103,7 +103,6 @@ class PF400ClientNode(Node):
             The robot steps it can do
         """
         '''
-        # TODO: NEED NEW VARAIBLES FOR GRIPPER CLOSED LENGHT AND GRIPPER GRAP ANGLE 
         if request.action_handle == "transfer":
 
             while self.state != "READY":
@@ -173,11 +172,19 @@ class PF400ClientNode(Node):
                 print("Setting target plate rotation to 0")
             else:
                 target_plate_rotation = str(vars.get('target_plate_rotation'))
-            
+          
             target = vars.get('target')
             print("Target location: ",target)
 
-            self.pf400.remove_lid(target, target_plate_rotation)
+            if 'lid_hight' not in vars.keys():
+                print('Using defult lid hight')
+                self.pf400.remove_lid(target, target_plate_rotation)
+
+            else:    
+                lid_hight = vars.get('lid_hight')
+                print("Lid hight: ",lid_hight)
+                self.pf400.remove_lid(target, lid_hight, target_plate_rotation)
+
 
         elif request.action_handle == "replace_lid":
 
@@ -206,8 +213,15 @@ class PF400ClientNode(Node):
             target = vars.get('target')
             print("Target location: ",target)
 
-            self.pf400.replace_lid(target, target_plate_rotation)
+            if 'lid_hight' not in vars.keys():
+                print('Using defult lid hight')
+                self.pf400.remove_lid(target, target_plate_rotation)
 
+            else:    
+                lid_hight = vars.get('lid_hight')
+                print("Lid hight: ",lid_hight)
+                self.pf400.remove_lid(target, lid_hight, target_plate_rotation)
+                
         if self.pf400.plate_state == -1:
             self.state = "ERROR"
             self.get_logger().error("Transfer cannot be completed, missing plate!")

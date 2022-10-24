@@ -696,7 +696,7 @@ class PF400(KINEMATICS):
 		# Setting the target location's linear rail position for pf400_neutral 
 		self.move_rails_neutral(target_location[0],target_location[5])
 
-	def remove_lid(self, target_loc, target_plate_rotation:str = ""):
+	def remove_lid(self, target_loc, lid_hight:float = 7.0, target_plate_rotation:str = ""):
 		"""Remove the lid from the plate"""
 		# TODO: TAKE PLATE TYPE AS A VARAIBLE TO CALCULATE LID HIGHT
 		target = copy.deepcopy(target_loc)
@@ -709,7 +709,7 @@ class PF400(KINEMATICS):
 			self.plate_target_rotation = 0	
 		
 		target = self.check_incorrect_plate_orientation(target, self.plate_target_rotation)
-		target[0] += 7
+		target[0] += lid_hight
 		self.pick_plate(target)
 
 		if self.plate_target_rotation == 90:
@@ -718,7 +718,7 @@ class PF400(KINEMATICS):
 
 		self.place_plate(self.plate_lid_deck)
 
-	def replace_lid(self, target_loc, target_plate_rotation:str = ""):
+	def replace_lid(self, target_loc, lid_hight:float = 7.0, target_plate_rotation:str = ""):
 		"""Replace the lid on the plate"""
 		# TODO: TAKE PLATE TYPE AS A VARAIBLE TO CALCULATE LID HIGHT
 		target = copy.deepcopy(target_loc)
@@ -737,7 +737,7 @@ class PF400(KINEMATICS):
 			self.rotate_plate_on_deck(self.plate_target_rotation)
 
 		target = self.check_incorrect_plate_orientation(target, self.plate_target_rotation)
-		target[0] += 7
+		target[0] += lid_hight
 		self.place_plate(target)
 
 	def rotate_plate_on_deck(self, rotation_degree:int):
