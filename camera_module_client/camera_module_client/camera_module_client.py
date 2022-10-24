@@ -8,7 +8,6 @@ from std_srvs.srv import Empty
 from time import sleep
 
 # from pf400_module_services.srv import pf400WhereJ 
-from wei_services.srv import WeiDescription 
 from wei_services.srv import WeiActions  
 
 from camera_module_driver.camera_module_driver import CameraModuleDriver
@@ -38,7 +37,6 @@ class CameraModuleClient(Node):
         self.stateTimer = self.create_timer(timer_period, self.stateCallback)
 
         self.action_handler = self.create_service(WeiActions, NODE_NAME + "/action_handler", self.actionCallback)
-        self.description_handler = self.create_service(WeiDescription, NODE_NAME + "/description_handler", self.descriptionCallback)
 
 
     def stateCallback(self):

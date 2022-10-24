@@ -5,14 +5,14 @@ from launch_ros.actions import Node
 def generate_launch_description():
     launch_d = LaunchDescription()
 
-    plate_camera_client = Node(
-            package = 'plate_camera_client',
-            namespace = 'plate_camera_client',
-            executable = 'plate_camera_client',
+    camera_module_client = Node(
+            package = 'camera_module_client',
+            namespace = 'camera_module_client',
+            executable = 'camera_module_client',
             output = "screen",
-            name='plateCameraNode'
+            name='CameraModuleClient'
     )
 
-    launch_d.add_action(plate_camera_client)
+    launch_d.add_action(camera_module_client)
     return launch_d
     

@@ -27,13 +27,11 @@ class PF400ClientNode(Node):
 
         super().__init__(NODE_NAME)
         
-        print("PF400 is online") 
-
         self.state = "UNKNOWN"
 
         self.pf400 = PF400("192.168.50.50", "10100")
         self.pf400.initialize_robot()
-
+        self.get_logger.info("PF400 online")
         timer_period = 0.5  # seconds
 
         self.stateTimer = self.create_timer(timer_period, self.stateCallback)

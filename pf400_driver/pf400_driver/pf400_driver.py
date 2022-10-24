@@ -47,17 +47,19 @@ class PF400(KINEMATICS):
 		self.attach_state = "0"
 		self.home_state = "1"
 		self.initialization_state = "0"
-		self.movement_state = self.get_robot_movement_state()
-		self.robot_state = "Normal"
 
 		# Initialize robot 
 		self.connect()
 		self.init_connection_mode()
+		
 		if port == 10100:
 			self.force_initialize_robot()
 		elif port == 10000:
 			self.status_port_initilization()
-			
+
+		self.movement_state = self.get_robot_movement_state()
+		self.robot_state = "Normal"	
+
 		# Gripper variables
 		self.gripper_open_state = 130.0
 		self.gripper_closed_state = 77.0
