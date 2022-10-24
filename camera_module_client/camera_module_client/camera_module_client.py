@@ -11,17 +11,16 @@ from time import sleep
 from wei_services.srv import WeiDescription 
 from wei_services.srv import WeiActions  
 
-
+from camera_module_driver.camera_module_driver import CameraModuleDriver
 
 class CameraModuleClient(Node):
     '''
-    The jointControlNode inputs data from the 'action' topic, providing a set of commands for the driver to execute. It then receives feedback, 
+    The CameraModuleClient inputs data from the 'action' topic, providing a set of commands for the driver to execute. It then receives feedback, 
     based on the executed command and publishes the state of the peeler and a description of the peeler to the respective topics.
     '''
     def __init__(self, NODE_NAME = "Camera_Module_Client"):
         '''
-        The init function is neccesary for the peelerNode class to initialize all variables, parameters, and other functions.
-        Inside the function the parameters exist, and calls to other functions and services are made so they can be executed in main.
+
         '''
 
         super().__init__(NODE_NAME)
@@ -30,7 +29,7 @@ class CameraModuleClient(Node):
 
         self.state = "UNKNOWN"
 
-        self.camera = CAMERA()
+        self.camera = CameraModuleDriver()
 
         timer_period = 0.5  # seconds
 
@@ -59,22 +58,18 @@ class CameraModuleClient(Node):
         can preform.
         '''
         
-        if request.action_handle == "explore_workcell":
+        if request.action_handle == "capture_image":
 
             self.state = "BUSY"
             self.stateCallback()
             vars = eval(request.vars)
             print(vars)
 
-            locations = self.camera.explore_workcell()
-            # Send workcell location data to WEI
-            print("QR Scan Completed")
-
+            self.get_logger().info("Capturing image")
+            self.camera.capture_image()
+            self.get_logger().info("Plate image saved.")
 
         self.state = "COMPLETED"
-
-        # if self.pf400.robot_state == "ERROR":
-        #     self.state = self.p400.robot_states
 
         return response
 
