@@ -14,6 +14,18 @@
     <color rgba="0 0 0.8 1"/>
   </material>
 
+  <material name="red">
+    <color rgba="0.8 0.2 0.2 1"/>
+  </material>
+
+  <material name="dark_grey">
+    <color rgba="0.4 0.4 0.4 1"/>
+  </material>
+
+  <material name="light_grey">
+    <color rgba="0.9 0.9 0.9 1"/>
+  </material>
+
   <material name="dark_blue">
     <color rgba="0.011764705882352941 0.027450980392156862 0.29215686274509803 1.0"/>
   </material>
@@ -34,21 +46,21 @@
 
   <link name="Thermocycler_Base">
     <visual>
-      <origin xyz="0.36 0.94 1.042" rpy="0 0 0"/>
+      <origin xyz="0 0.5 1.042" rpy="1.5708 0 0"/>
       <geometry>
-        <mesh filename="package://pf400_description/meshes/thermocycler_base.stl" scale="1 1 1"/>
+        <mesh filename="package://pf400_description/meshes/thermocycler_base.STL" scale="0.001 0.001 0.001"/>
       </geometry>
-      <material name="white"/>
+      <material name="light_grey"/>
     </visual>
   </link>
 
   <link name="Thermocycler_Cap">
     <visual>
-      <origin xyz="0.36 0.94 1.042" rpy="0 0 0"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="package://pf400_description/meshes/thermocycler_cap.stl" scale="1 1 1"/>
+        <mesh filename="package://pf400_description/meshes/thermocycler_cap.STL" scale="0.001 0.001 0.001"/>
       </geometry>
-      <material name="white"/>
+      <material name="red"/>
     </visual>
   </link>
 
@@ -436,16 +448,16 @@
     <parent link="module_cart_link_4"/>
     <child link="Thermocycler_Base"/>
     <axis xyz="0 0 1"/>
-    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <origin xyz="-0.2 0.2 0" rpy="0 0 0"/>
     <limit effort="1000.0" lower="0" upper="0" velocity="0.5"/>
   </joint>
 
-  <joint name="Thermocycler_Cap" type="fixed">
+  <joint name="Thermocycler_Cap" type="revolute">
     <parent link="Thermocycler_Base"/>
     <child link="Thermocycler_Cap"/>
-    <axis xyz="0 0 1"/>
-    <origin xyz="0 0 0" rpy="0 0 0"/>
-    <limit effort="1000.0" lower="0" upper="1" velocity="0.5"/>
+    <axis xyz="-1 0 0"/>
+    <origin xyz="0 0.466 1.05" rpy="1.5708 0 0"/>
+    <limit effort="1000.0" lower="0" upper="1.2" velocity="0.5"/>
   </joint>
 
   <joint name="OT2" type="fixed">
