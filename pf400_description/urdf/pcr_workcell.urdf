@@ -42,7 +42,7 @@
     <visual>
       <origin xyz="0.51 1.15 1.042" rpy="1.5708 0 0"/>
       <geometry>
-        <mesh filename="package://pf400_description/meshes/ot2_pipette_base.STL" scale="0.001 0.001 0.001"/>
+        <mesh filename="package://pf400_description/meshes/ot2_pipette_rail.STL" scale="0.001 0.001 0.001"/>
       </geometry>
       <material name="aluminum"/>
     </visual>
