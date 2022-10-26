@@ -32,6 +32,26 @@
 
   <!-- Links -->
 
+  <link name="Thermocycler_Base">
+    <visual>
+      <origin xyz="0.36 0.94 1.042" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://pf400_description/meshes/thermocycler_base.stl" scale="1 1 1"/>
+      </geometry>
+      <material name="white"/>
+    </visual>
+  </link>
+
+  <link name="Thermocycler_Cap">
+    <visual>
+      <origin xyz="0.36 0.94 1.042" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://pf400_description/meshes/thermocycler_cap.stl" scale="1 1 1"/>
+      </geometry>
+      <material name="white"/>
+    </visual>
+  </link>
+
   <link name="OT2">
     <visual>
       <origin xyz="0.36 0.94 1.042" rpy="0 0 0"/>
@@ -410,6 +430,22 @@
     <axis xyz="0 0 1"/>
     <origin xyz="0 0 0" rpy="0 0 0"/>
     <limit effort="1000.0" lower="0" upper="0" velocity="0.5"/>
+  </joint>
+
+  <joint name="Thermocycler_Base" type="fixed">
+    <parent link="module_cart_link_4"/>
+    <child link="Thermocycler_Base"/>
+    <axis xyz="0 0 1"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <limit effort="1000.0" lower="0" upper="0" velocity="0.5"/>
+  </joint>
+
+  <joint name="Thermocycler_Cap" type="fixed">
+    <parent link="Thermocycler_Base"/>
+    <child link="Thermocycler_Cap"/>
+    <axis xyz="0 0 1"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <limit effort="1000.0" lower="0" upper="1" velocity="0.5"/>
   </joint>
 
   <joint name="OT2" type="fixed">
