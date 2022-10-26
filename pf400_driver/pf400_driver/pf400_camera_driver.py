@@ -28,6 +28,7 @@ class CAMERA(PF400):
                           "sealer": [[231.788, -27.154, 313.011, 342.317, 0.0, 0.0],[-1]],
                           "Module1": [[262.550, 20.608, 119.290, 662.570, 0.0, 0],[-1]],
                           "thermocycler": [[0,0,0,0,0,0],[-1]]}
+                          
         self.module_lenght = 685.8     
         # TODO: TABLE LENGHT IS MORE THAN ARM REACH. FIND THE FURTHEST REACH AND ADD THE RAIL LENGHT ON TOP TO FILL THE GAP 685.8
         self.start_location = self.neutral_joints 
