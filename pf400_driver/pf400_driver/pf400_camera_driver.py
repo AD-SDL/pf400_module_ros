@@ -120,24 +120,24 @@ class CAMERA(PF400):
     
     def calctulate_module_location(self, target_loc, y_direction = 1, reverse_x = 0.0, offset_y = 0.0):
         
-        if reverse_x != 0:
-            x = reverse_x # Add self.robot_x_offset here ???
-        else:    
-            x = target_loc[0] 
-        y = (target_loc[1] + offset_y) * y_direction
-        z = target_loc[2]
-        phi = target_loc[3]
+        # if reverse_x != 0:
+        #     x = reverse_x # Add self.robot_x_offset here ???
+        # else:    
+        #     x = target_loc[0] 
+        # y = (target_loc[1] + offset_y) * y_direction
+        # z = target_loc[2]
+        # phi = target_loc[3]
 
-        target_joint_angles = self.inverse_kinematics(x,y,z,phi)
+        # target_joint_angles = self.inverse_kinematics(x,y,z,phi)
         
-        target_loc[0] = target_loc[2] # Setting z hight as the first joint angle for the tower
-        target_loc[1] = target_joint_angles[0][0]
-        target_loc[2] = target_joint_angles[0][1]
-        target_loc[3] = target_joint_angles[0][2]
-        target_loc[4] = 127.0 # An open gripper position for joint 5
-        target_loc[5] = self.start_location[5] 
+        # target_loc[0] = target_loc[2] # Setting z hight as the first joint angle for the tower
+        # target_loc[1] = target_joint_angles[0][0]
+        # target_loc[2] = target_joint_angles[0][1]
+        # target_loc[3] = target_joint_angles[0][2]
+        # target_loc[4] = 127.0 # An open gripper position for joint 5
+        # target_loc[5] = self.start_location[5] 
         
-        return target_loc
+        # return target_loc
         pass
 
         
