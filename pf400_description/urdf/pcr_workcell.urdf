@@ -18,6 +18,10 @@
     <color rgba="0.8 0.2 0.2 1"/>
   </material>
 
+  <material name="pink">
+    <color rgba="0.6 0.4 0.6 1"/>
+  </material>
+
   <material name="dark_grey">
     <color rgba="0.4 0.4 0.4 1"/>
   </material>
@@ -28,6 +32,10 @@
 
   <material name="dark_blue">
     <color rgba="0.011764705882352941 0.027450980392156862 0.29215686274509803 1.0"/>
+  </material>
+
+  <material name="light_blue">
+    <color rgba="0 0.5 0.8 1.0"/>
   </material>
 
   <material name="darkbluegrey" >
@@ -43,6 +51,46 @@
   </material>
 
   <!-- Links -->
+
+  <link name="Peeler_Base">
+    <visual>
+      <origin xyz="0 0 0" rpy="1.5708 0 0"/>
+      <geometry>
+        <mesh filename="package://pf400_description/meshes/peeler_base.STL" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="light_blue"/>
+    </visual>
+  </link>
+
+  <link name="Peeler_Plate">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://pf400_description/meshes/peeler_plate.STL" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="white"/>
+    </visual>
+  </link>
+  
+  <link name="Sealer_Base">
+    <visual>
+      <origin xyz="1.75 -1.25 1.042" rpy="1.5708 0 1.5708"/>
+      <geometry>
+        <mesh filename="package://pf400_description/meshes/sealer_base.STL" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="pink"/>
+    </visual>
+  </link>
+
+  <link name="Sealer_Plate">
+    <visual>
+      <origin xyz="1.808 0.002 1.425" rpy="0 1.5708 0"/>
+      <geometry>
+        <mesh filename="package://pf400_description/meshes/sealer_plate.STL" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="aluminum"/>
+    </visual>
+  </link>
 
   <link name="Thermocycler_Base">
     <visual>
@@ -458,6 +506,38 @@
     <axis xyz="-1 0 0"/>
     <origin xyz="0 0.466 1.05" rpy="1.5708 0 0"/>
     <limit effort="1000.0" lower="0" upper="1.2" velocity="0.5"/>
+  </joint>
+
+  <joint name="Peeler_Base" type="fixed">
+    <parent link="module_cart_link_5"/>
+    <child link="Peeler_Base"/>
+    <axis xyz="0 0 0"/>
+    <origin xyz="1.15 -0.37 1.042" rpy="0 0 0"/>
+    <limit effort="1000.0" lower="0" upper="0" velocity="0.5"/>
+  </joint>
+
+  <joint name="Peeler_Plate" type="prismatic">
+    <parent link="Peeler_Base"/>
+    <child link="Peeler_Plate"/>
+    <axis xyz="0 0 1"/>
+    <origin xyz="0.23 -0.03 0.083" rpy="1.5708 0 0"/>
+    <limit effort="1000.0" lower="0" upper="0.3" velocity="0.5"/>
+  </joint>
+
+  <joint name="Sealer_Base" type="fixed">
+    <parent link="module_cart_link_5"/>
+    <child link="Sealer_Base"/>
+    <axis xyz="0 0 1"/>
+    <origin xyz="-0.2 0.2 0" rpy="0 0 0"/>
+    <limit effort="1000.0" lower="0" upper="0" velocity="0.5"/>
+  </joint>
+
+  <joint name="Sealer_Plate" type="prismatic">
+    <parent link="Sealer_Base"/>
+    <child link="Sealer_Plate"/>
+    <axis xyz="0 0 1"/>
+    <origin xyz="0 0.466 1.05" rpy="1.5708 0 0"/>
+    <limit effort="1000.0" lower="0" upper="0.25" velocity="0.5"/>
   </joint>
 
   <joint name="OT2" type="fixed">
