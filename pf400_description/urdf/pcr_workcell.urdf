@@ -536,7 +536,7 @@
     <parent link="Sealer_Base"/>
     <child link="Sealer_Plate"/>
     <axis xyz="0 0 1"/>
-    <origin xyz="0.045 0.28 0.01" rpy="1.5708 0 0"/>
+    <origin xyz="0.057 0.28 0.01" rpy="1.5708 0 0"/>
     <limit effort="1000.0" lower="0" upper="0.25" velocity="0.5"/>
   </joint>
 
