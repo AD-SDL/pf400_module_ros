@@ -17,7 +17,7 @@ def generate_launch_description():
   default_rviz_config_path = os.path.join(pkg_share, 'config/pcr_workcell_config.rviz')
   print(default_rviz_config_path)
  
-  default_urdf_model_path = os.path.join(pkg_share, 'urdf/pcr_workcell.urdf') 
+  default_urdf_model_path = os.path.join(pkg_share, 'urdf/pcr_workcell.urdf.xacro') 
  
   gui = LaunchConfiguration('gui')
   urdf_model = LaunchConfiguration('urdf_model')
