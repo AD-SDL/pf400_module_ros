@@ -15,7 +15,7 @@ def generate_launch_description():
   pkg_share = FindPackageShare(package='pf400_description').find('pf400_description')
   default_rviz_config_path = os.path.join(pkg_share, 'config/pf400_rviz_config.rviz')
  
-  default_urdf_model_path = os.path.join(pkg_share, 'urdf/PF400.urdf') # Fix the vertical rail scale
+  default_urdf_model_path = os.path.join(pkg_share, 'urdf/PF400.urdf.xacro') # Fix the vertical rail scale
  
   gui = LaunchConfiguration('gui')
   urdf_model = LaunchConfiguration('urdf_model')

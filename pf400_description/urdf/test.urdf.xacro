@@ -1,0 +1,98 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- Links -->
+  <xacro:macro name="pf400" params = "prefix">
+
+  <link name="${prefix}pf400/rail_base">
+    <visual>
+      <origin xyz="0.125 -0.0198 0" rpy="0 0 1.5708"/>
+      <geometry>
+        <mesh filename="package://pf400_description/meshes/rail_base.STL" scale="1 1 1"/>
+      </geometry>
+      <material name="white"/>
+    </visual>
+  </link>
+
+  <link name="${prefix}pf400/rail">
+    <visual>
+      <origin xyz="0.1309 -0.0198 0.0320" rpy="1.5708 0 1.5708"/>
+      <geometry>
+        <mesh filename="package://pf400_description/meshes/rail.STL" scale="1 1 1"/>
+      </geometry>
+      <material name="white"/>
+    </visual>
+  </link>
+
+  <link name="${prefix}pf400/z_column">
+    <visual>
+      <origin xyz="0 0 0.074" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://pf400_description/meshes/PF400_Z_Column.STL" scale="0.001 0.001 0.00132"/>
+      </geometry>
+      <material name="white"/>
+    </visual>
+  </link>
+
+  <link name="${prefix}pf400/z_carriage">
+    <visual>
+      <origin xyz="0 0 0.074" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://pf400_description/meshes/PF400_Z_Carriage.STL" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="white"/>
+    </visual>
+  </link>
+
+  <link name="${prefix}pf400/inner_link">
+    <visual>
+      <origin xyz="0 0 0.074" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://pf400_description/meshes/PF400_Inner_Link.STL" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="white"/>
+    </visual>
+  </link>
+
+  <link name="${prefix}pf400/outer_link">
+    <visual>
+      <origin xyz="0 0 0.074" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://pf400_description/meshes/PF400_Outer_Link.STL" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="white"/>
+    </visual>
+  </link>
+
+  <link name="${prefix}pf400/hand">
+    <visual>
+      <origin xyz="0 0 0.074" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://pf400_description/meshes/PF400_Hand.STL" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="white"/>
+    </visual>
+  </link>
+
+  <link name="${prefix}pf400/left_finger">
+    <visual>
+      <origin xyz="-0.02 -0.053 0.053" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://pf400_description/meshes/pf400_left_finger.STL" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="aluminum"/>
+    </visual>
+  </link>
+
+  <link name="${prefix}pf400/right_finger">
+    <visual>
+      <origin xyz="-0.021 -0.028 0.105" rpy="-1.5708 0 0"/>
+      <geometry>
+        <mesh filename="package://pf400_description/meshes/pf400_right_finger.STL" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="aluminum"/>
+    </visual>
+  </link>
+  </xacro:macro>
+
+</robot>
