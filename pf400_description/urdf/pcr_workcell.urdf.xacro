@@ -50,7 +50,11 @@
   <material name="aluminum">
     <color rgba="0.6 0.6 0.6 1"/>
   </material>
-
+  
+  <!-- PF400 -->
+  <xacro:include filename="$(find pf400_description)/urdf/PF400.urdf.xacro" />
+  <xacro:pf400 prefix="pf400/"/>
+  
   <!-- Links -->
 
   <link name="Peeler_Base">
@@ -263,17 +267,12 @@
     </visual>
   </link>
 
-  <!-- PF400 -->
-  <xacro:include filename="$(find pf400_description)/urdf/PF400.urdf.xacro" />
-  <xacro:pf400 prefix="${prefix}pf400/"/>
-  
-
   <!-- Joints -->
 
 
   <joint name="module_table" type="fixed">
     <parent link="pf400_module"/>
-    <child link="${prefix}pf400/rail_base"/>
+    <child link="pf400/rail_base"/>
     <axis xyz="0 0 1"/>
     <origin xyz="0 0 0" rpy="0 0 0"/>
     <limit effort="1000.0" lower="0" upper="0" velocity="0.5"/>
