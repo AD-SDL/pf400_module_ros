@@ -3,7 +3,7 @@
 
 
   <!-- Links -->
-  <xacro:macro name="peeler" params = "prefix">
+  <xacro:macro name="Peeler" params = "prefix">
     <link name="${prefix}peeler_base">
     <visual>
       <origin xyz="0 0 0" rpy="1.5708 0 0"/>

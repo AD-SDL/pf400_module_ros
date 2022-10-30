@@ -4,15 +4,6 @@
 
   <!-- Links -->
   <xacro:macro name="OT2" params = "prefix">
-  <link name="${prefix}rail_base">
-    <visual>
-      <origin xyz="0.125 -0.0198 0" rpy="0 0 1.5708"/>
-      <geometry>
-        <mesh filename="package://pf400_description/meshes/rail_base.STL" scale="1 1 1"/>
-      </geometry>
-      <material name="white"/>
-    </visual>
-  </link>
 
   <link name="${prefix}OT2">
     <visual>
@@ -54,7 +45,7 @@
     </visual>
   </link>
 
-  <link name="${prefix}OT2_8_hannel_pipette">
+  <link name="${prefix}OT2_8_channel_pipette">
     <visual>
       <origin xyz="0.51 1.15 1.042" rpy="0 0 0"/>
       <geometry>
