@@ -102,7 +102,6 @@
     <axis xyz="0 0 1"/>
     <origin xyz="0.03005 -0.0198 0.17535" rpy="0 0 0"/>
     <limit effort="1000.0" lower="0.002" upper="1.160" velocity="0.5"/>  </joint>
-  </joint>
 
   <joint name="J2" type="revolute">
     <parent link="${prefix}z_carriage"/>

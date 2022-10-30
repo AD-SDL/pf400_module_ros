@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import rclpy
+# import rclpy
 import profile
 import telnetlib
 import threading
@@ -10,9 +10,9 @@ import math
 from operator import add
 from time import sleep
 
-from pf400_driver.motion_profiles import motion_profiles
-from pf400_driver.error_codes import error_codes
-from pf400_driver.pf400_kinematics import KINEMATICS
+from motion_profiles import motion_profiles
+from error_codes import error_codes
+from pf400_kinematics import KINEMATICS
 
 class PF400(KINEMATICS):
 	commandLock = threading.Lock()

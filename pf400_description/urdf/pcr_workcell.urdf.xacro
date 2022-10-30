@@ -54,118 +54,25 @@
   <!-- PF400 -->
   <xacro:include filename="$(find pf400_description)/urdf/PF400.urdf.xacro" />
   <xacro:pf400 prefix="pf400/"/>
+
+  <!-- Peeler -->
+  <xacro:include filename="$(find pf400_description)/urdf/peeler.urdf.xacro" />
+  <xacro:Peeler prefix="peeler/"/>
+
+  <!-- Sealer -->
+  <xacro:include filename="$(find pf400_description)/urdf/sealer.urdf.xacro" />
+  <xacro:Sealer prefix="sealer/"/>
+  
+  <!-- OT2 -->
+  <xacro:include filename="$(find pf400_description)/urdf/OT2.urdf.xacro" />
+  <xacro:OT2 prefix="ot2/"/>
+
+  <!-- Thermocycler -->
+  <xacro:include filename="$(find pf400_description)/urdf/thermocycler.urdf.xacro" />
+  <xacro:Thermocycler prefix="thermocycler/"/>
   
   <!-- Links -->
-
-  <link name="Peeler_Base">
-    <visual>
-      <origin xyz="0 0 0" rpy="1.5708 0 0"/>
-      <geometry>
-        <mesh filename="package://pf400_description/meshes/peeler_base.STL" scale="0.001 0.001 0.001"/>
-      </geometry>
-      <material name="light_blue"/>
-    </visual>
-  </link>
-
-  <link name="Peeler_Plate">
-    <visual>
-      <origin xyz="0 0 0" rpy="0 0 0"/>
-      <geometry>
-        <mesh filename="package://pf400_description/meshes/peeler_plate.STL" scale="0.001 0.001 0.001"/>
-      </geometry>
-      <material name="white"/>
-    </visual>
-  </link>
   
-  <link name="Sealer_Base">
-    <visual>
-      <origin xyz="0 0 0" rpy="1.5708 0 1.5708"/>
-      <geometry>
-        <mesh filename="package://pf400_description/meshes/sealer_base.STL" scale="0.001 0.001 0.001"/>
-      </geometry>
-      <material name="pink"/>
-    </visual>
-  </link>
-
-  <link name="Sealer_Plate">
-    <visual>
-      <origin xyz="0 0 0" rpy="0 1.5708 0"/>
-      <geometry>
-        <mesh filename="package://pf400_description/meshes/sealer_plate.STL" scale="0.001 0.001 0.001"/>
-      </geometry>
-      <material name="aluminum"/>
-    </visual>
-  </link>
-
-  <link name="Thermocycler_Base">
-    <visual>
-      <origin xyz="0 0.5 1.042" rpy="1.5708 0 0"/>
-      <geometry>
-        <mesh filename="package://pf400_description/meshes/thermocycler_base.STL" scale="0.001 0.001 0.001"/>
-      </geometry>
-      <material name="light_grey"/>
-    </visual>
-  </link>
-
-  <link name="Thermocycler_Cap">
-    <visual>
-      <origin xyz="0 0 0" rpy="0 0 0"/>
-      <geometry>
-        <mesh filename="package://pf400_description/meshes/thermocycler_cap.STL" scale="0.001 0.001 0.001"/>
-      </geometry>
-      <material name="red"/>
-    </visual>
-  </link>
-
-  <link name="OT2">
-    <visual>
-      <origin xyz="0.36 0.94 1.042" rpy="0 0 0"/>
-      <geometry>
-        <mesh filename="package://pf400_description/meshes/OT2_base.stl" scale="1 1 1"/>
-      </geometry>
-      <material name="aluminum"/>
-    </visual>
-  </link>
-
-  <link name="OT2_pipette_rail">
-    <visual>
-      <origin xyz="0.36 1.15 1.042" rpy="0 0 0"/>
-      <geometry>
-        <mesh filename="package://pf400_description/meshes/OT2_rail.stl" scale="1 1 1"/>
-      </geometry>
-      <material name="aluminum"/>
-    </visual>
-  </link>
-
-  <link name="OT2_pipette_base">
-    <visual>
-      <origin xyz="0.51 1.15 1.042" rpy="0 0 0"/>
-      <geometry>
-        <mesh filename="package://pf400_description/meshes/OT2_pipette_base.stl" scale="1 1 1"/>
-      </geometry>
-      <material name="aluminum"/>
-    </visual>
-  </link>
-
-  <link name="OT2_single_pipette">
-    <visual>
-      <origin xyz="0.79 0.76 1.27" rpy="1.5708 0 1.5708"/>
-      <geometry>
-        <mesh filename="package://pf400_description/meshes/pipette.STL" scale="0.001 0.001 0.001"/>
-      </geometry>
-      <material name="black"/>
-    </visual>
-  </link>
-
-  <link name="OT2_8_channel_pipette">
-    <visual>
-      <origin xyz="0.51 1.15 1.042" rpy="0 0 0"/>
-      <geometry>
-        <mesh filename="package://pf400_description/meshes/OT2_8ch_pipette.stl" scale="1 1 1"/>
-      </geometry>
-      <material name="black"/>
-    </visual>
-  </link>
 
   <link name="OT2_2">
     <visual>
@@ -344,94 +251,39 @@
 
   <joint name="Thermocycler_Base" type="fixed">
     <parent link="module_cart_link_4"/>
-    <child link="Thermocycler_Base"/>
+    <child link="thermocycler/Thermocycler_Base"/>
     <axis xyz="0 0 1"/>
     <origin xyz="-0.2 0.2 0" rpy="0 0 0"/>
     <limit effort="1000.0" lower="0" upper="0" velocity="0.5"/>
   </joint>
 
-  <joint name="Thermocycler_Cap" type="revolute">
-    <parent link="Thermocycler_Base"/>
-    <child link="Thermocycler_Cap"/>
-    <axis xyz="-1 0 0"/>
-    <origin xyz="0 0.466 1.05" rpy="1.5708 0 0"/>
-    <limit effort="1000.0" lower="0" upper="1.2" velocity="0.5"/>
-  </joint>
 
   <joint name="Peeler_Base" type="fixed">
     <parent link="module_cart_link_5"/>
-    <child link="Peeler_Base"/>
+    <child link="peeler/peeler_base"/>
     <axis xyz="0 0 0"/>
     <origin xyz="1.15 -0.37 1.042" rpy="0 0 0"/>
     <limit effort="1000.0" lower="0" upper="0" velocity="0.5"/>
   </joint>
 
-  <joint name="Peeler_Plate" type="prismatic">
-    <parent link="Peeler_Base"/>
-    <child link="Peeler_Plate"/>
-    <axis xyz="0 0 1"/>
-    <origin xyz="0.23 -0.03 0.083" rpy="1.5708 0 0"/> 
-    <limit effort="1000.0" lower="0" upper="0.3" velocity="0.5"/>
-  </joint>
-
   <joint name="Sealer_Base" type="fixed">
     <parent link="module_cart_link_5"/>
-    <child link="Sealer_Base"/>
+    <child link="sealer/sealer_base"/>
     <axis xyz="0 0 1"/>
     <origin xyz="1.55 -1.05 1.042" rpy="0 0 0"/> 
     <limit effort="1000.0" lower="0" upper="0" velocity="0.5"/>
   </joint>
 
-  <joint name="Sealer_Plate" type="prismatic">
-    <parent link="Sealer_Base"/>
-    <child link="Sealer_Plate"/>
-    <axis xyz="0 0 1"/>
-    <origin xyz="0.057 0.28 0.01" rpy="1.5708 0 0"/>
-    <limit effort="1000.0" lower="0" upper="0.25" velocity="0.5"/>
-  </joint>
-
   <joint name="OT2" type="fixed">
     <parent link="module_cart_link_2"/>
-    <child link="OT2"/>
+    <child link="ot2/OT2"/>
     <axis xyz="0 0 1"/>
     <origin xyz="0 0 0" rpy="0 0 0"/>
     <limit effort="1000.0" lower="0" upper="0" velocity="0.5"/>
   </joint>
 
-  <joint name="pipette_rail_y" type="prismatic">
-    <parent link="OT2"/>
-    <child link="OT2_pipette_rail"/>
-    <axis xyz="0 -1 0"/>
-    <origin xyz="0 0 0" rpy="0 0 0"/>
-    <limit effort="1000.0" lower="0" upper="0.3" velocity="0.5"/>
-  </joint>
-
-  <joint name="pipette_rail_x" type="prismatic">
-    <parent link="OT2_pipette_rail"/>
-    <child link="OT2_pipette_base"/>
-    <axis xyz="-1 0 0"/>
-    <origin xyz="0 0 0" rpy="0 0 0"/>
-    <limit effort="1000.0" lower="0" upper="0.3" velocity="0.5"/>
-  </joint>
-
-  <joint name="single_pipette" type="prismatic">
-    <parent link="OT2_pipette_base"/>
-    <child link="OT2_single_pipette"/>
-    <axis xyz="0 0 -1"/>
-    <origin xyz="0 0 0" rpy="0 0 0"/>
-    <limit effort="1000.0" lower="0" upper="0.18" velocity="0.5"/>
-  </joint>
-
-  <joint name="8_channel_pipette" type="prismatic">
-    <parent link="OT2_pipette_base"/>
-    <child link="OT2_8_channel_pipette"/>
-    <axis xyz="0 0 -1"/>
-    <origin xyz="0 0 0" rpy="0 0 0"/>
-    <limit effort="1000.0" lower="0" upper="0.18" velocity="0.5"/>
-  </joint>
-
   <joint name="OT2_2" type="fixed">
-    <parent link="OT2"/>
+    <parent link="ot2/OT2"/>
     <child link="OT2_2"/>
     <axis xyz="0 0 1"/>
     <origin xyz="0 0 0" rpy="0 0 0"/>
