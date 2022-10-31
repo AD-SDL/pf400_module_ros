@@ -1,162 +1,163 @@
 <?xml version="1.0"?>
-<robot name="PF400_Robot" xmlns:xacro="http://www.ros.org/wiki/xacro">
+<robot name="Module_Carts" xmlns:xacro="http://www.ros.org/wiki/xacro">
 
 
   <!-- Links -->
-  <xacro:macro name="pf400" params = "prefix">
-  <link name="${prefix}rail_base">
+  <xacro:macro name="Module_Carts" params = "prefix">
+  <link name="${prefix}cart_1">
     <visual>
-      <origin xyz="0.125 -0.0198 0" rpy="0 0 1.5708"/>
+      <origin xyz="1.32 0.847 0" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="package://pf400_description/meshes/rail_base.STL" scale="1 1 1"/>
+        <mesh filename="package://pf400_description/meshes/module_cart.stl" scale="1 1 1"/>
       </geometry>
-      <material name="white"/>
+      <material name="darkbluegreen"/>
     </visual>
   </link>
 
-  <link name="${prefix}rail">
+  <link name="${prefix}cart_2">
     <visual>
-      <origin xyz="0.1309 -0.0198 0.0320" rpy="1.5708 0 1.5708"/>
+      <origin xyz="0.51 0.847 0" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="package://pf400_description/meshes/rail.STL" scale="1 1 1"/>
+        <mesh filename="package://pf400_description/meshes/module_cart.stl" scale="1 1 1"/>
       </geometry>
-      <material name="white"/>
+      <material name="darkbluegreen"/>
     </visual>
   </link>
 
-  <link name="${prefix}z_column">
+  <link name="${prefix}cart_3">
     <visual>
-      <origin xyz="0 0 0.074" rpy="0 0 0"/>
+      <origin xyz="-0.368 0.847 0" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="package://pf400_description/meshes/PF400_Z_Column.STL" scale="0.001 0.001 0.00132"/>
+        <mesh filename="package://pf400_description/meshes/module_cart.stl" scale="1 1 1"/>
       </geometry>
-      <material name="white"/>
+      <material name="darkbluegreen"/>
     </visual>
   </link>
 
-  <link name="${prefix}z_carriage">
+  <link name="${prefix}cart_4">
     <visual>
-      <origin xyz="0 0 0.074" rpy="0 0 0"/>
+      <origin xyz="-1.18 0.847 0" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="package://pf400_description/meshes/PF400_Z_Carriage.STL" scale="0.001 0.001 0.001"/>
+        <mesh filename="package://pf400_description/meshes/module_cart.stl" scale="1 1 1"/>
       </geometry>
-      <material name="white"/>
+      <material name="darkbluegreen"/>
     </visual>
   </link>
 
-  <link name="${prefix}inner_link">
+  <link name="${prefix}cart_5">
     <visual>
-      <origin xyz="0 0 0.074" rpy="0 0 0"/>
+      <origin xyz="1.32  -0.548 0" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="package://pf400_description/meshes/PF400_Inner_Link.STL" scale="0.001 0.001 0.001"/>
+        <mesh filename="package://pf400_description/meshes/module_cart.stl" scale="1 1 1"/>
       </geometry>
-      <material name="white"/>
+      <material name="darkbluegreen"/>
+    </visual>
+  </link>
+  
+  <link name="${prefix}cart_6">
+    <visual>
+      <origin xyz="0.51 -0.548 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://pf400_description/meshes/module_cart.stl" scale="1 1 1"/>
+      </geometry>
+      <material name="darkbluegreen"/>
     </visual>
   </link>
 
-  <link name="${prefix}outer_link">
+  <link name="${prefix}cart_7">
     <visual>
-      <origin xyz="0 0 0.074" rpy="0 0 0"/>
+      <origin xyz="-0.368 -0.548 0" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="package://pf400_description/meshes/PF400_Outer_Link.STL" scale="0.001 0.001 0.001"/>
+        <mesh filename="package://pf400_description/meshes/module_cart.stl" scale="1 1 1"/>
       </geometry>
-      <material name="white"/>
+      <material name="darkbluegreen"/>
     </visual>
   </link>
 
-  <link name="${prefix}hand">
+  <link name="${prefix}cart_8">
     <visual>
-      <origin xyz="0 0 0.074" rpy="0 0 0"/>
+      <origin xyz="-1.18 -0.548 0" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="package://pf400_description/meshes/PF400_Hand.STL" scale="0.001 0.001 0.001"/>
+        <mesh filename="package://pf400_description/meshes/module_cart.stl" scale="1 1 1"/>
       </geometry>
-      <material name="white"/>
+      <material name="darkbluegreen"/>
     </visual>
   </link>
 
-  <link name="${prefix}left_finger">
+  <link name="${prefix}pf400_cart">
     <visual>
-      <origin xyz="-0.02 -0.053 0.053" rpy="0 0 0"/>
+      <origin xyz="-1.63 2.347 -1.11" rpy="1.5708 0 0"/>
       <geometry>
-        <mesh filename="package://pf400_description/meshes/pf400_left_finger.STL" scale="0.001 0.001 0.001"/>
+        <mesh filename="package://pf400_description/meshes/PF400_module.STL" scale="0.001 0.001 0.001"/>
       </geometry>
-      <material name="aluminum"/>
-    </visual>
-  </link>
-
-  <link name="${prefix}right_finger">
-    <visual>
-      <origin xyz="-0.021 -0.028 0.105" rpy="-1.5708 0 0"/>
-      <geometry>
-        <mesh filename="package://pf400_description/meshes/pf400_right_finger.STL" scale="0.001 0.001 0.001"/>
-      </geometry>
-      <material name="aluminum"/>
+      <material name="darkbluegreen"/>
     </visual>
   </link>
 
   <!-- Joints -->
 
-  <joint name="J1" type="prismatic">
-    <parent link="${prefix}z_column"/>
-    <child link="${prefix}z_carriage"/>
+ 
+  <joint name="pf400_cart_to_cart_1" type="fixed">
+    <parent link="${prefix}cart_1"/>
+    <child link="${prefix}pf400_cart"/>
     <axis xyz="0 0 1"/>
-    <origin xyz="0.03005 -0.0198 0.17535" rpy="0 0 0"/>
-    <limit effort="1000.0" lower="0.002" upper="1.160" velocity="0.5"/>  </joint>
-
-  <joint name="J2" type="revolute">
-    <parent link="${prefix}z_carriage"/>
-    <child link="${prefix}inner_link"/>
-    <axis xyz="0 0 1"/>
-    <origin xyz="0.173001 0.020 0.0235" rpy="0 0 0"/>
-    <limit effort="1000.0" lower="-1.62316" upper="1.62316" velocity="0.5"/>
-  </joint>
-
-  <joint name="J3" type="revolute">
-    <parent link="${prefix}inner_link"/>
-    <child link="${prefix}outer_link"/>
-    <axis xyz="0 0 1"/>
-    <origin xyz="0.302 0 -0.072285" rpy="0 0 0"/>
-    <limit effort="1000.0" lower="0.175" upper="6.1" velocity="0.5"/>
-  </joint>
-
-  <joint name="J4" type="revolute">
-    <parent link="${prefix}outer_link"/>
-    <child link="${prefix}hand"/>
-    <axis xyz="0 0 1"/>
-    <origin xyz="0.289 0 -0.032942" rpy="0 0 0"/>
-    <limit effort="1000.0" lower="-16.7552" upper="16.7552" velocity="0.5"/>
-  </joint>
-
-  <joint name="J5" type="prismatic">
-    <parent link="${prefix}hand"/>
-    <child link="${prefix}left_finger"/>
-    <axis xyz="0 1 0"/>
-    <origin xyz="0.078573 0 -0.04269" rpy="0 0 0"/>
-    <limit effort="1000.0" lower="0.067454" upper="0.070" velocity="0.5"/>
-  </joint>
-
-  <joint name="J5_mirror" type="prismatic">
-    <parent link="${prefix}hand"/>
-    <child link="${prefix}right_finger"/>
-    <axis xyz="0 -1 0"/>
-    <origin xyz="0.078573 0 -0.04269" rpy="0 0 0"/>
-    <limit effort="1000.0" lower="0.067454" upper="0.070" velocity="0.5"/>
-    <mimic joint="J5" multiplier="1"/>
-  </joint>
-
-  <joint name="J6" type="prismatic">
-    <parent link="${prefix}rail_base"/>
-    <child link="${prefix}rail"/>
-    <axis xyz="1 0 0"/>
     <origin xyz="0 0 0" rpy="0 0 0"/>
-    <limit effort="1000.0" lower="-1" upper="1" velocity="0.5"/>
+    <limit effort="1000.0" lower="0" upper="0" velocity="0.5"/>
+  </joint>
+  
+  <joint name="cart_1_to_cart_2" type="fixed">
+    <parent link="${prefix}cart_2"/>
+    <child link="${prefix}cart_1"/>
+    <axis xyz="0 0 1"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <limit effort="1000.0" lower="0" upper="0" velocity="0.5"/>
   </joint>
 
-  <joint name="rail_link" type="fixed">
-    <parent link="${prefix}rail"/>
-    <child link="${prefix}z_column"/>
-    <axis xyz="0 1 0"/>
-    <origin xyz="0.03005 -0.0198 0.05" rpy="0 0 0"/>
+  <joint name="cart_2_to_cart_3" type="fixed">
+    <parent link="${prefix}cart_3"/>
+    <child link="${prefix}cart_2"/>
+    <axis xyz="0 0 1"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <limit effort="1000.0" lower="0" upper="0" velocity="0.5"/>
+  </joint>
+
+  <joint name="cart_3_to_cart_4" type="fixed">
+    <parent link="${prefix}cart_4"/>
+    <child link="${prefix}cart_3"/>
+    <axis xyz="0 0 1"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <limit effort="1000.0" lower="0" upper="0" velocity="0.5"/>
+  </joint>
+
+  <joint name="cart_4_to_cart_5" type="fixed">
+    <parent link="${prefix}cart_5"/>
+    <child link="${prefix}cart_4"/>
+    <axis xyz="0 0 1"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <limit effort="1000.0" lower="0" upper="0" velocity="0.5"/>
+  </joint>
+
+  <joint name="cart_5_to_cart_6" type="fixed">
+    <parent link="${prefix}cart_6"/>
+    <child link="${prefix}cart_5"/>
+    <axis xyz="0 0 1"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <limit effort="1000.0" lower="0" upper="0" velocity="0.5"/>
+  </joint>
+
+  <joint name="cart_6_to_cart_7" type="fixed">
+    <parent link="${prefix}cart_7"/>
+    <child link="${prefix}cart_6"/>
+    <axis xyz="0 0 1"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <limit effort="1000.0" lower="0" upper="0" velocity="0.5"/>
+  </joint>
+
+  <joint name="cart_7_to_cart_8" type="fixed">
+    <parent link="${prefix}cart_8"/>
+    <child link="${prefix}cart_7"/>
+    <axis xyz="0 0 1"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
     <limit effort="1000.0" lower="0" upper="0" velocity="0.5"/>
   </joint>
   </xacro:macro>

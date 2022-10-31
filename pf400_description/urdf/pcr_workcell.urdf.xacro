@@ -2,54 +2,7 @@
 <robot name="PCR Workcell" xmlns:xacro="http://www.ros.org/wiki/xacro">
 
   <!-- Materials -->
-
-  <material name="white">
-    <color rgba="1 1 1 1"/>
-  </material>
-
-  <material name="black">
-    <color rgba="0.2 0.2 0.2 1"/>
-  </material>
-
-  <material name="blue">
-    <color rgba="0 0 0.8 1"/>
-  </material>
-
-  <material name="red">
-    <color rgba="0.8 0.2 0.2 1"/>
-  </material>
-
-  <material name="pink">
-    <color rgba="0.6 0.4 0.6 1"/>
-  </material>
-
-  <material name="dark_grey">
-    <color rgba="0.4 0.4 0.4 1"/>
-  </material>
-
-  <material name="light_grey">
-    <color rgba="0.9 0.9 0.9 1"/>
-  </material>
-
-  <material name="dark_blue">
-    <color rgba="0.011764705882352941 0.027450980392156862 0.29215686274509803 1.0"/>
-  </material>
-
-  <material name="light_blue">
-    <color rgba="0 0.5 0.8 1.0"/>
-  </material>
-
-  <material name="darkbluegrey" >
-    <color rgba="0.12156862745098039 0.23137254901960785 0.30196078431372547 1.0" />
-  </material>
-  
-  <material name="darkbluegreen" >
-    <color rgba="0.0 0.1 0.13 1.0" />
-  </material>
-
-  <material name="aluminum">
-    <color rgba="0.6 0.6 0.6 1"/>
-  </material>
+  <xacro:include filename="$(find pf400_description)/urdf/PF400.urdf.xacro" />
   
   <!-- PF400 -->
   <xacro:include filename="$(find pf400_description)/urdf/PF400.urdf.xacro" />
@@ -70,9 +23,12 @@
   <!-- Thermocycler -->
   <xacro:include filename="$(find pf400_description)/urdf/thermocycler.urdf.xacro" />
   <xacro:Thermocycler prefix="thermocycler/"/>
-  
+
+  <!-- Module Carts -->
+  <xacro:include filename="$(find pf400_description)/urdf/module_carts.urdf.xacro" />
+  <xacro:Module_Carts prefix="module_carts/"/>
+
   <!-- Links -->
-  
 
   <link name="OT2_2">
     <visual>
@@ -84,182 +40,26 @@
     </visual>
   </link>
 
-  <link name="module_cart_link_1">
-    <visual>
-      <origin xyz="1.32 0.847 0" rpy="0 0 0"/>
-      <geometry>
-        <mesh filename="package://pf400_description/meshes/module_cart.stl" scale="1 1 1"/>
-      </geometry>
-      <material name="darkbluegreen"/>
-    </visual>
-  </link>
-
-  <link name="module_cart_link_2">
-    <visual>
-      <origin xyz="0.51 0.847 0" rpy="0 0 0"/>
-      <geometry>
-        <mesh filename="package://pf400_description/meshes/module_cart.stl" scale="1 1 1"/>
-      </geometry>
-      <material name="darkbluegreen"/>
-    </visual>
-  </link>
-
-  <link name="module_cart_link_3">
-    <visual>
-      <origin xyz="-0.368 0.847 0" rpy="0 0 0"/>
-      <geometry>
-        <mesh filename="package://pf400_description/meshes/module_cart.stl" scale="1 1 1"/>
-      </geometry>
-      <material name="darkbluegreen"/>
-    </visual>
-  </link>
-
-  <link name="module_cart_link_4">
-    <visual>
-      <origin xyz="-1.18 0.847 0" rpy="0 0 0"/>
-      <geometry>
-        <mesh filename="package://pf400_description/meshes/module_cart.stl" scale="1 1 1"/>
-      </geometry>
-      <material name="darkbluegreen"/>
-    </visual>
-  </link>
-
-  <link name="module_cart_link_5">
-    <visual>
-      <origin xyz="1.32  -0.548 0" rpy="0 0 0"/>
-      <geometry>
-        <mesh filename="package://pf400_description/meshes/module_cart.stl" scale="1 1 1"/>
-      </geometry>
-      <material name="darkbluegreen"/>
-    </visual>
-  </link>
-  
-  <link name="module_cart_link_6">
-    <visual>
-      <origin xyz="0.51 -0.548 0" rpy="0 0 0"/>
-      <geometry>
-        <mesh filename="package://pf400_description/meshes/module_cart.stl" scale="1 1 1"/>
-      </geometry>
-      <material name="darkbluegreen"/>
-    </visual>
-  </link>
-
-  <link name="module_cart_link_7">
-    <visual>
-      <origin xyz="-0.368 -0.548 0" rpy="0 0 0"/>
-      <geometry>
-        <mesh filename="package://pf400_description/meshes/module_cart.stl" scale="1 1 1"/>
-      </geometry>
-      <material name="darkbluegreen"/>
-    </visual>
-  </link>
-
-  <link name="module_cart_link_8">
-    <visual>
-      <origin xyz="-1.18 -0.548 0" rpy="0 0 0"/>
-      <geometry>
-        <mesh filename="package://pf400_description/meshes/module_cart.stl" scale="1 1 1"/>
-      </geometry>
-      <material name="darkbluegreen"/>
-    </visual>
-  </link>
-
-  <link name="pf400_module">
-    <visual>
-      <origin xyz="-1.63 2.347 -1.11" rpy="1.5708 0 0"/>
-      <geometry>
-        <mesh filename="package://pf400_description/meshes/PF400_module.STL" scale="0.001 0.001 0.001"/>
-      </geometry>
-      <material name="darkbluegreen"/>
-    </visual>
-  </link>
-
   <!-- Joints -->
 
-
-  <joint name="module_table" type="fixed">
-    <parent link="pf400_module"/>
+  <joint name="pf400_module" type="fixed">
+    <parent link="module_carts/pf400_cart"/>
     <child link="pf400/rail_base"/>
     <axis xyz="0 0 1"/>
     <origin xyz="0 0 0" rpy="0 0 0"/>
     <limit effort="1000.0" lower="0" upper="0" velocity="0.5"/>
   </joint>
 
-  <joint name="module_cart_link_1" type="fixed">
-    <parent link="module_cart_link_1"/>
-    <child link="pf400_module"/>
-    <axis xyz="0 0 1"/>
-    <origin xyz="0 0 0" rpy="0 0 0"/>
-    <limit effort="1000.0" lower="0" upper="0" velocity="0.5"/>
-  </joint>
-  
-  <joint name="module_cart_link_2" type="fixed">
-    <parent link="module_cart_link_2"/>
-    <child link="module_cart_link_1"/>
-    <axis xyz="0 0 1"/>
-    <origin xyz="0 0 0" rpy="0 0 0"/>
-    <limit effort="1000.0" lower="0" upper="0" velocity="0.5"/>
-  </joint>
-
-  <joint name="module_cart_link_3" type="fixed">
-    <parent link="module_cart_link_3"/>
-    <child link="module_cart_link_2"/>
-    <axis xyz="0 0 1"/>
-    <origin xyz="0 0 0" rpy="0 0 0"/>
-    <limit effort="1000.0" lower="0" upper="0" velocity="0.5"/>
-  </joint>
-
-  <joint name="module_cart_link_4" type="fixed">
-    <parent link="module_cart_link_4"/>
-    <child link="module_cart_link_3"/>
-    <axis xyz="0 0 1"/>
-    <origin xyz="0 0 0" rpy="0 0 0"/>
-    <limit effort="1000.0" lower="0" upper="0" velocity="0.5"/>
-  </joint>
-
-  <joint name="module_cart_link_5" type="fixed">
-    <parent link="module_cart_link_5"/>
-    <child link="module_cart_link_4"/>
-    <axis xyz="0 0 1"/>
-    <origin xyz="0 0 0" rpy="0 0 0"/>
-    <limit effort="1000.0" lower="0" upper="0" velocity="0.5"/>
-  </joint>
-
-  <joint name="module_cart_link_6" type="fixed">
-    <parent link="module_cart_link_6"/>
-    <child link="module_cart_link_5"/>
-    <axis xyz="0 0 1"/>
-    <origin xyz="0 0 0" rpy="0 0 0"/>
-    <limit effort="1000.0" lower="0" upper="0" velocity="0.5"/>
-  </joint>
-
-  <joint name="module_cart_link_7" type="fixed">
-    <parent link="module_cart_link_7"/>
-    <child link="module_cart_link_6"/>
-    <axis xyz="0 0 1"/>
-    <origin xyz="0 0 0" rpy="0 0 0"/>
-    <limit effort="1000.0" lower="0" upper="0" velocity="0.5"/>
-  </joint>
-
-  <joint name="module_cart_link_8" type="fixed">
-    <parent link="module_cart_link_8"/>
-    <child link="module_cart_link_7"/>
-    <axis xyz="0 0 1"/>
-    <origin xyz="0 0 0" rpy="0 0 0"/>
-    <limit effort="1000.0" lower="0" upper="0" velocity="0.5"/>
-  </joint>
-
   <joint name="Thermocycler_Base" type="fixed">
-    <parent link="module_cart_link_4"/>
+    <parent link="module_carts/cart_4"/>
     <child link="thermocycler/Thermocycler_Base"/>
     <axis xyz="0 0 1"/>
     <origin xyz="-0.2 0.2 0" rpy="0 0 0"/>
     <limit effort="1000.0" lower="0" upper="0" velocity="0.5"/>
   </joint>
 
-
   <joint name="Peeler_Base" type="fixed">
-    <parent link="module_cart_link_5"/>
+    <parent link="module_carts/cart_5"/>
     <child link="peeler/peeler_base"/>
     <axis xyz="0 0 0"/>
     <origin xyz="1.15 -0.37 1.042" rpy="0 0 0"/>
@@ -267,7 +67,7 @@
   </joint>
 
   <joint name="Sealer_Base" type="fixed">
-    <parent link="module_cart_link_5"/>
+    <parent link="module_carts/cart_5"/>
     <child link="sealer/sealer_base"/>
     <axis xyz="0 0 1"/>
     <origin xyz="1.55 -1.05 1.042" rpy="0 0 0"/> 
@@ -275,7 +75,7 @@
   </joint>
 
   <joint name="OT2" type="fixed">
-    <parent link="module_cart_link_2"/>
+    <parent link="module_carts/cart_2"/>
     <child link="ot2/OT2"/>
     <axis xyz="0 0 1"/>
     <origin xyz="0 0 0" rpy="0 0 0"/>
