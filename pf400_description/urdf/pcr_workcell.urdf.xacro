@@ -2,7 +2,7 @@
 <robot name="PCR Workcell" xmlns:xacro="http://www.ros.org/wiki/xacro">
 
   <!-- Materials -->
-  <xacro:include filename="$(find pf400_description)/urdf/PF400.urdf.xacro" />
+  <xacro:include filename="$(find pf400_description)/urdf/materials.xacro" />
   
   <!-- PF400 -->
   <xacro:include filename="$(find pf400_description)/urdf/PF400.urdf.xacro" />

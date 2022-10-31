@@ -216,7 +216,7 @@ Visualization Manager:
   Enabled: true
   Global Options:
     Background Color: 61; 56; 70
-    Fixed Frame: pf400_module
+    Fixed Frame: module_carts/pf400_cart
     Frame Rate: 30
   Name: root
   Tools:
