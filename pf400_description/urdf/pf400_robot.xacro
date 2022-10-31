@@ -12,7 +12,7 @@
   </material>
 
   <!-- PF400 -->
-  <xacro:include filename="$(find pf400_description)/urdf/test.urdf.xacro" />
+  <xacro:include filename="$(find pf400_description)/urdf/PF400.urdf.xacro" />
   <xacro:pf400 prefix="pf400/"/>
   
 
