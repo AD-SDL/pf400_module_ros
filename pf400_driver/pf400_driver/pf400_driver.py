@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import rclpy
+# import rclpy
 import profile
 import telnetlib
 import threading
@@ -10,9 +10,9 @@ import math
 from operator import add
 from time import sleep
 
-from pf400_driver.motion_profiles import motion_profiles
-from pf400_driver.error_codes import error_codes
-from pf400_driver.pf400_kinematics import KINEMATICS
+from motion_profiles import motion_profiles
+from error_codes import error_codes
+from pf400_kinematics import KINEMATICS
 
 class PF400(KINEMATICS):
 	commandLock = threading.Lock()
@@ -70,7 +70,7 @@ class PF400(KINEMATICS):
 
 		# Arm variables
 		self.joint_state_position = [0,0,0,0,0,0,0]
-		self.neutral_joints = [400.0, 1.400, 177.101, 897.107, self.gripper_closed_state, 0.0]	
+		self.neutral_joints = [400.0, 1.400, 177.101, 537.107, self.gripper_closed_state, 0.0]	
 		self.module_left_dist = -420.0
 		self.module_right_dist = 220.0
 
@@ -84,8 +84,8 @@ class PF400(KINEMATICS):
 		self.plate_width = 123
 		self.plate_source_rotation = 0 # 90 to rotate 90 degrees
 		self.plate_target_rotation = 0 # 90 to rotate 90 degrees
-		self.plate_ratation_deck = [95.454, 29.226, 72.895, 1065.537, 79.22, 985.122] # Set Sciclops location for now
-		self.plate_lid_deck = [95.454, 29.226, 72.895, 1065.537, 79.22, 985.122] # Set Sciclops location for now
+		self.plate_ratation_deck = [95.0, 29.226, 72.895, 705.537, 79.22, 985.122] # Set Sciclops location for now
+		self.plate_lid_deck = [95.0, 29.226, 72.895, 705.537, 79.22, 985.122] # Set Sciclops location for now
 
 	def connect(self):
 		"""
@@ -820,8 +820,8 @@ class PF400(KINEMATICS):
 		Parameters: 
 			- source: Source location
 			- target: Target location
-			- source_plate_rotation: 0 or 90 degrees
-			- target_plate_rotation: 0 or 90 degrees
+			- source_plate_rotation: narrow or wide
+			- target_plate_rotation: narrow or wide 
 
 		Note: Plate rotation defines the rotation of the plate on the deck, not the grabing angle.
 		
@@ -866,11 +866,20 @@ if __name__ == "__main__":
 	# from pf400_driver.pf400_driver import PF400
 	robot = PF400("192.168.50.50", 10100)
 
-	syclops= [222.197, -36.482, 331.374, 690.265, 82.35, 995.068]
-	sealer = [205.697, -3.858, 259.266, 732.016, 76.846, 411.533]
-	peeler = [225.969, -26.903, 244.883, 772.781, 79.038, 398.78]
-	OT2_alpha_deck_2 = [167.488, -66.233, 284.382, 768.242, 122.315, -951.522]
-	thermocycler = [245.228, 40.417, 40.45, 1083.78, 122.462, 301.067]
+	sciclops = [222.0, -38.068, 335.876, 325.434, 79.923, 995.062]
+
+	sealer = [202.389 ,-4.616, 260.005, 372.031, 79.841, 411.535]
+	peeler = [225.123, -25.539, 244.391, 409.600, 79.138, 398.771] 	 	
+	OT2_betha_deck_2 = [163.230, -59.032, 270.965, 415.013, 129.982, -951.510]
+	thermocycler = [247.508, 40.698, 38.294, 728.332, 123.077, 301.082]
+	# robot.transfer(sealer,thermocycler,"narrow","wide")
+	robot.transfer(thermocycler,sealer,"wide","narrow")
+
+	# robot.pick_plate(sealer)
+	# robot.place_plate(thermocycler)
+	# robot.pick_plate(sciclops)
+	# robot.place_plate(sealer)
+
 	# robot.transfer(pos1, peeler, "narrow", "narrow")
 	# robot.remove_lid(peeler)
 	# robot.replace_lid(peeler)
