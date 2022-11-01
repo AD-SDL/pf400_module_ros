@@ -70,7 +70,7 @@ class PF400(KINEMATICS):
 
 		# Arm variables
 		self.joint_state_position = [0,0,0,0,0,0,0]
-		self.neutral_joints = [400.0, 1.400, 177.101, 536.757, self.gripper_closed_state, 0.0]	
+		self.neutral_joints = [400.0, 1.400, 177.101, 897.107, self.gripper_closed_state, 0.0]	
 		self.module_left_dist = -420.0
 		self.module_right_dist = 220.0
 
@@ -84,8 +84,8 @@ class PF400(KINEMATICS):
 		self.plate_width = 123
 		self.plate_source_rotation = 0 # 90 to rotate 90 degrees
 		self.plate_target_rotation = 0 # 90 to rotate 90 degrees
-		self.plate_ratation_deck = [262.550, 20.608, 119.290, 662.570, 0.0, 574.367] # Set Sciclops location for now
-		self.plate_lid_deck = [260.550, 20.608, 119.290, 662.570, 0.0, 574.367] # Set Sciclops location for now
+		self.plate_ratation_deck = [95.454, 29.226, 72.895, 1065.537, 79.22, 985.122] # Set Sciclops location for now
+		self.plate_lid_deck = [95.454, 29.226, 72.895, 1065.537, 79.22, 985.122] # Set Sciclops location for now
 
 	def connect(self):
 		"""
@@ -864,26 +864,12 @@ if __name__ == "__main__":
  
 	# from pf400_driver.pf400_driver import PF400
 	robot = PF400("192.168.50.50", 10100)
-	loc1 = [262.550, 20.608, 119.290, 662.570, 126.0, 574.367] #Hudson
-	loc2 = [231.788, -27.154, 313.011, 342.317, 0.0, 683.702] #Sealer
-	pos1= [262.550, 20.608, 119.290, 662.570, 0.0, 574.367] #Hudson
 
-	pos2= [197.185, 59.736, 90.509, 566.953, 82.069, -65.550] #OT2
-
-	# thermocycler = [281.0, 4.271, 95.676, 706.535, 126, -916.454]  
-	# thermo2 = [279.948, 40.849, 75.130, 598.739, 79.208, -916.456] 
-	peeler = [264.584, -29.413, 284.376, 372.338, 0.0, 651.621]
-	# peeler2 = [264.584, -29.413, 284.376, 372.338, 0.0, 651.621]
-
-	robot.transfer(pos1, pos2, "narrow", "wide")
-	# robot.remove_lid(pos2, "wide")
-	# robot.replace_lid(pos2, "wide")
-	robot.transfer(pos2, loc2, "wide", "narrow")
-	robot.transfer(loc2, peeler, "narrow", "narrow")
-	robot.transfer(peeler, pos1, "narrow", "narrow")
-
-
-
+	syclops= [222.197, -36.482, 331.374, 690.265, 82.35, 995.068]
+	sealer = [205.697, -3.858, 259.266, 732.016, 76.846, 411.533]
+	peeler = [225.969, -26.903, 244.883, 772.781, 79.038, 398.78]
+	OT2_alpha_deck_2 = [167.488, -66.233, 284.382, 768.242, 122.315, -951.522]
+	thermocycler = [245.228, 40.417, 40.45, 1083.78, 122.462, 301.067]
 	# robot.transfer(pos1, peeler, "narrow", "narrow")
 	# robot.remove_lid(peeler)
 	# robot.replace_lid(peeler)
