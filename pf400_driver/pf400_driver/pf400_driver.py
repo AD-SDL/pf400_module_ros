@@ -426,6 +426,7 @@ class PF400(KINEMATICS):
 		"""
 		cartesian_coordinates, phi_angle, rail_pos = self.forward_kinematics(joint_states)
 
+		# Fixing the orientation offset here
 		if rotation_degree == -90: # Yaw 90 to 0 degrees:
 			cartesian_coordinates[1] += 29
 			cartesian_coordinates[0] -= 3.5
@@ -525,7 +526,7 @@ class PF400(KINEMATICS):
 
 		pass
 
-	def move_in_one_axis(self,profile:int = 1, axis_x:int= 0,axis_y:int= 0, axis_z:int= 0):
+	def move_in_one_axis(self,profile:int = 1, axis_x:int= 0, axis_y:int= 0, axis_z:int= 0):
 		"""
 		Desciption: Moves the end effector on single axis with a goal movement in milimeters. 
 		Paramiters:
@@ -653,7 +654,7 @@ class PF400(KINEMATICS):
 		# Create a new function to move the gripper into safe zone 
 		self.move_gripper_safe_zone()
 		gripper_neutral = self.get_joint_states()
-		gripper_neutral[3] = 536.757
+		gripper_neutral[3] = self.neutral_joints[3]
 
 		self.move_joint(gripper_neutral,1)
 
