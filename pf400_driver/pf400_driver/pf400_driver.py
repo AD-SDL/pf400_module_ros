@@ -71,8 +71,8 @@ class PF400(KINEMATICS):
 		# Arm variables
 		self.joint_state_position = [0,0,0,0,0,0,0]
 		self.neutral_joints = [400.0, 1.400, 177.101, 537.107, self.gripper_closed_state, 0.0]	
-		self.module_left_dist = -420.0
-		self.module_right_dist = 220.0
+		self.module_left_dist = -350.0
+		self.module_right_dist = 350.0
 
 		# Sample variables
 		self.sample_above_height = 60.0
@@ -84,8 +84,8 @@ class PF400(KINEMATICS):
 		self.plate_width = 123
 		self.plate_source_rotation = 0 # 90 to rotate 90 degrees
 		self.plate_target_rotation = 0 # 90 to rotate 90 degrees
-		self.plate_ratation_deck = [95.0, 29.226, 72.895, 705.537, 79.22, 985.122] # Set Sciclops location for now
-		self.plate_lid_deck = [95.0, 29.226, 72.895, 705.537, 79.22, 985.122] # Set Sciclops location for now
+		self.plate_ratation_deck = [94.0, 29.226, 72.895, 705.537, 79.22, 985.122] # Set Sciclops location for now
+		self.plate_lid_deck = [94.0, 29.226, 72.895, 705.537, 79.22, 985.122] # Set Sciclops location for now
 
 	def connect(self):
 		"""
@@ -684,7 +684,7 @@ class PF400(KINEMATICS):
 		self.neutral_joints[0] = v_rail + 60.0
 		self.neutral_joints[5] = h_rail
 
-		self.move_joint(self.neutral_joints)
+		self.move_joint(self.neutral_joints,2)
 
 	def move_all_joints_neutral(self, target_location = None):
 		"""
@@ -871,9 +871,13 @@ if __name__ == "__main__":
 	sealer = [202.389 ,-4.616, 260.005, 372.031, 79.841, 411.535]
 	peeler = [225.123, -25.539, 244.391, 409.600, 79.138, 398.771] 	 	
 	OT2_betha_deck_2 = [163.230, -59.032, 270.965, 415.013, 129.982, -951.510]
-	thermocycler = [247.508, 40.698, 38.294, 728.332, 123.077, 301.082]
-	# robot.transfer(sealer,thermocycler,"narrow","wide")
-	robot.transfer(thermocycler,sealer,"wide","narrow")
+	thermocycler = [247.0, 40.698, 38.294, 728.332, 123.077, 301.082]
+	robot.transfer(sciclops,OT2_betha_deck_2,"narrow","wide")
+	robot.transfer(OT2_betha_deck_2,sealer,"wide","narrow")
+	robot.transfer(sealer,thermocycler,"narrow","wide")
+	robot.transfer(thermocycler,peeler,"wide","narrow")
+	robot.transfer(peeler,sciclops)
+
 
 	# robot.pick_plate(sealer)
 	# robot.place_plate(thermocycler)
