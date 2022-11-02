@@ -20,8 +20,7 @@ class PF400DescriptionClient(Node):
     def __init__(self, NODE_NAME = 'PF400DescriptionNode'):
         super().__init__(NODE_NAME)
 
-        self.pf400 = PF400("192.168.50.50","10000")
-        self.pf400.status_port_initilization()
+        self.pf400 = PF400("192.168.50.50",10000)
 
         timer_period = 0.1  # seconds
 
