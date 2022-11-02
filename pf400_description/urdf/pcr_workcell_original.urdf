@@ -1,0 +1,591 @@
+<robot name="PCR Workcell" >
+
+  <!-- Materials -->
+
+  <material name="white">
+    <color rgba="1 1 1 1"/>
+  </material>
+
+  <material name="black">
+    <color rgba="0.2 0.2 0.2 1"/>
+  </material>
+
+  <material name="blue">
+    <color rgba="0 0 0.8 1"/>
+  </material>
+
+  <material name="red">
+    <color rgba="0.8 0.2 0.2 1"/>
+  </material>
+
+  <material name="pink">
+    <color rgba="0.6 0.4 0.6 1"/>
+  </material>
+
+  <material name="dark_grey">
+    <color rgba="0.4 0.4 0.4 1"/>
+  </material>
+
+  <material name="light_grey">
+    <color rgba="0.9 0.9 0.9 1"/>
+  </material>
+
+  <material name="dark_blue">
+    <color rgba="0.011764705882352941 0.027450980392156862 0.29215686274509803 1.0"/>
+  </material>
+
+  <material name="light_blue">
+    <color rgba="0 0.5 0.8 1.0"/>
+  </material>
+
+  <material name="darkbluegrey" >
+    <color rgba="0.12156862745098039 0.23137254901960785 0.30196078431372547 1.0" />
+  </material>
+  
+  <material name="darkbluegreen" >
+    <color rgba="0.0 0.1 0.13 1.0" />
+  </material>
+
+  <material name="aluminum">
+    <color rgba="0.6 0.6 0.6 1"/>
+  </material>
+
+  <!-- Links -->
+
+  <link name="Peeler_Base">
+    <visual>
+      <origin xyz="0 0 0" rpy="1.5708 0 0"/>
+      <geometry>
+        <mesh filename="package://pf400_description/meshes/peeler_base.STL" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="light_blue"/>
+    </visual>
+  </link>
+
+  <link name="Peeler_Plate">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://pf400_description/meshes/peeler_plate.STL" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="white"/>
+    </visual>
+  </link>
+  
+  <link name="Sealer_Base">
+    <visual>
+      <origin xyz="0 0 0" rpy="1.5708 0 1.5708"/>
+      <geometry>
+        <mesh filename="package://pf400_description/meshes/sealer_base.STL" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="pink"/>
+    </visual>
+  </link>
+
+  <link name="Sealer_Plate">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 1.5708 0"/>
+      <geometry>
+        <mesh filename="package://pf400_description/meshes/sealer_plate.STL" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="aluminum"/>
+    </visual>
+  </link>
+
+  <link name="Thermocycler_Base">
+    <visual>
+      <origin xyz="0 0.5 1.042" rpy="1.5708 0 0"/>
+      <geometry>
+        <mesh filename="package://pf400_description/meshes/thermocycler_base.STL" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="light_grey"/>
+    </visual>
+  </link>
+
+  <link name="Thermocycler_Cap">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://pf400_description/meshes/thermocycler_cap.STL" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="red"/>
+    </visual>
+  </link>
+
+  <link name="OT2">
+    <visual>
+      <origin xyz="0.36 0.94 1.042" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://pf400_description/meshes/OT2_base.stl" scale="1 1 1"/>
+      </geometry>
+      <material name="aluminum"/>
+    </visual>
+  </link>
+
+  <link name="OT2_pipette_rail">
+    <visual>
+      <origin xyz="0.36 1.15 1.042" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://pf400_description/meshes/OT2_rail.stl" scale="1 1 1"/>
+      </geometry>
+      <material name="aluminum"/>
+    </visual>
+  </link>
+
+  <link name="OT2_pipette_base">
+    <visual>
+      <origin xyz="0.51 1.15 1.042" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://pf400_description/meshes/OT2_pipette_base.stl" scale="1 1 1"/>
+      </geometry>
+      <material name="aluminum"/>
+    </visual>
+  </link>
+
+  <link name="OT2_single_pipette">
+    <visual>
+      <origin xyz="0.79 0.76 1.27" rpy="1.5708 0 1.5708"/>
+      <geometry>
+        <mesh filename="package://pf400_description/meshes/pipette.STL" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="black"/>
+    </visual>
+  </link>
+
+  <link name="OT2_8_channel_pipette">
+    <visual>
+      <origin xyz="0.51 1.15 1.042" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://pf400_description/meshes/OT2_8ch_pipette.stl" scale="1 1 1"/>
+      </geometry>
+      <material name="black"/>
+    </visual>
+  </link>
+
+  <link name="OT2_2">
+    <visual>
+      <origin xyz="0.975 -1.02 1.042" rpy="1.5708 0 3.1416"/>
+      <geometry>
+        <mesh filename="package://pf400_description/meshes/OT_2_without_pipette.STL" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="aluminum"/>
+    </visual>
+  </link>
+
+  <link name="module_cart_link_1">
+    <visual>
+      <origin xyz="1.32 0.847 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://pf400_description/meshes/module_cart.stl" scale="1 1 1"/>
+      </geometry>
+      <material name="darkbluegreen"/>
+    </visual>
+  </link>
+
+  <link name="module_cart_link_2">
+    <visual>
+      <origin xyz="0.51 0.847 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://pf400_description/meshes/module_cart.stl" scale="1 1 1"/>
+      </geometry>
+      <material name="darkbluegreen"/>
+    </visual>
+  </link>
+
+  <link name="module_cart_link_3">
+    <visual>
+      <origin xyz="-0.368 0.847 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://pf400_description/meshes/module_cart.stl" scale="1 1 1"/>
+      </geometry>
+      <material name="darkbluegreen"/>
+    </visual>
+  </link>
+
+  <link name="module_cart_link_4">
+    <visual>
+      <origin xyz="-1.18 0.847 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://pf400_description/meshes/module_cart.stl" scale="1 1 1"/>
+      </geometry>
+      <material name="darkbluegreen"/>
+    </visual>
+  </link>
+
+  <link name="module_cart_link_5">
+    <visual>
+      <origin xyz="1.32  -0.548 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://pf400_description/meshes/module_cart.stl" scale="1 1 1"/>
+      </geometry>
+      <material name="darkbluegreen"/>
+    </visual>
+  </link>
+  
+  <link name="module_cart_link_6">
+    <visual>
+      <origin xyz="0.51 -0.548 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://pf400_description/meshes/module_cart.stl" scale="1 1 1"/>
+      </geometry>
+      <material name="darkbluegreen"/>
+    </visual>
+  </link>
+
+  <link name="module_cart_link_7">
+    <visual>
+      <origin xyz="-0.368 -0.548 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://pf400_description/meshes/module_cart.stl" scale="1 1 1"/>
+      </geometry>
+      <material name="darkbluegreen"/>
+    </visual>
+  </link>
+
+  <link name="module_cart_link_8">
+    <visual>
+      <origin xyz="-1.18 -0.548 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://pf400_description/meshes/module_cart.stl" scale="1 1 1"/>
+      </geometry>
+      <material name="darkbluegreen"/>
+    </visual>
+  </link>
+
+  <link name="pf400_module">
+    <visual>
+      <origin xyz="-1.63 2.347 -1.11" rpy="1.5708 0 0"/>
+      <geometry>
+        <mesh filename="package://pf400_description/meshes/PF400_module.STL" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="darkbluegreen"/>
+    </visual>
+  </link>
+
+  <link name="rail_base">
+    <visual>
+      <origin xyz="0.125 -0.0198 1.015" rpy="0 0 1.5708"/>
+      <geometry>
+        <mesh filename="package://pf400_description/meshes/rail_base.STL" scale="1 1 1"/>
+      </geometry>
+      <material name="white"/>
+    </visual>
+  </link>
+
+  <link name="rail">
+    <visual>
+      <origin xyz="0.1309 -0.0198 1.047" rpy="1.5708 0 1.5708"/>
+      <geometry>
+        <mesh filename="package://pf400_description/meshes/rail.STL" scale="1 1 1"/>
+      </geometry>
+      <material name="white"/>
+    </visual>
+  </link>
+
+  <link name="z_column">
+    <visual>
+      <origin xyz="0 0 1.089" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://pf400_description/meshes/PF400_Z_Column.STL" scale="0.001 0.001 0.00132"/>
+      </geometry>
+      <material name="white"/>
+    </visual>
+  </link>
+
+  <link name="z_carriage">
+    <visual>
+      <origin xyz="0 0 1.089" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://pf400_description/meshes/PF400_Z_Carriage.STL" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="white"/>
+    </visual>
+  </link>
+
+  <link name="inner_link">
+    <visual>
+      <origin xyz="0 0 1.089" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://pf400_description/meshes/PF400_Inner_Link.STL" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="white"/>
+    </visual>
+  </link>
+
+  <link name="outer_link">
+    <visual>
+      <origin xyz="0 0 1.089" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://pf400_description/meshes/PF400_Outer_Link.STL" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="white"/>
+    </visual>
+  </link>
+
+  <link name="hand">
+    <visual>
+      <origin xyz="0 0 1.089" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://pf400_description/meshes/PF400_Hand.STL" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="white"/>
+    </visual>
+  </link>
+
+  <link name="left_finger">
+    <visual>
+      <origin xyz="-0.02 -0.053 1.0685" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://pf400_description/meshes/pf400_left_finger.STL" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="aluminum"/>
+    </visual>
+  </link>
+
+  <link name="right_finger">
+    <visual>
+      <origin xyz="-0.021 -0.028 1.12" rpy="-1.5708 0 0"/>
+      <geometry>
+        <mesh filename="package://pf400_description/meshes/pf400_right_finger.STL" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="aluminum"/>
+    </visual>
+  </link>
+
+
+
+  <!-- Joints -->
+
+  <joint name="J1" type="prismatic">
+    <parent link="z_column"/>
+    <child link="z_carriage"/>
+    <axis xyz="0 0 1"/>
+    <origin xyz="0.03005 -0.0198 0.17535" rpy="0 0 0"/>
+    <limit effort="1000.0" lower="0.002" upper="1.160" velocity="0.5"/>  </joint>
+
+  <joint name="J2" type="revolute">
+    <parent link="z_carriage"/>
+    <child link="inner_link"/>
+    <axis xyz="0 0 1"/>
+    <origin xyz="0.173001 0.020 0.0235" rpy="0 0 0"/>
+    <limit effort="1000.0" lower="-1.62316" upper="1.62316" velocity="0.5"/>
+  </joint>
+
+  <joint name="J3" type="revolute">
+    <parent link="inner_link"/>
+    <child link="outer_link"/>
+    <axis xyz="0 0 1"/>
+    <origin xyz="0.302 0 -0.072285" rpy="0 0 0"/>
+    <limit effort="1000.0" lower="0.175" upper="6.1" velocity="0.5"/>
+  </joint>
+
+  <joint name="J4" type="revolute">
+    <parent link="outer_link"/>
+    <child link="hand"/>
+    <axis xyz="0 0 1"/>
+    <origin xyz="0.289 0 -0.032942" rpy="0 0 0"/>
+    <limit effort="1000.0" lower="-16.7552" upper="16.7552" velocity="0.5"/>
+  </joint>
+
+  <joint name="J5" type="prismatic">
+    <parent link="hand"/>
+    <child link="left_finger"/>
+    <axis xyz="0 1 0"/>
+    <origin xyz="0.078573 0 -0.04269" rpy="0 0 0"/>
+    <limit effort="1000.0" lower="0.04" upper="0.0675" velocity="0.5"/>
+  </joint>
+
+  <joint name="J5_mirror" type="prismatic">
+    <parent link="hand"/>
+    <child link="right_finger"/>
+    <axis xyz="0 -1 0"/>
+    <origin xyz="0.078573 0 -0.04269" rpy="0 0 0"/>
+    <limit effort="1000.0" lower="0.04" upper="0.0675" velocity="0.5"/>
+    <mimic joint="J5" multiplier="1"/>
+  </joint>
+
+  <joint name="J6" type="prismatic">
+    <parent link="rail_base"/>
+    <child link="rail"/>
+    <axis xyz="1 0 0"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <limit effort="1000.0" lower="-1" upper="1" velocity="0.5"/>
+  </joint>
+
+  <joint name="rail_link" type="fixed">
+    <parent link="rail"/>
+    <child link="z_column"/>
+    <axis xyz="0 1 0"/>
+    <origin xyz="0.03005 -0.0198 0.05" rpy="0 0 0"/>
+    <limit effort="1000.0" lower="0" upper="0" velocity="0.5"/>
+  </joint>
+
+  <joint name="module_table" type="fixed">
+    <parent link="pf400_module"/>
+    <child link="rail_base"/>
+    <axis xyz="0 0 1"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <limit effort="1000.0" lower="0" upper="0" velocity="0.5"/>
+  </joint>
+
+  <joint name="module_cart_link_1" type="fixed">
+    <parent link="module_cart_link_1"/>
+    <child link="pf400_module"/>
+    <axis xyz="0 0 1"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <limit effort="1000.0" lower="0" upper="0" velocity="0.5"/>
+  </joint>
+  
+  <joint name="module_cart_link_2" type="fixed">
+    <parent link="module_cart_link_2"/>
+    <child link="module_cart_link_1"/>
+    <axis xyz="0 0 1"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <limit effort="1000.0" lower="0" upper="0" velocity="0.5"/>
+  </joint>
+
+  <joint name="module_cart_link_3" type="fixed">
+    <parent link="module_cart_link_3"/>
+    <child link="module_cart_link_2"/>
+    <axis xyz="0 0 1"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <limit effort="1000.0" lower="0" upper="0" velocity="0.5"/>
+  </joint>
+
+  <joint name="module_cart_link_4" type="fixed">
+    <parent link="module_cart_link_4"/>
+    <child link="module_cart_link_3"/>
+    <axis xyz="0 0 1"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <limit effort="1000.0" lower="0" upper="0" velocity="0.5"/>
+  </joint>
+
+  <joint name="module_cart_link_5" type="fixed">
+    <parent link="module_cart_link_5"/>
+    <child link="module_cart_link_4"/>
+    <axis xyz="0 0 1"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <limit effort="1000.0" lower="0" upper="0" velocity="0.5"/>
+  </joint>
+
+  <joint name="module_cart_link_6" type="fixed">
+    <parent link="module_cart_link_6"/>
+    <child link="module_cart_link_5"/>
+    <axis xyz="0 0 1"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <limit effort="1000.0" lower="0" upper="0" velocity="0.5"/>
+  </joint>
+
+  <joint name="module_cart_link_7" type="fixed">
+    <parent link="module_cart_link_7"/>
+    <child link="module_cart_link_6"/>
+    <axis xyz="0 0 1"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <limit effort="1000.0" lower="0" upper="0" velocity="0.5"/>
+  </joint>
+
+  <joint name="module_cart_link_8" type="fixed">
+    <parent link="module_cart_link_8"/>
+    <child link="module_cart_link_7"/>
+    <axis xyz="0 0 1"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <limit effort="1000.0" lower="0" upper="0" velocity="0.5"/>
+  </joint>
+
+  <joint name="Thermocycler_Base" type="fixed">
+    <parent link="module_cart_link_4"/>
+    <child link="Thermocycler_Base"/>
+    <axis xyz="0 0 1"/>
+    <origin xyz="-0.2 0.2 0" rpy="0 0 0"/>
+    <limit effort="1000.0" lower="0" upper="0" velocity="0.5"/>
+  </joint>
+
+  <joint name="Thermocycler_Cap" type="revolute">
+    <parent link="Thermocycler_Base"/>
+    <child link="Thermocycler_Cap"/>
+    <axis xyz="-1 0 0"/>
+    <origin xyz="0 0.466 1.05" rpy="1.5708 0 0"/>
+    <limit effort="1000.0" lower="0" upper="1.2" velocity="0.5"/>
+  </joint>
+
+  <joint name="Peeler_Base" type="fixed">
+    <parent link="module_cart_link_5"/>
+    <child link="Peeler_Base"/>
+    <axis xyz="0 0 0"/>
+    <origin xyz="1.15 -0.37 1.042" rpy="0 0 0"/>
+    <limit effort="1000.0" lower="0" upper="0" velocity="0.5"/>
+  </joint>
+
+  <joint name="Peeler_Plate" type="prismatic">
+    <parent link="Peeler_Base"/>
+    <child link="Peeler_Plate"/>
+    <axis xyz="0 0 1"/>
+    <origin xyz="0.23 -0.03 0.083" rpy="1.5708 0 0"/> 
+    <limit effort="1000.0" lower="0" upper="0.3" velocity="0.5"/>
+  </joint>
+
+  <joint name="Sealer_Base" type="fixed">
+    <parent link="module_cart_link_5"/>
+    <child link="Sealer_Base"/>
+    <axis xyz="0 0 1"/>
+    <origin xyz="1.55 -1.05 1.042" rpy="0 0 0"/> 
+    <limit effort="1000.0" lower="0" upper="0" velocity="0.5"/>
+  </joint>
+
+  <joint name="Sealer_Plate" type="prismatic">
+    <parent link="Sealer_Base"/>
+    <child link="Sealer_Plate"/>
+    <axis xyz="0 0 1"/>
+    <origin xyz="0.057 0.28 0.01" rpy="1.5708 0 0"/>
+    <limit effort="1000.0" lower="0" upper="0.25" velocity="0.5"/>
+  </joint>
+
+  <joint name="OT2" type="fixed">
+    <parent link="module_cart_link_2"/>
+    <child link="OT2"/>
+    <axis xyz="0 0 1"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <limit effort="1000.0" lower="0" upper="0" velocity="0.5"/>
+  </joint>
+
+  <joint name="pipette_rail_y" type="prismatic">
+    <parent link="OT2"/>
+    <child link="OT2_pipette_rail"/>
+    <axis xyz="0 -1 0"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <limit effort="1000.0" lower="0" upper="0.3" velocity="0.5"/>
+  </joint>
+
+  <joint name="pipette_rail_x" type="prismatic">
+    <parent link="OT2_pipette_rail"/>
+    <child link="OT2_pipette_base"/>
+    <axis xyz="-1 0 0"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <limit effort="1000.0" lower="0" upper="0.3" velocity="0.5"/>
+  </joint>
+
+  <joint name="single_pipette" type="prismatic">
+    <parent link="OT2_pipette_base"/>
+    <child link="OT2_single_pipette"/>
+    <axis xyz="0 0 -1"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <limit effort="1000.0" lower="0" upper="0.18" velocity="0.5"/>
+  </joint>
+
+  <joint name="8_channel_pipette" type="prismatic">
+    <parent link="OT2_pipette_base"/>
+    <child link="OT2_8_channel_pipette"/>
+    <axis xyz="0 0 -1"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <limit effort="1000.0" lower="0" upper="0.18" velocity="0.5"/>
+  </joint>
+
+  <joint name="OT2_2" type="fixed">
+    <parent link="OT2"/>
+    <child link="OT2_2"/>
+    <axis xyz="0 0 1"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <limit effort="1000.0" lower="0" upper="0" velocity="0.5"/>
+  </joint>
+
+</robot>

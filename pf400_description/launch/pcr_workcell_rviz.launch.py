@@ -11,15 +11,12 @@ from launch_ros.substitutions import FindPackageShare
  
 def generate_launch_description():
 
-  # config path = dirname(dirname(abspath(__file__)))
-
   pkg_share = FindPackageShare(package='pf400_description').find('pf400_description')
-  default_rviz_config_path = os.path.join(pkg_share, 'config/pcr_workcell_config.rviz')
-  print(default_rviz_config_path)
+  default_rviz_config_path = os.path.join(pkg_share, 'config/pcr_workcell_config.rviz') 
+  default_urdf_model_path = os.path.join(pkg_share, 'urdf/pcr_workcell.urdf.xacro') 
  
-  default_urdf_model_path = os.path.join(pkg_share, 'urdf/pcr_workcell.urdf') 
- 
-  gui = LaunchConfiguration('gui')
+  
+  fake_hardware = LaunchConfiguration('fake_hardware')
   urdf_model = LaunchConfiguration('urdf_model')
   rviz_config_file = LaunchConfiguration('rviz_config_file')
   use_robot_state_pub = LaunchConfiguration('use_robot_state_pub')
@@ -36,10 +33,10 @@ def generate_launch_description():
     default_value=default_rviz_config_path,
     description='Full path to the RVIZ config file to use')
      
-  declare_use_joint_state_publisher_cmd = DeclareLaunchArgument(
-    name='gui',
-    default_value='True',
-    description='Flag to enable joint_state_publisher_gui')
+  declare_use_fake_joint_state_pub_cmd = DeclareLaunchArgument(
+    name='fake_hardware',
+    default_value='False',
+    description='Flag to enable joint_state_publisher_fake_hardware')
    
   declare_use_robot_state_pub_cmd = DeclareLaunchArgument(
     name='use_robot_state_pub',
@@ -55,18 +52,11 @@ def generate_launch_description():
     name='use_sim_time',
     default_value='False',
     description='Use simulation (Gazebo) clock if true')
-    
+
  
-  # Publish the joint state values for the non-fixed joints in the URDF file.
-  start_joint_state_publisher_cmd = Node(
-    condition=UnlessCondition(gui),
-    package='joint_state_publisher',
-    executable='joint_state_publisher',
-    name='joint_state_publisher')
- 
-  # A GUI to manipulate the joint state values
-  start_joint_state_publisher_gui_node = Node(
-    condition=IfCondition(gui),
+  # A fake_hardware to manipulate the joint state values
+  start_joint_state_publisher_fake_hardware_node = Node(
+    condition=IfCondition(fake_hardware),
     package='joint_state_publisher_gui',
     executable='joint_state_publisher_gui',
     name='joint_state_publisher_gui')
@@ -88,8 +78,9 @@ def generate_launch_description():
     output='screen',
     arguments=['-d', rviz_config_file])
 
-
-  pf400_description_client = Node(
+  # Start RealHarware Joint State Publisher Client
+  start_pf400_description_client = Node(
+    condition=UnlessCondition(fake_hardware),
     package = "pf400_description",
     executable = 'pf400_description_client',
     name = 'PF400DescriptionNode',
@@ -102,16 +93,15 @@ def generate_launch_description():
   # Declare the launch options
   ld.add_action(declare_urdf_model_path_cmd)
   ld.add_action(declare_rviz_config_file_cmd)
-  ld.add_action(declare_use_joint_state_publisher_cmd)
+  ld.add_action(declare_use_fake_joint_state_pub_cmd)
   ld.add_action(declare_use_robot_state_pub_cmd)  
   ld.add_action(declare_use_rviz_cmd) 
   ld.add_action(declare_use_sim_time_cmd)
  
   # Add any actions
-  # ld.add_action(start_joint_state_publisher_cmd)
-  # ld.add_action(start_joint_state_publisher_gui_node)
+  ld.add_action(start_joint_state_publisher_fake_hardware_node)
   ld.add_action(start_robot_state_publisher_cmd)
   ld.add_action(start_rviz_cmd)
-  ld.add_action(pf400_description_client)
- 
+  ld.add_action(start_pf400_description_client)
+  
   return ld

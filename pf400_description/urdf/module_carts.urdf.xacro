@@ -1,0 +1,165 @@
+<?xml version="1.0"?>
+<robot name="Module_Carts" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+
+  <!-- Links -->
+  <xacro:macro name="Module_Carts" params = "prefix">
+  <link name="${prefix}cart_1">
+    <visual>
+      <origin xyz="1.32 0.847 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://pf400_description/meshes/module_cart.stl" scale="1 1 1"/>
+      </geometry>
+      <material name="darkbluegreen"/>
+    </visual>
+  </link>
+
+  <link name="${prefix}cart_2">
+    <visual>
+      <origin xyz="0.51 0.847 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://pf400_description/meshes/module_cart.stl" scale="1 1 1"/>
+      </geometry>
+      <material name="darkbluegreen"/>
+    </visual>
+  </link>
+
+  <link name="${prefix}cart_3">
+    <visual>
+      <origin xyz="-0.368 0.847 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://pf400_description/meshes/module_cart.stl" scale="1 1 1"/>
+      </geometry>
+      <material name="darkbluegreen"/>
+    </visual>
+  </link>
+
+  <link name="${prefix}cart_4">
+    <visual>
+      <origin xyz="-1.18 0.847 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://pf400_description/meshes/module_cart.stl" scale="1 1 1"/>
+      </geometry>
+      <material name="darkbluegreen"/>
+    </visual>
+  </link>
+
+  <link name="${prefix}cart_5">
+    <visual>
+      <origin xyz="1.32  -0.548 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://pf400_description/meshes/module_cart.stl" scale="1 1 1"/>
+      </geometry>
+      <material name="darkbluegreen"/>
+    </visual>
+  </link>
+  
+  <link name="${prefix}cart_6">
+    <visual>
+      <origin xyz="0.51 -0.548 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://pf400_description/meshes/module_cart.stl" scale="1 1 1"/>
+      </geometry>
+      <material name="darkbluegreen"/>
+    </visual>
+  </link>
+
+  <link name="${prefix}cart_7">
+    <visual>
+      <origin xyz="-0.368 -0.548 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://pf400_description/meshes/module_cart.stl" scale="1 1 1"/>
+      </geometry>
+      <material name="darkbluegreen"/>
+    </visual>
+  </link>
+
+  <link name="${prefix}cart_8">
+    <visual>
+      <origin xyz="-1.18 -0.548 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://pf400_description/meshes/module_cart.stl" scale="1 1 1"/>
+      </geometry>
+      <material name="darkbluegreen"/>
+    </visual>
+  </link>
+
+  <link name="${prefix}pf400_cart">
+    <visual>
+      <origin xyz="-1.63 2.347 -1.11" rpy="1.5708 0 0"/>
+      <geometry>
+        <mesh filename="package://pf400_description/meshes/PF400_module.STL" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="darkbluegreen"/>
+    </visual>
+  </link>
+
+  <!-- Joints -->
+
+ 
+  <joint name="pf400_cart_to_cart_1" type="fixed">
+    <parent link="${prefix}cart_1"/>
+    <child link="${prefix}pf400_cart"/>
+    <axis xyz="0 0 1"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <limit effort="1000.0" lower="0" upper="0" velocity="0.5"/>
+  </joint>
+  
+  <joint name="cart_1_to_cart_2" type="fixed">
+    <parent link="${prefix}cart_2"/>
+    <child link="${prefix}cart_1"/>
+    <axis xyz="0 0 1"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <limit effort="1000.0" lower="0" upper="0" velocity="0.5"/>
+  </joint>
+
+  <joint name="cart_2_to_cart_3" type="fixed">
+    <parent link="${prefix}cart_3"/>
+    <child link="${prefix}cart_2"/>
+    <axis xyz="0 0 1"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <limit effort="1000.0" lower="0" upper="0" velocity="0.5"/>
+  </joint>
+
+  <joint name="cart_3_to_cart_4" type="fixed">
+    <parent link="${prefix}cart_4"/>
+    <child link="${prefix}cart_3"/>
+    <axis xyz="0 0 1"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <limit effort="1000.0" lower="0" upper="0" velocity="0.5"/>
+  </joint>
+
+  <joint name="cart_4_to_cart_5" type="fixed">
+    <parent link="${prefix}cart_5"/>
+    <child link="${prefix}cart_4"/>
+    <axis xyz="0 0 1"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <limit effort="1000.0" lower="0" upper="0" velocity="0.5"/>
+  </joint>
+
+  <joint name="cart_5_to_cart_6" type="fixed">
+    <parent link="${prefix}cart_6"/>
+    <child link="${prefix}cart_5"/>
+    <axis xyz="0 0 1"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <limit effort="1000.0" lower="0" upper="0" velocity="0.5"/>
+  </joint>
+
+  <joint name="cart_6_to_cart_7" type="fixed">
+    <parent link="${prefix}cart_7"/>
+    <child link="${prefix}cart_6"/>
+    <axis xyz="0 0 1"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <limit effort="1000.0" lower="0" upper="0" velocity="0.5"/>
+  </joint>
+
+  <joint name="cart_7_to_cart_8" type="fixed">
+    <parent link="${prefix}cart_8"/>
+    <child link="${prefix}cart_7"/>
+    <axis xyz="0 0 1"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <limit effort="1000.0" lower="0" upper="0" velocity="0.5"/>
+  </joint>
+  </xacro:macro>
+
+</robot>

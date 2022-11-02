@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import rclpy
+# import rclpy
 import profile
 import telnetlib
 import threading
@@ -10,9 +10,9 @@ import math
 from operator import add
 from time import sleep
 
-from pf400_driver.motion_profiles import motion_profiles
-from pf400_driver.error_codes import error_codes
-from pf400_driver.pf400_kinematics import KINEMATICS
+from motion_profiles import motion_profiles
+from error_codes import error_codes
+from pf400_kinematics import KINEMATICS
 
 class PF400(KINEMATICS):
 	commandLock = threading.Lock()
@@ -47,17 +47,19 @@ class PF400(KINEMATICS):
 		self.attach_state = "0"
 		self.home_state = "1"
 		self.initialization_state = "0"
-		self.movement_state = -2
-		self.robot_state = "Normal"
 
 		# Initialize robot 
 		self.connect()
 		self.init_connection_mode()
+		
 		if port == 10100:
 			self.force_initialize_robot()
 		elif port == 10000:
 			self.status_port_initilization()
-			
+
+		self.movement_state = self.get_robot_movement_state()
+		self.robot_state = "Normal"	
+
 		# Gripper variables
 		self.gripper_open_state = 130.0
 		self.gripper_closed_state = 77.0
@@ -68,9 +70,9 @@ class PF400(KINEMATICS):
 
 		# Arm variables
 		self.joint_state_position = [0,0,0,0,0,0,0]
-		self.neutral_joints = [400.0, 1.400, 177.101, 536.757, self.gripper_closed_state, 0.0]	
-		self.module_left_dist = -420.0
-		self.module_right_dist = 220.0
+		self.neutral_joints = [400.0, 1.400, 177.101, 537.107, self.gripper_closed_state, 0.0]	
+		self.module_left_dist = -350.0
+		self.module_right_dist = 350.0
 
 		# Sample variables
 		self.sample_above_height = 60.0
@@ -82,8 +84,8 @@ class PF400(KINEMATICS):
 		self.plate_width = 123
 		self.plate_source_rotation = 0 # 90 to rotate 90 degrees
 		self.plate_target_rotation = 0 # 90 to rotate 90 degrees
-		self.plate_ratation_deck = [262.550, 20.608, 119.290, 662.570, 0.0, 574.367] # Set Sciclops location for now
-		self.plate_lid_deck = [260.550, 20.608, 119.290, 662.570, 0.0, 574.367] # Set Sciclops location for now
+		self.plate_ratation_deck = [94.0, 29.226, 72.895, 705.537, 79.22, 985.122] # Set Sciclops location for now
+		self.plate_lid_deck = [94.0, 29.226, 72.895, 705.537, 79.22, 985.122] # Set Sciclops location for now
 
 	def connect(self):
 		"""
@@ -424,6 +426,7 @@ class PF400(KINEMATICS):
 		"""
 		cartesian_coordinates, phi_angle, rail_pos = self.forward_kinematics(joint_states)
 
+		# Fixing the orientation offset here
 		if rotation_degree == -90: # Yaw 90 to 0 degrees:
 			cartesian_coordinates[1] += 29
 			cartesian_coordinates[0] -= 3.5
@@ -523,7 +526,7 @@ class PF400(KINEMATICS):
 
 		pass
 
-	def move_in_one_axis(self,profile:int = 1, axis_x:int= 0,axis_y:int= 0, axis_z:int= 0):
+	def move_in_one_axis(self,profile:int = 1, axis_x:int= 0, axis_y:int= 0, axis_z:int= 0):
 		"""
 		Desciption: Moves the end effector on single axis with a goal movement in milimeters. 
 		Paramiters:
@@ -651,7 +654,7 @@ class PF400(KINEMATICS):
 		# Create a new function to move the gripper into safe zone 
 		self.move_gripper_safe_zone()
 		gripper_neutral = self.get_joint_states()
-		gripper_neutral[3] = 536.757
+		gripper_neutral[3] = self.neutral_joints[3]
 
 		self.move_joint(gripper_neutral,1)
 
@@ -681,7 +684,7 @@ class PF400(KINEMATICS):
 		self.neutral_joints[0] = v_rail + 60.0
 		self.neutral_joints[5] = h_rail
 
-		self.move_joint(self.neutral_joints)
+		self.move_joint(self.neutral_joints,2)
 
 	def move_all_joints_neutral(self, target_location = None):
 		"""
@@ -696,7 +699,7 @@ class PF400(KINEMATICS):
 		# Setting the target location's linear rail position for pf400_neutral 
 		self.move_rails_neutral(target_location[0],target_location[5])
 
-	def remove_lid(self, target_loc, target_plate_rotation:str = ""):
+	def remove_lid(self, target_loc, lid_hight:float = 7.0, target_plate_rotation:str = ""):
 		"""Remove the lid from the plate"""
 		# TODO: TAKE PLATE TYPE AS A VARAIBLE TO CALCULATE LID HIGHT
 		target = copy.deepcopy(target_loc)
@@ -709,7 +712,7 @@ class PF400(KINEMATICS):
 			self.plate_target_rotation = 0	
 		
 		target = self.check_incorrect_plate_orientation(target, self.plate_target_rotation)
-		target[0] += 7
+		target[0] += lid_hight
 		self.pick_plate(target)
 
 		if self.plate_target_rotation == 90:
@@ -718,7 +721,7 @@ class PF400(KINEMATICS):
 
 		self.place_plate(self.plate_lid_deck)
 
-	def replace_lid(self, target_loc, target_plate_rotation:str = ""):
+	def replace_lid(self, target_loc, lid_hight:float = 7.0, target_plate_rotation:str = ""):
 		"""Replace the lid on the plate"""
 		# TODO: TAKE PLATE TYPE AS A VARAIBLE TO CALCULATE LID HIGHT
 		target = copy.deepcopy(target_loc)
@@ -737,7 +740,7 @@ class PF400(KINEMATICS):
 			self.rotate_plate_on_deck(self.plate_target_rotation)
 
 		target = self.check_incorrect_plate_orientation(target, self.plate_target_rotation)
-		target[0] += 7
+		target[0] += lid_hight
 		self.place_plate(target)
 
 	def rotate_plate_on_deck(self, rotation_degree:int):
@@ -817,8 +820,8 @@ class PF400(KINEMATICS):
 		Parameters: 
 			- source: Source location
 			- target: Target location
-			- source_plate_rotation: 0 or 90 degrees
-			- target_plate_rotation: 0 or 90 degrees
+			- source_plate_rotation: narrow or wide
+			- target_plate_rotation: narrow or wide 
 
 		Note: Plate rotation defines the rotation of the plate on the deck, not the grabing angle.
 		
@@ -862,25 +865,24 @@ if __name__ == "__main__":
  
 	# from pf400_driver.pf400_driver import PF400
 	robot = PF400("192.168.50.50", 10100)
-	loc1 = [262.550, 20.608, 119.290, 662.570, 126.0, 574.367] #Hudson
-	loc2 = [231.788, -27.154, 313.011, 342.317, 0.0, 683.702] #Sealer
-	pos1= [262.550, 20.608, 119.290, 662.570, 0.0, 574.367] #Hudson
 
-	pos2= [197.185, 59.736, 90.509, 566.953, 82.069, -65.550] #OT2
+	sciclops = [222.0, -38.068, 335.876, 325.434, 79.923, 995.062]
 
-	# thermocycler = [281.0, 4.271, 95.676, 706.535, 126, -916.454]  
-	# thermo2 = [279.948, 40.849, 75.130, 598.739, 79.208, -916.456] 
-	peeler = [264.584, -29.413, 284.376, 372.338, 0.0, 651.621]
-	# peeler2 = [264.584, -29.413, 284.376, 372.338, 0.0, 651.621]
-
-	robot.transfer(pos1, pos2, "narrow", "wide")
-	# robot.remove_lid(pos2, "wide")
-	# robot.replace_lid(pos2, "wide")
-	robot.transfer(pos2, loc2, "wide", "narrow")
-	robot.transfer(loc2, peeler, "narrow", "narrow")
-	robot.transfer(peeler, pos1, "narrow", "narrow")
+	sealer = [202.389 ,-4.616, 260.005, 372.031, 79.841, 411.535]
+	peeler = [225.123, -25.539, 244.391, 409.600, 79.138, 398.771] 	 	
+	OT2_betha_deck_2 = [163.230, -59.032, 270.965, 415.013, 129.982, -951.510]
+	thermocycler = [247.0, 40.698, 38.294, 728.332, 123.077, 301.082]
+	robot.transfer(sciclops,OT2_betha_deck_2,"narrow","wide")
+	robot.transfer(OT2_betha_deck_2,sealer,"wide","narrow")
+	robot.transfer(sealer,thermocycler,"narrow","wide")
+	robot.transfer(thermocycler,peeler,"wide","narrow")
+	robot.transfer(peeler,sciclops)
 
 
+	# robot.pick_plate(sealer)
+	# robot.place_plate(thermocycler)
+	# robot.pick_plate(sciclops)
+	# robot.place_plate(sealer)
 
 	# robot.transfer(pos1, peeler, "narrow", "narrow")
 	# robot.remove_lid(peeler)

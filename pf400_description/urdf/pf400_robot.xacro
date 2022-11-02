@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<robot name="PF400_Robot" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- Materials -->
+
+  <material name="white">
+    <color rgba="1 1 1 1"/>
+  </material>
+
+  <material name="aluminum">
+    <color rgba="0.6 0.6 0.6 1"/>
+  </material>
+
+  <!-- PF400 -->
+  <xacro:include filename="$(find pf400_description)/urdf/PF400.urdf.xacro" />
+  <xacro:pf400 prefix="pf400/"/>
+  
+
+</robot>

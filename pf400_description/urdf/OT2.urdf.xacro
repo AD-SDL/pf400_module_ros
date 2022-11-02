@@ -1,0 +1,93 @@
+<?xml version="1.0"?>
+<robot name="OT2_Robot" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+
+  <!-- Links -->
+  <xacro:macro name="OT2" params = "prefix">
+
+  <link name="${prefix}OT2">
+    <visual>
+      <origin xyz="0.36 0.94 1.042" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://pf400_description/meshes/OT2_base.stl" scale="1 1 1"/>
+      </geometry>
+      <material name="aluminum"/>
+    </visual>
+  </link>
+
+  <link name="${prefix}OT2_pipette_rail">
+    <visual>
+      <origin xyz="0.36 1.15 1.042" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://pf400_description/meshes/OT2_rail.stl" scale="1 1 1"/>
+      </geometry>
+      <material name="aluminum"/>
+    </visual>
+  </link>
+
+  <link name="${prefix}OT2_pipette_base">
+    <visual>
+      <origin xyz="0.51 1.15 1.042" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://pf400_description/meshes/OT2_pipette_base.stl" scale="1 1 1"/>
+      </geometry>
+      <material name="aluminum"/>
+    </visual>
+  </link>
+
+  <link name="${prefix}OT2_single_pipette">
+    <visual>
+      <origin xyz="0.79 0.76 1.27" rpy="1.5708 0 1.5708"/>
+      <geometry>
+        <mesh filename="package://pf400_description/meshes/pipette.STL" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="black"/>
+    </visual>
+  </link>
+
+  <link name="${prefix}OT2_8_channel_pipette">
+    <visual>
+      <origin xyz="0.51 1.15 1.042" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://pf400_description/meshes/OT2_8ch_pipette.stl" scale="1 1 1"/>
+      </geometry>
+      <material name="black"/>
+    </visual>
+  </link>
+
+  <!-- Joints -->
+
+  <joint name="OT2_1_Pipette_Joint1" type="prismatic">
+    <parent link="${prefix}OT2"/>
+    <child link="${prefix}OT2_pipette_rail"/>
+    <axis xyz="0 -1 0"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <limit effort="1000.0" lower="0" upper="0.3" velocity="0.5"/>
+  </joint>
+
+  <joint name="OT2_1_Pipette_Joint2" type="prismatic">
+    <parent link="${prefix}OT2_pipette_rail"/>
+    <child link="${prefix}OT2_pipette_base"/>
+    <axis xyz="-1 0 0"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <limit effort="1000.0" lower="0" upper="0.3" velocity="0.5"/>
+  </joint>
+
+  <joint name="OT2_1_Single_Pipette" type="prismatic">
+    <parent link="${prefix}OT2_pipette_base"/>
+    <child link="${prefix}OT2_single_pipette"/>
+    <axis xyz="0 0 -1"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <limit effort="1000.0" lower="0" upper="0.18" velocity="0.5"/>
+  </joint>
+
+  <joint name="OT2_1_8_Channel_Pipette" type="prismatic">
+    <parent link="${prefix}OT2_pipette_base"/>
+    <child link="${prefix}OT2_8_channel_pipette"/>
+    <axis xyz="0 0 -1"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <limit effort="1000.0" lower="0" upper="0.18" velocity="0.5"/>
+  </joint>
+  </xacro:macro>
+
+</robot>

@@ -1,4 +1,4 @@
-<robot name="PF400 Robot">
+<robot name="PF400_Robot">
 
   <!-- Materials -->
 
@@ -19,8 +19,8 @@
       </geometry>
       <material name="white"/>
     </visual>
-
   </link>
+
   <link name="rail">
     <visual>
       <origin xyz="0.1309 -0.0198 0.0320" rpy="1.5708 0 1.5708"/>
@@ -101,8 +101,6 @@
     </visual>
   </link>
 
-
-
   <!-- Joints -->
 
   <joint name="J1" type="prismatic">
@@ -111,6 +109,7 @@
     <axis xyz="0 0 1"/>
     <origin xyz="0.03005 -0.0198 0.17535" rpy="0 0 0"/>
     <limit effort="1000.0" lower="0.002" upper="1.160" velocity="0.5"/>  </joint>
+  </joint>
 
   <joint name="J2" type="revolute">
     <parent link="z_carriage"/>
