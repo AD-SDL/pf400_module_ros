@@ -26,7 +26,7 @@
 
   <!-- Joints -->
 
-  <joint name="Peeler_Plate_Joint" type="prismatic">
+  <joint name="Peeler_Plate_Joint" type="fixed">
     <parent link="${prefix}peeler_base"/>
     <child link="${prefix}peeler_plate"/>
     <axis xyz="0 0 1"/>

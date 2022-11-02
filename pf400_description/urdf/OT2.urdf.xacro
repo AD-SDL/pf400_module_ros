@@ -57,7 +57,7 @@
 
   <!-- Joints -->
 
-  <joint name="OT2_1_Pipette_Joint1" type="prismatic">
+  <joint name="OT2_1_Pipette_Joint1" type="fixed">
     <parent link="${prefix}OT2"/>
     <child link="${prefix}OT2_pipette_rail"/>
     <axis xyz="0 -1 0"/>
@@ -65,7 +65,7 @@
     <limit effort="1000.0" lower="0" upper="0.3" velocity="0.5"/>
   </joint>
 
-  <joint name="OT2_1_Pipette_Joint2" type="prismatic">
+  <joint name="OT2_1_Pipette_Joint2" type="fixed">
     <parent link="${prefix}OT2_pipette_rail"/>
     <child link="${prefix}OT2_pipette_base"/>
     <axis xyz="-1 0 0"/>
@@ -73,7 +73,7 @@
     <limit effort="1000.0" lower="0" upper="0.3" velocity="0.5"/>
   </joint>
 
-  <joint name="OT2_1_Single_Pipette" type="prismatic">
+  <joint name="OT2_1_Single_Pipette" type="fixed">
     <parent link="${prefix}OT2_pipette_base"/>
     <child link="${prefix}OT2_single_pipette"/>
     <axis xyz="0 0 -1"/>
@@ -81,7 +81,7 @@
     <limit effort="1000.0" lower="0" upper="0.18" velocity="0.5"/>
   </joint>
 
-  <joint name="OT2_1_8_Channel_Pipette" type="prismatic">
+  <joint name="OT2_1_8_Channel_Pipette" type="fixed">
     <parent link="${prefix}OT2_pipette_base"/>
     <child link="${prefix}OT2_8_channel_pipette"/>
     <axis xyz="0 0 -1"/>

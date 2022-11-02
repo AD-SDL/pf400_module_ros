@@ -26,7 +26,7 @@
 
   <!-- Joints -->
 
-  <joint name="Thermocycler_Cap" type="revolute">
+  <joint name="Thermocycler_Cap" type="fixed">
     <parent link="${prefix}thermocycler_base"/>
     <child link="${prefix}thermocycler_cap"/>
     <axis xyz="-1 0 0"/>

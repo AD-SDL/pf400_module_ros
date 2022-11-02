@@ -31,7 +31,7 @@ class PF400ClientNode(Node):
 
         self.pf400 = PF400("192.168.50.50", "10100")
         self.pf400.initialize_robot()
-        self.get_logger.info("PF400 online")
+        self.get_logger().info("PF400 online")
         timer_period = 0.5  # seconds
 
         self.stateTimer = self.create_timer(timer_period, self.stateCallback)
@@ -101,6 +101,7 @@ class PF400ClientNode(Node):
             The robot steps it can do
         """
         '''
+        self.pf400.force_initialize_robot()
         if request.action_handle == "transfer":
 
             while self.state != "READY":
