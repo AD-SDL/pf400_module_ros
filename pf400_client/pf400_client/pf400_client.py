@@ -101,6 +101,7 @@ class PF400ClientNode(Node):
             The robot steps it can do
         """
         '''
+        self.pf400.force_initialize_robot()
         if request.action_handle == "transfer":
 
             while self.state != "READY":
