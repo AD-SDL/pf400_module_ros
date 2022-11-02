@@ -20,7 +20,8 @@ class PF400DescriptionClient(Node):
     def __init__(self, NODE_NAME = 'PF400DescriptionNode'):
         super().__init__(NODE_NAME)
 
-        self.pf4002 = PF400("192.168.50.50","10000")
+        self.pf400 = PF400("192.168.50.50","10000")
+        self.pf400.status_port_initilization()
 
         timer_period = 0.1  # seconds
 
@@ -49,7 +50,7 @@ class PF400DescriptionClient(Node):
     def joint_state_publisher_callback(self):
         
         # self.get_logger().info("BUGG")
-        joint_states = self.pf4002.refresh_joint_state()
+        joint_states = self.pf400.refresh_joint_state()
         pf400_joint_msg = JointState()
         pf400_joint_msg.header = Header()
         pf400_joint_msg.header.stamp = self.get_clock().now().to_msg()

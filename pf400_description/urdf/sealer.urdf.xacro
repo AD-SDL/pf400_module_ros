@@ -26,7 +26,7 @@
 
   <!-- Joints -->
 
-  <joint name="Sealer_Plate_Joint" type="prismatic">
+  <joint name="Sealer_Plate_Joint" type="fixed">
     <parent link="${prefix}sealer_base"/>
     <child link="${prefix}sealer_plate"/>
     <axis xyz="0 0 1"/>

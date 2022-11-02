@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# import rclpy
+import rclpy
 import profile
 import telnetlib
 import threading
@@ -864,7 +864,7 @@ class PF400(KINEMATICS):
 if __name__ == "__main__":
  
 	# from pf400_driver.pf400_driver import PF400
-	robot = PF400("192.168.50.50", 10100)
+	robot = PF400("192.168.50.50", 10000)
 
 	sciclops = [222.0, -38.068, 335.876, 325.434, 79.923, 995.062]
 
@@ -872,11 +872,11 @@ if __name__ == "__main__":
 	peeler = [225.123, -25.539, 244.391, 409.600, 79.138, 398.771] 	 	
 	OT2_betha_deck_2 = [163.230, -59.032, 270.965, 415.013, 129.982, -951.510]
 	thermocycler = [247.0, 40.698, 38.294, 728.332, 123.077, 301.082]
-	robot.transfer(sciclops,OT2_betha_deck_2,"narrow","wide")
-	robot.transfer(OT2_betha_deck_2,sealer,"wide","narrow")
-	robot.transfer(sealer,thermocycler,"narrow","wide")
-	robot.transfer(thermocycler,peeler,"wide","narrow")
-	robot.transfer(peeler,sciclops)
+	# robot.transfer(sciclops,OT2_betha_deck_2,"narrow","wide")
+	# robot.transfer(OT2_betha_deck_2,sealer,"wide","narrow")
+	# robot.transfer(sealer,thermocycler,"narrow","wide")
+	# robot.transfer(thermocycler,peeler,"wide","narrow")
+	# robot.transfer(peeler,sciclops)
 
 
 	# robot.pick_plate(sealer)
