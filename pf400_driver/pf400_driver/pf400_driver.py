@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# import rclpy
+import rclpy
 import profile
 import telnetlib
 import threading
@@ -10,9 +10,9 @@ import math
 from operator import add
 from time import sleep
 
-from motion_profiles import motion_profiles
-from error_codes import error_codes
-from pf400_kinematics import KINEMATICS
+from pf400_driver.motion_profiles import motion_profiles
+from pf400_driver.error_codes import error_codes
+from pf400_driver.pf400_kinematics import KINEMATICS
 
 class PF400(KINEMATICS):
 	commandLock = threading.Lock()
@@ -867,7 +867,6 @@ if __name__ == "__main__":
 	robot = PF400("192.168.50.50", 10100)
 
 	sciclops = [222.0, -38.068, 335.876, 325.434, 79.923, 995.062]
-
 	sealer = [202.389 ,-4.616, 260.005, 372.031, 79.841, 411.535]
 	peeler = [225.123, -25.539, 244.391, 409.600, 79.138, 398.771] 	 	
 	OT2_betha_deck_2 = [163.230, -59.032, 270.965, 415.013, 129.982, -951.510]
