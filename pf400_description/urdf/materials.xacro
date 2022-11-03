@@ -58,7 +58,7 @@
   </material>
   
   <material name="darkbluegreen" >
-    <color rgba="0.0 0.1 0.13 1.0" />
+    <color rgba="0.0 0.2 0.23 1.0" />
   </material>
 
   <material name="aluminum">
