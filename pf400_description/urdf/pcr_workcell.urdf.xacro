@@ -9,21 +9,21 @@
   <xacro:pf400 prefix="pf400/"/>
 
   <!-- Peeler -->
-  <xacro:include filename="$(find pf400_description)/urdf/peeler.urdf.xacro" />
-  <xacro:Peeler prefix="peeler/"/>
+  <!-- <xacro:include filename="$(find pf400_description)/urdf/peeler.urdf.xacro" />
+  <xacro:Peeler prefix="peeler/"/> -->
 
   <!-- Sealer -->
-  <xacro:include filename="$(find pf400_description)/urdf/sealer.urdf.xacro" />
-  <xacro:Sealer prefix="sealer/"/>
+  <!-- <xacro:include filename="$(find pf400_description)/urdf/sealer.urdf.xacro" />
+  <xacro:Sealer prefix="sealer/"/> -->
   
   <!-- OT2 -->
-  <xacro:include filename="$(find pf400_description)/urdf/OT2.urdf.xacro" />
-  <xacro:OT2 prefix="ot2/"/>
+  <!-- <xacro:include filename="$(find pf400_description)/urdf/OT2.urdf.xacro" />
+  <xacro:OT2 prefix="ot2/"/> -->
 
   <!-- Thermocycler -->
-  <xacro:include filename="$(find pf400_description)/urdf/thermocycler.urdf.xacro" />
+  <!-- <xacro:include filename="$(find pf400_description)/urdf/thermocycler.urdf.xacro" />
   <xacro:Thermocycler prefix="thermocycler/"/>
-  
+   -->
 
   <!-- Module Carts -->
   <xacro:include filename="$(find pf400_description)/urdf/module_carts.urdf.xacro" />
@@ -39,7 +39,7 @@
     <origin xyz="-0.14 -0.0198 0.835" rpy="0 0 0"/>
     <limit effort="1000.0" lower="0" upper="0" velocity="0.5"/>
   </joint>
-
+<!-- 
   <joint name="Thermocycler_Base" type="fixed">
     <parent link="module_carts/cart_2"/>
     <child link="thermocycler/thermocycler_base"/>
@@ -86,6 +86,6 @@
     <axis xyz="0 0 0"/>
     <origin xyz="0.825 0.47 0" rpy="0 0 3.1416"/>
     <limit effort="1000.0" lower="0" upper="0" velocity="0.5"/>
-  </joint>
+  </joint> -->
 
 </robot>

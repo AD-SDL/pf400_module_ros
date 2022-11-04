@@ -134,7 +134,7 @@
 
   <link name="${prefix}pf400_cart">
     <visual>
-      <origin xyz="-1.63 2.347 -1.11" rpy="1.5708 0 0"/>
+      <origin xyz="0 0 0" rpy="1.5708 0 0"/>
       <geometry>
         <mesh filename="package://pf400_description/meshes/pf400_table.STL" scale="0.001 0.001 0.001"/>
       </geometry>
@@ -144,7 +144,7 @@
       <geometry>
         <mesh filename="package://pf400_description/meshes/pf400_table.STL" scale="0.001 0.001 0.001"/>
       </geometry>
-      <origin xyz="-1.63 2.347 -1.11" rpy="1.5708 0 0"/>
+      <origin xyz="0 0 0" rpy="1.5708 0 0"/>
     </collision>
   </link>
 
