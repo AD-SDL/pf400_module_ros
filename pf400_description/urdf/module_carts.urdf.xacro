@@ -136,13 +136,13 @@
     <visual>
       <origin xyz="-1.63 2.347 -1.11" rpy="1.5708 0 0"/>
       <geometry>
-        <mesh filename="package://pf400_description/meshes/PF400_module.STL" scale="0.001 0.001 0.001"/>
+        <mesh filename="package://pf400_description/meshes/pf400_table.STL" scale="0.001 0.001 0.001"/>
       </geometry>
       <material name="darkbluegreen"/>
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://pf400_description/meshes/PF400_module.STL" scale="0.001 0.001 0.001"/>
+        <mesh filename="package://pf400_description/meshes/pf400_table.STL" scale="0.001 0.001 0.001"/>
       </geometry>
       <origin xyz="-1.63 2.347 -1.11" rpy="1.5708 0 0"/>
     </collision>
