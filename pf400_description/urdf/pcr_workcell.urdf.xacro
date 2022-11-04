@@ -29,19 +29,8 @@
   <xacro:include filename="$(find pf400_description)/urdf/module_carts.urdf.xacro" />
   <xacro:Module_Carts prefix="module_carts/"/>
 
-  <!-- Links -->
 
-  <link name="OT2_2">
-    <visual>
-      <origin xyz="0 0 0" rpy="1.5708 0 3.1416"/>
-      <geometry>
-        <mesh filename="package://pf400_description/meshes/OT_2_without_pipette.STL" scale="0.001 0.001 0.001"/>
-      </geometry>
-      <material name="aluminum"/>
-    </visual>
-  </link>
-
-  <!-- Joints -->
+  <!-- Wrokcell Setup -->
 
   <joint name="pf400_module" type="fixed">
     <parent link="module_carts/pf400_cart"/>
@@ -54,7 +43,7 @@
   <joint name="Thermocycler_Base" type="fixed">
     <parent link="module_carts/cart_2"/>
     <child link="thermocycler/thermocycler_base"/>
-    <axis xyz="0 0 1"/>
+    <axis xyz="0 0 0"/>
     <origin xyz="0.2 -0.65 0" rpy="0 0 0"/>
     <limit effort="1000.0" lower="0" upper="0" velocity="0.5"/>
   </joint>
@@ -62,12 +51,11 @@
   <joint name="Thermocycler_Base2" type="fixed">
     <parent link="module_carts/cart_2"/>
     <child link="thermocycler/thermocycler_base2"/>
-    <axis xyz="0 0 1"/>
+    <axis xyz="0 0 0"/>
     <origin xyz="-0.1 -0.65 0" rpy="0 0 0"/>
     <limit effort="1000.0" lower="0" upper="0" velocity="0.5"/>
   </joint>
   
-
   <joint name="Peeler_Base" type="fixed">
     <parent link="module_carts/cart_6"/>
     <child link="peeler/peeler_base"/>
@@ -79,24 +67,24 @@
   <joint name="Sealer_Base" type="fixed">
     <parent link="module_carts/cart_6"/>
     <child link="sealer/sealer_base"/>
-    <axis xyz="0 0 1"/>
+    <axis xyz="0 0 0"/>
     <origin xyz="0.23 -0.51 1.042" rpy="0 0 0"/> 
     <limit effort="1000.0" lower="0" upper="0" velocity="0.5"/>
   </joint>
 
-  <joint name="OT2" type="fixed">
+  <joint name="OT2_alpha" type="fixed">
     <parent link="module_carts/cart_8"/>
-    <child link="ot2/OT2"/>
-    <axis xyz="0 0 1"/>
+    <child link="ot2/OT2_alpha"/>
+    <axis xyz="0 0 0"/>
     <origin xyz="0.825 0.47 0" rpy="0 0 3.1416"/>
     <limit effort="1000.0" lower="0" upper="0" velocity="0.5"/>
   </joint>
 
-  <joint name="OT2_2" type="fixed">
+  <joint name="OT2_betha" type="fixed">
     <parent link="module_carts/cart_7"/>
-    <child link="OT2_2"/>
-    <axis xyz="0 0 1"/>
-    <origin xyz="0.465 -0.47 1.04" rpy="0 0 0"/>
+    <child link="ot2/OT2_betha"/>
+    <axis xyz="0 0 0"/>
+    <origin xyz="0.825 0.47 0" rpy="0 0 3.1416"/>
     <limit effort="1000.0" lower="0" upper="0" velocity="0.5"/>
   </joint>
 
