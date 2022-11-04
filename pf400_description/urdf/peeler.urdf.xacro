@@ -12,6 +12,12 @@
       </geometry>
       <material name="light_blue"/>
     </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://pf400_description/meshes/peeler_base.STL" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <origin xyz="0 0 0" rpy="1.5708 0 0"/>
+    </collision>
   </link>
 
   <link name="${prefix}peeler_plate">
@@ -22,6 +28,12 @@
       </geometry>
       <material name="white"/>
     </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://pf400_description/meshes/peeler_plate.STL" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <origin xyz="0 0 0" rpy="0 1.5708 0"/>
+    </collision>
   </link>
 
   <!-- Joints -->

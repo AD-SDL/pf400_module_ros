@@ -7,11 +7,11 @@ Panels:
         - /Global Options1
         - /Status1
         - /RobotModel1
-        - /TF1
-        - /TF1/Frames1
-        - /TF1/Tree1
+        - /RobotModel1/Mass Properties1
+        - /RobotModel1/Description Topic1
+        - /RobotModel1/Links1
       Splitter Ratio: 0.5
-    Tree Height: 563
+    Tree Height: 359
   - Class: rviz_common/Selection
     Name: Selection
   - Class: rviz_common/Tool Properties
@@ -53,7 +53,7 @@ Visualization Manager:
       Value: true
     - Alpha: 1
       Class: rviz_default_plugins/RobotModel
-      Collision Enabled: false
+      Collision Enabled: true
       Description File: ""
       Description Source: Topic
       Description Topic:
@@ -69,54 +69,54 @@ Visualization Manager:
         Expand Link Details: false
         Expand Tree: false
         Link Tree Style: Links in Alphabetic Order
-        rail_base:
+        pf400/hand:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        hand:
+        pf400/inner_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        inner_link:
+        pf400/left_finger:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        left_finger:
+        pf400/outer_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        outer_link:
+        pf400/rail:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        rail:
+        pf400/rail_base:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        right_finger:
+        pf400/right_finger:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        z_carriage:
+        pf400/z_carriage:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        z_column:
+        pf400/z_column:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
       Mass Properties:
-        Inertia: false
-        Mass: false
+        Inertia: true
+        Mass: true
       Name: RobotModel
       TF Prefix: ""
       Update Interval: 0
@@ -168,7 +168,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz_default_plugins/Orbit
-      Distance: 10
+      Distance: 4.900000095367432
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -183,10 +183,10 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.785398006439209
+      Pitch: 1.3653976917266846
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 0.785398006439209
+      Yaw: 4.3185834884643555
     Saved: ~
 Window Geometry:
   Displays:
@@ -206,3 +206,4 @@ Window Geometry:
   Width: 1206
   X: 74
   Y: 27
+

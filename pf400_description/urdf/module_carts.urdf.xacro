@@ -12,6 +12,12 @@
       </geometry>
       <material name="darkbluegreen"/>
     </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://pf400_description/meshes/module_cart.stl" scale="1 1 1"/>
+      </geometry>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </collision>
   </link>
 
   <link name="${prefix}cart_2">
@@ -22,6 +28,12 @@
       </geometry>
       <material name="darkbluegreen"/>
     </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://pf400_description/meshes/module_cart.stl" scale="1 1 1"/>
+      </geometry>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </collision>
   </link>
 
   <link name="${prefix}cart_3">
@@ -32,6 +44,12 @@
       </geometry>
       <material name="darkbluegreen"/>
     </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://pf400_description/meshes/module_cart.stl" scale="1 1 1"/>
+      </geometry>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </collision>
   </link>
 
   <link name="${prefix}cart_4">
@@ -42,6 +60,12 @@
       </geometry>
       <material name="darkbluegreen"/>
     </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://pf400_description/meshes/module_cart.stl" scale="1 1 1"/>
+      </geometry>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </collision>
   </link>
 
   <link name="${prefix}cart_5">
@@ -52,6 +76,12 @@
       </geometry>
       <material name="darkbluegreen"/>
     </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://pf400_description/meshes/module_cart.stl" scale="1 1 1"/>
+      </geometry>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </collision>
   </link>
   
   <link name="${prefix}cart_6">
@@ -62,6 +92,12 @@
       </geometry>
       <material name="darkbluegreen"/>
     </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://pf400_description/meshes/module_cart.stl" scale="1 1 1"/>
+      </geometry>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </collision>
   </link>
 
   <link name="${prefix}cart_7">
@@ -72,6 +108,12 @@
       </geometry>
       <material name="darkbluegreen"/>
     </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://pf400_description/meshes/module_cart.stl" scale="1 1 1"/>
+      </geometry>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </collision>
   </link>
 
   <link name="${prefix}cart_8">
@@ -82,6 +124,12 @@
       </geometry>
       <material name="darkbluegreen"/>
     </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://pf400_description/meshes/module_cart.stl" scale="1 1 1"/>
+      </geometry>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </collision>
   </link>
 
   <link name="${prefix}pf400_cart">
@@ -92,6 +140,12 @@
       </geometry>
       <material name="darkbluegreen"/>
     </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://pf400_description/meshes/PF400_module.STL" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <origin xyz="-1.63 2.347 -1.11" rpy="1.5708 0 0"/>
+    </collision>
   </link>
 
   <!-- Joints -->
