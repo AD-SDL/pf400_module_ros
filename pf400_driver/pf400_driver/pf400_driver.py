@@ -864,25 +864,32 @@ class PF400(KINEMATICS):
 if __name__ == "__main__":
  
 	# from pf400_driver.pf400_driver import PF400
-	robot = PF400("192.168.50.50", 10000)
+	robot = PF400("192.168.50.50", 10100)
 
 	sciclops = [222.0, -38.068, 335.876, 325.434, 79.923, 995.062]
-
-	sealer = [202.389 ,-4.616, 260.005, 372.031, 79.841, 411.535]
-	peeler = [225.123, -25.539, 244.391, 409.600, 79.138, 398.771] 	 	
+	sealer = [201.128, -2.814, 264.373, 365.863, 79.144, 411.553]
+	peeler = [225.521, -25.970, 245.134, 409.291, 78.007, 398.769]
 	OT2_betha_deck_2 = [163.230, -59.032, 270.965, 415.013, 129.982, -951.510]
+	OT2_alpha_deck_cooler = [243.034, -31.484, 276.021, 383.640, 124.807, -585.407]
 	thermocycler = [247.0, 40.698, 38.294, 728.332, 123.077, 301.082]
-	# robot.transfer(sciclops,OT2_betha_deck_2,"narrow","wide")
+	# robot.transfer(sciclops,OT2_alpha_deck_cooler,"narrow","wide")
+	robot.transfer(OT2_alpha_deck_cooler,sciclops, "wide","narrow")
+
 	# robot.transfer(OT2_betha_deck_2,sealer,"wide","narrow")
 	# robot.transfer(sealer,thermocycler,"narrow","wide")
 	# robot.transfer(thermocycler,peeler,"wide","narrow")
 	# robot.transfer(peeler,sciclops)
 
 
-	# robot.pick_plate(sealer)
+	# robot.pick_plate(sciclops)
+	# robot.place_plate(OT2_betha_deck_2)
 	# robot.place_plate(thermocycler)
 	# robot.pick_plate(sciclops)
 	# robot.place_plate(sealer)
+	# robot.pick_plate(peeler)
+	# robot.place_plate(sciclops)
+	# robot.pick_plate(sealer)
+	# robot.place_plate(peeler)
 
 	# robot.transfer(pos1, peeler, "narrow", "narrow")
 	# robot.remove_lid(peeler)

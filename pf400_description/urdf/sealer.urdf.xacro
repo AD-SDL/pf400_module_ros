@@ -12,6 +12,12 @@
       </geometry>
       <material name="pink"/>
     </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://pf400_description/meshes/sealer_base.STL" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <origin xyz="0 0 0" rpy="1.5708 0 1.5708"/>
+    </collision>
   </link>
 
   <link name="${prefix}sealer_plate">
@@ -22,6 +28,12 @@
       </geometry>
       <material name="aluminum"/>
     </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://pf400_description/meshes/sealer_plate.STL" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <origin xyz="0 0 0" rpy="0 1.5708 0"/>
+    </collision>
   </link>
 
   <!-- Joints -->

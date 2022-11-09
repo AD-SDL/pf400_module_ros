@@ -12,6 +12,12 @@
       </geometry>
       <material name="white"/>
     </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://pf400_description/meshes/rail_base.STL" scale="1 1 1"/>
+      </geometry>
+      <origin xyz="0 0 0" rpy="0 0 1.5708"/>
+    </collision>
   </link>
 
   <link name="${prefix}rail">
@@ -22,6 +28,12 @@
       </geometry>
       <material name="white"/>
     </visual>
+      <collision>
+      <geometry>
+        <mesh filename="package://pf400_description/meshes/rail.STL" scale="1 1 1"/>
+      </geometry>
+      <origin xyz="0 0 0" rpy="1.5708 0 1.5708"/>
+    </collision>
   </link>
 
   <link name="${prefix}z_column">
@@ -32,6 +44,12 @@
       </geometry>
       <material name="white"/>
     </visual>
+      <collision>
+      <geometry>
+        <mesh filename="package://pf400_description/meshes/PF400_Z_Column.STL" scale="0.001 0.001 0.00132"/>
+      </geometry>
+      <origin xyz="0 0 0.074" rpy="0 0 0"/>
+    </collision>
   </link>
 
   <link name="${prefix}z_carriage">
@@ -42,6 +60,12 @@
       </geometry>
       <material name="white"/>
     </visual>
+      <collision>
+      <geometry>
+        <mesh filename="package://pf400_description/meshes/PF400_Z_Carriage.STL" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <origin xyz="0 0 0.074" rpy="0 0 0"/>
+    </collision>
   </link>
 
   <link name="${prefix}inner_link">
@@ -52,6 +76,12 @@
       </geometry>
       <material name="white"/>
     </visual>
+      <collision>
+      <geometry>
+        <mesh filename="package://pf400_description/meshes/PF400_Inner_Link.STL" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <origin xyz="0 0 0.074" rpy="0 0 0"/>
+    </collision>
   </link>
 
   <link name="${prefix}outer_link">
@@ -62,6 +92,12 @@
       </geometry>
       <material name="white"/>
     </visual>
+      <collision>
+      <geometry>
+        <mesh filename="package://pf400_description/meshes/PF400_Outer_Link.STL" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <origin xyz="0 0 0.074" rpy="0 0 0"/>
+    </collision>
   </link>
 
   <link name="${prefix}hand">
@@ -72,6 +108,12 @@
       </geometry>
       <material name="white"/>
     </visual>
+      <collision>
+      <geometry>
+        <mesh filename="package://pf400_description/meshes/PF400_Hand.STL" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <origin xyz="0 0 0.074" rpy="0 0 0"/>
+    </collision>
   </link>
 
   <link name="${prefix}left_finger">
@@ -82,6 +124,12 @@
       </geometry>
       <material name="aluminum"/>
     </visual>
+      <collision>
+      <geometry>
+        <mesh filename="package://pf400_description/meshes/pf400_left_finger.STL" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <origin xyz="-0.02 -0.053 0.053" rpy="0 0 0"/>
+    </collision>
   </link>
 
   <link name="${prefix}right_finger">
@@ -92,6 +140,12 @@
       </geometry>
       <material name="aluminum"/>
     </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://pf400_description/meshes/pf400_right_finger.STL" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <origin xyz="-0.021 -0.028 0.105" rpy="-1.5708 0 0"/>
+    </collision>
   </link>
 
   <!-- Joints -->
