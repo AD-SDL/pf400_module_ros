@@ -30,13 +30,14 @@ class CameraModuleClient(Node):
 
         self.camera = CameraModuleDriver()
 
-        timer_period = 0.5  # seconds
+        timer_period = 2  # seconds
 
-        self.stateTimer = self.create_timer(timer_period, self.stateCallback)
         self.statePub = self.create_publisher(String, NODE_NAME + '/state', 10)
         self.stateTimer = self.create_timer(timer_period, self.stateCallback)
 
         self.action_handler = self.create_service(WeiActions, NODE_NAME + "/action_handler", self.actionCallback)
+        self.stateTimer = self.create_timer(timer_period, self.actionCallback)
+
 
 
     def stateCallback(self):
