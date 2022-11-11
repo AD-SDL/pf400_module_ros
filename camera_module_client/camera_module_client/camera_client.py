@@ -72,7 +72,6 @@ class cameraNode(Node):
             # Publish the image.
             # The 'cv2_to_imgmsg' method converts an OpenCV
             # image to a ROS 2 image message
-            print(frame)
             self.cameraPub.publish(self.br.cv2_to_imgmsg(frame))
 
         # Display the message on the console
