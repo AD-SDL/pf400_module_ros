@@ -23,6 +23,10 @@
   <!-- Thermocycler -->
   <xacro:include filename="$(find pf400_description)/urdf/thermocycler.urdf.xacro" />
   <xacro:Thermocycler prefix="thermocycler/"/>
+
+  <!-- Hidex -->
+  <xacro:include filename="$(find pf400_description)/urdf/hidex.urdf.xacro" />
+  <xacro:Hidex prefix="hidex/"/>
   
 
   <!-- Module Carts -->
@@ -69,6 +73,14 @@
     <child link="sealer/sealer_base"/>
     <axis xyz="0 0 0"/>
     <origin xyz="0.23 -0.51 1.042" rpy="0 0 0"/> 
+    <limit effort="1000.0" lower="0" upper="0" velocity="0.5"/>
+  </joint>
+
+  <joint name="Hidex_Base" type="fixed">
+    <parent link="module_carts/cart_3"/>
+    <child link="hidex/hidex_body"/>
+    <axis xyz="0 0 0"/>
+    <origin xyz="0.2 -0.45 1.042" rpy="0 0 0"/> 
     <limit effort="1000.0" lower="0" upper="0" velocity="0.5"/>
   </joint>
 

@@ -27,7 +27,6 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'pf400_joint_pub = pf400_description.TCSJointPub:main',
             'pf400_description_client = pf400_description.pf400_description_client:main'
         ],
     },

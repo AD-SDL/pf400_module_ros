@@ -37,6 +37,30 @@ This a ROS2 wrapper that accepts service calls from wei_client with string messa
 
 ![Free Joints](https://github.com/AD-SDL/PF400_cobot/blob/master/resources/diagrams-figures/free-joint-mode.png)
 
+## ROS Install
+- `cd ~`
+- `source /opt/ros/foxy/setup.bash`
+- `mkdir -p ~/pf400_ws/src`
+- `cd ~/pf400_ws/src`
+- `git clone https://github.com/AD-SDL/pf400_module.git`
+- `cd ~/pf400_ws`
+- `sudo apt install python3-rosdep2`
+- `rosdep update && rosdep install -i --from-path src`
+- `sudo apt install python3-colcon-common-extensions`
+- `colcon build`
+- `source install/setup.bash`
+
+## Python Driver Install
+
+- `conda create -n rpl-test python=3.8`
+- `conda activate rpl-test`
+- `git clone https://github.com/AD-SDL/pf400_module.git`
+- `cd pf400_driver`
+- `#pip install -r requirements.txt`
+- `pip install -e .`
+
+Better to install in develop-mode while the config is still changing
+
 ## Rviz Visualization
 ### Launch with real robot
 - `ros2 launch pf400_description pf400_rviz.launch`
@@ -49,29 +73,7 @@ This a ROS2 wrapper that accepts service calls from wei_client with string messa
 ### Launch with fake robot hardware
 - `ros2 launch pf400_description pcr_workcell.launch fake_hardware:=True`
 
-![RViz PCR Workcell Visualization](https://github.com/AD-SDL/PF400_cobot/blob/master/resources/diagrams-figures/pcr_workcell_rviz.png)
-## Python Install
-
-- `conda create -n rpl-test python=3.8`
-- `conda activate rpl-test`
-- `git clone https://github.com/AD-SDL/pf400_module.git`
-- `cd pf400_driver`
-- `#pip install -r requirements.txt`
-- `pip install -e .`
-
-Better to install in develop-mode while the config is still changing
-
-## Ros Install
-- `cd ~`
-- `source /opt/ros/foxy/setup.bash`
-- `mkdir -p ~/pf400_ws/src`
-- `cd ~/pf400_ws/src`
-- `git clone https://github.com/AD-SDL/pf400_module.git`
-- `cd ~/pf400_ws`
-- `rosdep update && rosdep install -i --from-path src`
-- `sudo apt install python3-colcon-common-extensions`
-- `colcon build`
-- `source install/setup.bash`
+![RViz PCR Workcell Visualization](https://github.com/AD-SDL/PF400_cobot/blob/master/resources/diagrams-figures/pcr-workcell.png)
 
 ## Create new configuration
 
