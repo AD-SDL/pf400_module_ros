@@ -10,19 +10,19 @@
 
   <!-- Peeler -->
   <xacro:include filename="$(find pf400_description)/urdf/peeler.urdf.xacro" />
-  <!-- <xacro:Peeler prefix="peeler/"/> -->
+  <xacro:Peeler prefix="peeler/"/>
 
   <!-- Sealer -->
-  <!-- <xacro:include filename="$(find pf400_description)/urdf/sealer.urdf.xacro" />
-  <xacro:Sealer prefix="sealer/"/> -->
+  <xacro:include filename="$(find pf400_description)/urdf/sealer.urdf.xacro" />
+  <xacro:Sealer prefix="sealer/"/>
   
   <!-- OT2 -->
-  <!-- <xacro:include filename="$(find pf400_description)/urdf/OT2.urdf.xacro" />
-  <xacro:OT2 prefix="ot2/"/> -->
+  <xacro:include filename="$(find pf400_description)/urdf/OT2.urdf.xacro" />
+  <xacro:OT2 prefix="ot2/"/>
 
   <!-- Thermocycler -->
-  <!-- <xacro:include filename="$(find pf400_description)/urdf/thermocycler.urdf.xacro" />
-  <xacro:Thermocycler prefix="thermocycler/"/> -->
+  <xacro:include filename="$(find pf400_description)/urdf/thermocycler.urdf.xacro" />
+  <xacro:Thermocycler prefix="thermocycler/"/>
   
 
   <!-- Module Carts -->
