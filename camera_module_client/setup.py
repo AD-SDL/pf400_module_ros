@@ -32,7 +32,9 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'camera_client = camera_module_client.camera_client:main'
+            'camera_publisher = camera_module_client.camera_publisher:main',
+            'camera_subscriber = camera_module_client.camera_subscriber:main'
+
         ],
     },
 )
