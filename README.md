@@ -69,9 +69,9 @@ Better to install in develop-mode while the config is still changing
 
 ![RViz PF400 Visualization](https://github.com/AD-SDL/PF400_cobot/blob/master/resources/diagrams-figures/pf400-rviz.png)
 ### Launch with real robot
-- `ros2 launch pf400_description pcr_workcell.launch`
+- `ros2 launch pf400_description pcr_workcell.launch.py`
 ### Launch with fake robot hardware
-- `ros2 launch pf400_description pcr_workcell.launch fake_hardware:=True`
+- `ros2 launch pf400_description pcr_workcell.launch.py fake_hardware:=True`
 
 ![RViz PCR Workcell Visualization](https://github.com/AD-SDL/PF400_cobot/blob/master/resources/diagrams-figures/pcr-workcell.png)
 
