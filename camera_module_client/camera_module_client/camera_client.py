@@ -7,6 +7,7 @@ from cv_bridge import CvBridge  # Package to convert between ROS and OpenCV Imag
 from rclpy.node import Node  # Handles the creation of nodes
 from std_msgs.msg import String
 from sensor_msgs.msg import Image  # Image is the message type
+from rclpy.qos import qos_profile_sensor_data
 from wei_services.srv import WeiActions  
 
 
@@ -24,7 +25,7 @@ class cameraNode(Node):
         super().__init__(NODE_NAME)
 
         # We will publish a message every 0.1 seconds
-        timer_period = 0.2  # seconds
+        timer_period = 0.1  # seconds
         # State publisher
         self.state = "UNKNOWN"
         self.statePub = self.create_publisher(String, NODE_NAME + '/state', 10)
@@ -34,7 +35,8 @@ class cameraNode(Node):
 
         # Create the publisher. This publisher will publish an Image
         # to the video_frames topic. The queue size is 10 messages.
-        self.cameraPub = self.create_publisher(Image, "video_frames", 10)
+        self.cameraPub = self.create_publisher(Image, NODE_NAME + "/video_frames", 10)
+        self.cameraSub = self.create_subscription(Image, NODE_NAME + "/video_frames", self.cameraSubCallback, qos_profile_sensor_data)
 
         self.action_handler = self.create_service(WeiActions, NODE_NAME + "/action_handler", self.actionCallback)
 
@@ -55,9 +57,23 @@ class cameraNode(Node):
         self.statePub.publish(msg)
         self.get_logger().info('Publishing: "%s"' % msg.data)
         self.state = "READY"
-        self.get_logger().info("Capturing image")
         self.cameraCallback()
+        self.get_logger().info("Publishing video frame")
 
+    def cameraSubCallback(self, data):
+            """
+            Callback function.
+            """
+            # Display the message on the console
+            self.get_logger().info('Receiving video frame')
+        
+            # Convert ROS Image message to OpenCV image
+            current_frame = self.br.imgmsg_to_cv2(data)
+            
+            # Display image
+            cv2.imshow("camera", current_frame)
+            
+            cv2.waitKey(1)
     def cameraCallback(self):
         """Callback function.
         This function gets called every 0.1 seconds.
