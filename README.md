@@ -6,7 +6,6 @@ Python interface that allows remote commands to be executed using simple string 
 
 - PF400 is the main object that will be used for operations such as remote connection as well as sending movement commands.
 - Programs are sent to the 192.168.50.50 IP address and 10x00 port numbers (first robot port number: 10100). 
-<!-- - Robot data will be loaded from `/utils/robot_data.json` which contains motion profiles and joint locations. -->
 - A program sent to robot will be executed immediately unless there is a prior operation running on the robot. 
 - If a second motion command is sent while the referenced robot is moving, the second command is blocked and will not reply until the first motion is complete.
 ## pf400_camera_driver 
