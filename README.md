@@ -63,9 +63,9 @@ Better to install in develop-mode while the config is still changing
 
 ## Rviz Visualization
 ### Launch with real robot
-- `ros2 launch pf400_description pf400_rviz.launch`
+- `ros2 launch pf400_description pf400_rviz.launch.py`
 ### Launch with fake robot hardware
-- `ros2 launch pf400_description pf400_rviz.launch fake_hardware:=True`
+- `ros2 launch pf400_description pf400_rviz.launch.py fake_hardware:=True`
 
 ![RViz PF400 Visualization](https://github.com/AD-SDL/PF400_cobot/blob/master/resources/diagrams-figures/pf400-rviz.png)
 ### Launch with real robot
