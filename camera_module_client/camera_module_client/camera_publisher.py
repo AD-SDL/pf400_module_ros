@@ -29,7 +29,7 @@ class CameraPublisherNode(Node):
         self.state = "UNKNOWN"
         self.statePub = self.create_publisher(String, NODE_NAME + '/state', 10)
         self.stateTimer = self.create_timer(timer_period, self.stateCallback)
-
+        self.camera_value=0
         # Initiate the Node class's constructor and give it a name
 
         # Create the publisher. This publisher will publish an Image
@@ -40,7 +40,7 @@ class CameraPublisherNode(Node):
 
         # Create a VideoCapture object
         # The argument '0' gets the default webcam.
-        self.cap = cv2.VideoCapture(0)
+        self.cap = cv2.VideoCapture(self.camera_value)
 
         # Used to convert between ROS and OpenCV images
         self.br = CvBridge()
@@ -54,6 +54,11 @@ class CameraPublisherNode(Node):
         msg.data = 'State: %s' % self.state
         self.statePub.publish(msg)
         self.get_logger().info('Publishing: "%s"' % msg.data)
+        # TODO: Add a state check before assigning state 
+        # if self.cap:
+        #   self.state="READY"
+        # else:
+        # self.state="ERROR"
         self.state = "READY"
         self.cameraCallback()
         self.get_logger().info("Publishing video frame")
@@ -91,11 +96,11 @@ class CameraPublisherNode(Node):
             vars = eval(request.vars)
             print(vars)
 
-        self.get_logger().info("Capturing image")
-        self.cameraCallback()
-        self.get_logger().info("Plate image saved.")
+            self.get_logger().info("Capturing image")
+            self.cameraCallback()
+            self.get_logger().info("Plate image saved.")
 
-        self.state = "COMPLETED"
+            self.state = "COMPLETED"
 
         return response
 

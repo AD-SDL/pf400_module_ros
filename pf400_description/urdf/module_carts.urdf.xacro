@@ -155,7 +155,7 @@
     <parent link="${prefix}pf400_cart"/>
     <child link="${prefix}cart_1"/>
     <axis xyz="0 0 1"/>
-    <origin xyz="0.99 0.806 0" rpy="0 0 0"/>
+    <origin xyz="1.0 0.83 0" rpy="0 0 0"/>
     <limit effort="1000.0" lower="0" upper="0" velocity="0.5"/>
   </joint>
   
@@ -163,7 +163,7 @@
     <parent link="${prefix}pf400_cart"/>
     <child link="${prefix}cart_2"/>
     <axis xyz="0 0 1"/>
-    <origin xyz="0.24 0.806 0" rpy="0 0 0"/>
+    <origin xyz="0.25 0.83 0" rpy="0 0 0"/>
     <limit effort="1000.0" lower="0" upper="0" velocity="0.5"/>
   </joint>
 
@@ -171,7 +171,7 @@
     <parent link="${prefix}pf400_cart"/>
     <child link="${prefix}cart_3"/>
     <axis xyz="0 0 1"/>
-    <origin xyz="-0.51 0.806  0" rpy="0 0 0"/>
+    <origin xyz="-0.50 0.83  0" rpy="0 0 0"/>
     <limit effort="1000.0" lower="0" upper="0" velocity="0.5"/>
   </joint>
 
@@ -179,7 +179,7 @@
     <parent link="${prefix}pf400_cart"/>
     <child link="${prefix}cart_4"/>
     <axis xyz="0 0 1"/>
-    <origin xyz="-1.26 0.806  0" rpy="0 0 0"/>
+    <origin xyz="-1.25 0.83  0" rpy="0 0 0"/>
     <limit effort="1000.0" lower="0" upper="0" velocity="0.5"/>
   </joint>
 
@@ -187,7 +187,7 @@
     <parent link="${prefix}pf400_cart"/>
     <child link="${prefix}cart_5"/>
     <axis xyz="0 0 1"/>
-    <origin xyz="0.99 -0.451 0" rpy="0 0 0"/>
+    <origin xyz="1.00 -0.46 0" rpy="0 0 0"/>
     <limit effort="1000.0" lower="0" upper="0" velocity="0.5"/>
   </joint>
 
@@ -195,7 +195,7 @@
     <parent link="${prefix}pf400_cart"/>
     <child link="${prefix}cart_6"/>
     <axis xyz="0 0 1"/>
-    <origin xyz="0.24 -0.451 0" rpy="0 0 0"/>
+    <origin xyz="0.25 -0.46 0" rpy="0 0 0"/>
     <limit effort="1000.0" lower="0" upper="0" velocity="0.5"/>
   </joint>
 
@@ -203,7 +203,7 @@
     <parent link="${prefix}pf400_cart"/>
     <child link="${prefix}cart_7"/>
     <axis xyz="0 0 1"/>
-    <origin xyz="-0.51 -0.451 0" rpy="0 0 0"/>
+    <origin xyz="-0.50 -0.46 0" rpy="0 0 0"/>
     <limit effort="1000.0" lower="0" upper="0" velocity="0.5"/>
   </joint>
 
@@ -211,7 +211,7 @@
     <parent link="${prefix}pf400_cart"/>
     <child link="${prefix}cart_8"/>
     <axis xyz="0 0 1"/>
-    <origin xyz="-1.26 -0.451 0" rpy="0 0 0"/>
+    <origin xyz="-1.25 -0.46 0" rpy="0 0 0"/>
     <limit effort="1000.0" lower="0" upper="0" velocity="0.5"/>
   </joint>
   </xacro:macro>

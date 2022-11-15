@@ -75,8 +75,8 @@
     <parent link="${prefix}thermocycler_base"/>
     <child link="${prefix}thermocycler_cap"/>
     <axis xyz="-1 0 0"/>
-    <origin xyz="0 0.466 1.05" rpy="1.5708 0 0"/>
-    <limit effort="1000.0" lower="0" upper="1.2" velocity="0.5"/>
+    <origin xyz="0 0.466 1.05" rpy="0.4 0 0"/>
+    <limit effort="1000.0" lower="1.2" upper="1.2" velocity="0.5"/>
   </joint>
 
   <joint name="Thermocycler_Cap2" type="fixed">
@@ -84,7 +84,7 @@
     <child link="${prefix}thermocycler_cap2"/>
     <axis xyz="-1 0 0"/>
     <origin xyz="0 0.466 1.05" rpy="1.5708 0 0"/>
-    <limit effort="1000.0" lower="0" upper="1.2" velocity="0.5"/>
+    <limit effort="1000.0" lower="1.2" upper="1.2" velocity="0.5"/>
   </joint>
 
   </xacro:macro>
