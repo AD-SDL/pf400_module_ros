@@ -7,7 +7,7 @@ def generate_launch_description():
     
     pf400_client = Node(
             package = 'pf400_client',
-            namespace = 'pf400_client',
+            namespace = 'std_ns',
             executable = 'pf400_client',
             output = "screen",
             name='pf400Node'
