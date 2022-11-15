@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+<robot name="Peeler" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+
+  <!-- Links -->
+  <xacro:macro name="Hidex" params = "prefix">
+    <link name="${prefix}hidex_body">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://pf400_description/meshes/hidex_body.STL" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="black"/>
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://pf400_description/meshes/hidex_body.STL" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </collision>
+  </link>
+
+  <link name="${prefix}hidex_plate">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://pf400_description/meshes/hidex_plate.STL" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="aluminum"/>
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://pf400_description/meshes/hidex_plate.STL" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </collision>
+  </link>
+
+  <!-- Joints -->
+
+  <joint name="Hidex_Plate_Joint" type="fixed">
+    <parent link="${prefix}hidex_body"/>
+    <child link="${prefix}hidex_plate"/>
+    <axis xyz="0 0 1"/>
+    <origin xyz="0.055 -0.09 0.065" rpy="0 0 0"/> 
+    <limit effort="1000.0" lower="0" upper="0.3" velocity="0.5"/>
+  </joint>
+  </xacro:macro>
+
+</robot>
