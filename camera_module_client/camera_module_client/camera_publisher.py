@@ -7,7 +7,6 @@ from cv_bridge import CvBridge  # Package to convert between ROS and OpenCV Imag
 from rclpy.node import Node  # Handles the creation of nodes
 from std_msgs.msg import String
 from sensor_msgs.msg import Image  # Image is the message type
-from wei_services.srv import WeiActions  
 
 
 class CameraPublisherNode(Node):
