@@ -4,7 +4,6 @@ from time import sleep
 
 from threading import Thread
 from pf400_driver import PF400
-qr_name = "TEST"
 
 class CAMERA(PF400):
 
@@ -12,9 +11,11 @@ class CAMERA(PF400):
 
         super().__init__("192.168.50.50", 10100)    
 
-        self.scanner = cv2.VideoCapture(0)
-        self.detector = cv2.QRCodeDetector()
-        (self.grabbed, self.frame) = self.scanner.read()
+        self.scanner_1 = cv2.VideoCapture(0)
+        self.detector_1 = cv2.QRCodeDetector()
+        self.scanner_2 = cv2.VideoCapture(1)
+        self.detector_2 = cv2.QRCodeDetector()
+        
         self.stop_camera = False
 
         self.cam_left_qr_name = None
@@ -22,12 +23,22 @@ class CAMERA(PF400):
 
         # Store joint angles
         # Make sure linear axis lenght is removed from the x axis 
-        self.locations = {"sciclops": [[262.550, 20.608, 119.290, 662.570, 0.0, 0],[-1]], 
-                          "ot2_1": [[197.185, 59.736, 90.509, 566.953, 82.069, 0],[-1]],
-                          "ot2_2": [[0,0,0,0,0,0],[-1]],
-                          "sealer": [[231.788, -27.154, 313.011, 342.317, 0.0, 0.0],[-1]],
-                          "Module1": [[262.550, 20.608, 119.290, 662.570, 0.0, 0],[-1]],
-                          "thermocycler": [[0,0,0,0,0,0],[-1]]}
+        # self.locations = {"Sciclops": [262.550, 20.608, 119.290, 662.570, 0.0, 0], 
+        #                   "OT2_Alpha": [197.185, 59.736, 90.509, 566.953, 82.069, 0],
+        #                   "OT2_Betha": [0,0,0,0,0,0],
+        #                   "Sealer": [231.788, -27.154, 313.011, 342.317, 0.0, 0.0],
+        #                   "Module1": [262.550, 20.608, 119.290, 662.570, 0.0, 0],
+        #                   "Biometra": [0,0,0,0,0,0]}
+
+        self.locations = {"Sciclops": [262.550, 20.608, 119.290, 662.570, 0.0, 0], 
+                          "OT2_Alpha": [197.185, 59.736, 90.509, 566.953, 82.069, 0],
+                          "OT2_Betha": [0,0,0,0,0,0],
+                          "Sealer": [231.788, -27.154, 313.011, 342.317, 0.0, 0.0],
+                          "Peeler": [262.550, 20.608, 119.290, 662.570, 0.0, 0],
+                          "Azenta": [262.550, 20.608, 119.290, 662.570, 0.0, 0],
+                          "Hidex": [262.550, 20.608, 119.290, 662.570, 0.0, 0],
+                          "Biometra": [0,0,0,0,0,0]}
+        self.module_list = []
 
         self.module_lenght = 685.8     
         # TODO: TABLE LENGHT IS MORE THAN ARM REACH. FIND THE FURTHEST REACH AND ADD THE RAIL LENGHT ON TOP TO FILL THE GAP 685.8
@@ -39,20 +50,26 @@ class CAMERA(PF400):
         i =0
         while i <6 :  
             sleep(0.5)
-            ret, frame = self.scanner.read()
+            ret_1, frame_1 = self.scanner_1.read()
+            ret_2, frame_2 = self.scanner_2.read()
+
             # Display the resulting frame
-            cv2.imshow('frame', frame)
-            data1, data2, data3 = self.detector.detectAndDecode(frame)
-            
-            if data1:
-                self.cam_left_qr_name = data1
+            # cv2.imshow('frame', frame)
+            scanner_1_data, data2, data3 = self.detector_1.detectAndDecode(frame_1)
+            scanner_2_data, data2, data3 = self.detector_2.detectAndDecode(frame_2)
+            print(scanner_1_data, scanner_2_data)
+            if scanner_1_data:
+                self.cam_left_qr_name = scanner_1_data
+            if scanner_2_data:
+                self.cam_right_qr_name = scanner_2_data
                 return
+ 
    
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
             i +=1
     
-        # self.scanner.release()
+        # self.scanner_1.release()
         # Destroy all the windows
         # cv2.destroyAllWindows()
 
@@ -72,37 +89,39 @@ class CAMERA(PF400):
 
             self.scan_next_row()
 
-            if self.cam_left_qr_name != left_cam_data and self.cam_left_qr_name in self.locations.keys():
-                self.locations[self.cam_left_qr_name][0][5] = self.start_location[5]
-                self.locations[self.cam_left_qr_name][1][0] = 0 # Zero means this modules is found in the workcell
+            if self.cam_left_qr_name not in self.module_list and self.cam_left_qr_name in self.locations.keys():
+                self.locations[self.cam_left_qr_name][5] = self.start_location[5]
+                self.module_list.append(self.cam_left_qr_name) # Add the module into module list
                 left_cam_data = self.cam_left_qr_name
-                print(self.locations[self.cam_left_qr_name][0])
+                print(self.locations[self.cam_left_qr_name])
 
-            if self.cam_left_qr_name != right_cam_data and self.cam_left_qr_name in self.locations.keys():
+            if self.cam_right_qr_name not in self.module_list and self.cam_right_qr_name in self.locations.keys():
                 #TODO:Change this to a function (def reverse_module_location)
 
-                cartesian,phi,rail = self.forward_kinematics(self.locations[self.cam_left_qr_name][0])
-                # print(cartesian)
-                # print(cartesian[0] - rail)
+                # cartesian,phi,rail = self.forward_kinematics(self.locations[self.cam_left_qr_name][0])
+                #         # print(cartesian)
+                #         # print(cartesian[0] - rail)
 
-                target_on_x_without_rail = cartesian[0] - rail
-                reverse_target_on_x_axis = self.module_lenght - target_on_x_without_rail
-                rail_travel = reverse_target_on_x_axis - target_on_x_without_rail
-                total_rail_travel = rail_travel + self.start_location[5]
+                # target_on_x_without_rail = cartesian[0] - rail
+                # reverse_target_on_x_axis = self.module_lenght - target_on_x_without_rail
+                # rail_travel = reverse_target_on_x_axis - target_on_x_without_rail
+                # total_rail_travel = rail_travel + self.start_location[5]
 
-                # print(reverse_target_on_x_axis)
-                cartesian[0] = target_on_x_without_rail + total_rail_travel # New x axis
-                cartesian[1] = -cartesian[1] #Switch arm from left to right on y axis
-                cartesian[3] -= 180 
-                # print(cartesian[2])
-                # print(self.start_location[5])
-                # print(cartesian)
-                self.locations[self.cam_left_qr_name][0] = self.inverse_kinematics(cartesian_coordinates = cartesian, phi = phi, rail = total_rail_travel)
+                #         # print(reverse_target_on_x_axis)
+                # cartesian[0] = target_on_x_without_rail + total_rail_travel # New x axis
+                # cartesian[1] = -cartesian[1] #Switch arm from left to right on y axis
+                # cartesian[3] -= 180 
+                #         # print(cartesian[2])
+                #         # print(self.start_location[5])
+                #         # print(cartesian)
+                # self.locations[self.cam_left_qr_name][0] = self.inverse_kinematics(cartesian_coordinates = cartesian, phi = phi, rail = total_rail_travel)
                 
-                # print(self.locations[self.cam_left_qr_name][0])
-                self.locations[self.cam_left_qr_name][1][0] = 0
-                
-                right_cam_data = self.cam_left_qr_name
+                #        # print(self.locations[self.cam_left_qr_name][0])
+                # self.locations[self.cam_left_qr_name][1][0] = 0
+                self.locations[self.cam_right_qr_name][5] = self.start_location[5]
+                self.module_list.append(self.cam_right_qr_name) # Add the module into module list
+                right_cam_data = self.cam_right_qr_name
+                print(self.locations[self.cam_right_qr_name])
             
             self.start_location[5] += 660
 
@@ -115,7 +134,7 @@ class CAMERA(PF400):
         # Move to next row
         self.move_joint(self.start_location, 2)
         # Scan the next row
-        # self.scan_qr_code()
+        self.scan_qr_code()
 
         print(self.cam_left_qr_name)
     
@@ -146,7 +165,7 @@ if __name__ == "__main__":
 
     cam = CAMERA()
     cam.explore_workcell()
-    print(cam.locations)
+    print(cam.module_list)
     
 
 
