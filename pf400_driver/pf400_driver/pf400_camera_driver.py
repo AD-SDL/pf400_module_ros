@@ -39,8 +39,8 @@ class CAMERA(PF400):
                           "Hidex": [262.550, 20.608, 119.290, 662.570, 0.0, 0],
                           "Biometra": [0,0,0,0,0,0]}
         self.module_list = []
-
-        self.module_lenght = 685.8     
+        self.robot_reach = 753.0
+        self.module_lenght = 685.8      
         # TODO: TABLE LENGHT IS MORE THAN ARM REACH. FIND THE FURTHEST REACH AND ADD THE RAIL LENGHT ON TOP TO FILL THE GAP 685.8
         self.start_location = self.neutral_joints 
 
@@ -98,26 +98,44 @@ class CAMERA(PF400):
             if self.cam_right_qr_name not in self.module_list and self.cam_right_qr_name in self.locations.keys():
                 #TODO:Change this to a function (def reverse_module_location)
 
-                # cartesian,phi,rail = self.forward_kinematics(self.locations[self.cam_left_qr_name][0])
-                #         # print(cartesian)
-                #         # print(cartesian[0] - rail)
+                cartesian,phi,rail = self.forward_kinematics(self.locations[self.cam_right_qr_name][0])
+                        # print(cartesian)
+                        # print(cartesian[0] - rail)
+                if self.start_location == -990:
+                    # TODO: Need to calculate the new location considering the rail location will be at the middle of the module cart. Meaning rail cannot move.
+                    pass
+                elif self.start_location == 990:
+                    # Robot rail at the maximum reach, therefore keep the rail at the same location and calculate the new location with the robot arm only
+                    target_on_x_without_rail = cartesian[0] - rail
+                    reverse_target_on_x_axis = self.module_lenght - target_on_x_without_rail
 
-                # target_on_x_without_rail = cartesian[0] - rail
-                # reverse_target_on_x_axis = self.module_lenght - target_on_x_without_rail
-                # rail_travel = reverse_target_on_x_axis - target_on_x_without_rail
-                # total_rail_travel = rail_travel + self.start_location[5]
+                            # print(reverse_target_on_x_axis)
+                    cartesian[0] = reverse_target_on_x_axis + self.start_location[5] 
+                    cartesian[1] = -cartesian[1] #Switch arm from left to right on y axis
+                    cartesian[3] -= 180 
+                            # print(cartesian[2])
+                            # print(self.start_location[5])
+                            # print(cartesian)
+                    self.locations[self.cam_right_qr_name] = self.inverse_kinematics(cartesian_coordinates = cartesian, phi = phi, rail = self.start_location[5])
+                    pass
+                else:
+                    target_on_x_without_rail = cartesian[0] - rail
+                    reverse_target_on_x_axis = self.module_lenght - target_on_x_without_rail
+                    rail_travel = reverse_target_on_x_axis - target_on_x_without_rail # Find the lenght in between new target location and old target location
+                    #Only the rail location will change to move the new target location. Isolated rail location at origin is considered 0. Robot can move to new location by only changing rail location.
+                    total_rail_travel = rail_travel + self.start_location[5] 
 
-                #         # print(reverse_target_on_x_axis)
-                # cartesian[0] = target_on_x_without_rail + total_rail_travel # New x axis
-                # cartesian[1] = -cartesian[1] #Switch arm from left to right on y axis
-                # cartesian[3] -= 180 
-                #         # print(cartesian[2])
-                #         # print(self.start_location[5])
-                #         # print(cartesian)
-                # self.locations[self.cam_left_qr_name][0] = self.inverse_kinematics(cartesian_coordinates = cartesian, phi = phi, rail = total_rail_travel)
-                
-                #        # print(self.locations[self.cam_left_qr_name][0])
-                # self.locations[self.cam_left_qr_name][1][0] = 0
+                            # print(reverse_target_on_x_axis)
+                    cartesian[0] = target_on_x_without_rail + total_rail_travel # Keeping the same x axis value while setting a new value to rail to move to the new location.
+                    cartesian[1] = -cartesian[1] #Switch arm from left to right on y axis
+                    cartesian[3] -= 180 
+                            # print(cartesian[2])
+                            # print(self.start_location[5])
+                            # print(cartesian)
+                    self.locations[self.cam_right_qr_name] = self.inverse_kinematics(cartesian_coordinates = cartesian, phi = phi, rail = total_rail_travel)
+                    
+                        # print(self.locations[self.cam_right_qr_name][0])
+
                 self.locations[self.cam_right_qr_name][5] = self.start_location[5]
                 self.module_list.append(self.cam_right_qr_name) # Add the module into module list
                 right_cam_data = self.cam_right_qr_name
