@@ -617,7 +617,7 @@ class PF400(KINEMATICS):
 		self.send_command("gripper 2")
 		return self.get_gripper_state()
 
-	def move_one_joint(self, joint_num, target,pofile):
+	def move_one_joint(self, joint_num, target, move_pofile):
 		""" 
 		Description: Moves single joint to a target
 		Parameters: 
@@ -625,11 +625,11 @@ class PF400(KINEMATICS):
 					- target: Target location to move the sigle joint 
 					
 		"""
-		return self.send_command("moveoneaxis " + str(joint_num) + str(target) + str(profile)) 
+		return self.send_command("moveoneaxis " + str(joint_num) +  " " + str(target) + " " + str(move_pofile)) 
 
 	def move_multiple_joint(self, target1, target2):
 		""" Moves extra two joints to their targets"""
-		self.send_command("moveextraaxis " + str(target1) + str(target2)) 
+		self.send_command("moveextraaxis " + str(target1) + " " + str(target2)) 
 		pass
 
 	def move_gripper_safe_zone(self):
@@ -873,7 +873,7 @@ if __name__ == "__main__":
 	OT2_alpha_deck_cooler = [243.034, -31.484, 276.021, 383.640, 124.807, -585.407]
 	thermocycler = [247.0, 40.698, 38.294, 728.332, 123.077, 301.082]
 	# robot.transfer(sciclops,OT2_alpha_deck_cooler,"narrow","wide")
-	robot.transfer(OT2_alpha_deck_cooler,sciclops, "wide","narrow")
+	# robot.transfer(OT2_alpha_deck_cooler,sciclops, "wide","narrow")
 
 	# robot.transfer(OT2_betha_deck_2,sealer,"wide","narrow")
 	# robot.transfer(sealer,thermocycler,"narrow","wide")
