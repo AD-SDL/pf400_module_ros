@@ -34,6 +34,7 @@ setup(
         'console_scripts': [
              'pf400_driver = pf400_driver.pf400_driver:main_null',
              'tcp_driver = pf400_driver.tcp_driver:main_null',
+             'pf400_camera_driver =  pf400_driver.pf400_camera_driver:main_null'
         ]
     },
     classifiers=[
