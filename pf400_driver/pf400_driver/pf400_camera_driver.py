@@ -3,7 +3,6 @@ import cv2
 from time import sleep
 
 from threading import Thread
-from pf400_driver import PF400
 
 class PF400_CAMERA():
 
