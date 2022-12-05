@@ -13,7 +13,7 @@ from wei_services.srv import WeiDescription
 from wei_services.srv import WeiActions  
 
 from pf400_driver.pf400_driver import PF400
-from pf400_driver.pf400_camera_client import PF400_CAMERA
+from pf400_driver.pf400_camera_driver import PF400_CAMERA
 
 class PF400ClientNode(Node):
     '''
