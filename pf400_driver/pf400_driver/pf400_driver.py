@@ -873,7 +873,7 @@ if __name__ == "__main__":
 	OT2_alpha_deck_cooler = [243.034, -31.484, 276.021, 383.640, 124.807, -585.407]
 	thermocycler = [247.0, 40.698, 38.294, 728.332, 123.077, 301.082]
 	# robot.transfer(sciclops,OT2_alpha_deck_cooler,"narrow","wide")
-	robot.transfer(OT2_alpha_deck_cooler,sciclops, "wide","narrow")
+	# robot.transfer(OT2_alpha_deck_cooler,sciclops, "wide","narrow")
 
 	# robot.transfer(OT2_betha_deck_2,sealer,"wide","narrow")
 	# robot.transfer(sealer,thermocycler,"narrow","wide")
