@@ -25,12 +25,6 @@ class CAMERA(PF400):
 
         # Store joint angles
         # Make sure linear axis lenght is removed from the x axis 
-        # self.locations = {"Sciclops": [262.550, 20.608, 119.290, 662.570, 0.0, 0], 
-        #                   "OT2_Alpha": [197.185, 59.736, 90.509, 566.953, 82.069, 0],
-        #                   "OT2_Betha": [0,0,0,0,0,0],
-        #                   "Sealer": [231.788, -27.154, 313.011, 342.317, 0.0, 0.0],
-        #                   "Module1": [262.550, 20.608, 119.290, 662.570, 0.0, 0],
-        #                   "Biometra": [0,0,0,0,0,0]}
 
         self.locations = {"Sciclops": [222.0, -38.068, 335.876, 325.434, 79.923, 995.062], 
                           "OT2_Alpha": [243.034, -31.484, 276.021, 383.640, 124.807, -585.407],
