@@ -46,7 +46,7 @@ class CAMERA(PF400):
         # TODO: TABLE LENGHT IS MORE THAN ARM REACH. FIND THE FURTHEST REACH AND ADD THE RAIL LENGHT ON TOP TO FILL THE GAP 685.8
         self.start_location = self.neutral_joints 
 
-        self.start_location = [- 990, -330, 360, 990]
+        self.start_location = [- 990, -330, 400, 990]
 
     def scan_qr_code(self):  
         i =0
@@ -65,15 +65,11 @@ class CAMERA(PF400):
             if scanner_2_data:
                 self.cam_right_qr_name = scanner_2_data
                 
- 
-   
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
             i +=1
     
-        # self.scanner_1.release()
-        # Destroy all the windows
-        # cv2.destroyAllWindows()
+
 
     def explore_workcell(self):
 
