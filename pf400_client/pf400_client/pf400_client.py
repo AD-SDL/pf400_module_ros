@@ -13,6 +13,7 @@ from wei_services.srv import WeiDescription
 from wei_services.srv import WeiActions  
 
 from pf400_driver.pf400_driver import PF400
+from pf400_driver.pf400_camera_client import PF400_CAMERA
 
 class PF400ClientNode(Node):
     '''
@@ -32,6 +33,7 @@ class PF400ClientNode(Node):
         self.pf400 = PF400("192.168.50.50", "10100")
         self.pf400.initialize_robot()
         self.get_logger().info("PF400 online")
+        self.module_explorer = PF400_CAMERA(self.pf400)
         timer_period = 0.5  # seconds
 
         self.stateTimer = self.create_timer(timer_period, self.stateCallback)
@@ -102,6 +104,17 @@ class PF400ClientNode(Node):
         """
         '''
         self.pf400.force_initialize_robot()
+
+        if request.action_handle == "explore_workcell":
+
+            while self.state != "READY":
+                self.get_logger().info("Waiting for PF400 to switch READY state...")
+            vars = eval(request.vars)
+            print(vars)
+
+            module_list = self.module_explorer.explore_workcell()     #Recieve the module list
+            self.get_logger().info(module_list)
+
         if request.action_handle == "transfer":
 
             while self.state != "READY":
