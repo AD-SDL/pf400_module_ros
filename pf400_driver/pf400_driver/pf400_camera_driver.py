@@ -5,12 +5,11 @@ from time import sleep
 from threading import Thread
 from pf400_driver import PF400
 
-class CAMERA(PF400):
+class PF400_CAMERA():
 
-    def __init__(self):
+    def __init__(self, robot_connection):
 
-        super().__init__("192.168.50.50", 10100)    
-
+        self.pf400 = robot_connection
         self.scanner_1 = cv2.VideoCapture(2)
         # self.scanner_1.open("usb-046d_HD_Pro_Webcam_C920_806F6D8F-video-index0")
         self.detector_1 = cv2.QRCodeDetector()
@@ -38,7 +37,8 @@ class CAMERA(PF400):
         self.robot_reach = 753.0
         self.module_lenght = 685.8      
         # TODO: TABLE LENGHT IS MORE THAN ARM REACH. FIND THE FURTHEST REACH AND ADD THE RAIL LENGHT ON TOP TO FILL THE GAP 685.8
-        self.start_location = self.neutral_joints 
+        # self.start_location = self.neutral_joints 
+        self.pf400.move_all_joints_neutral()
 
         self.start_location = [- 990, -330, 400, 990]
 
@@ -90,7 +90,7 @@ class CAMERA(PF400):
             if self.cam_right_qr_name not in self.module_list and self.cam_right_qr_name in self.locations.keys():
                 #TODO:Change this to a function (def reverse_module_location)
 
-                cartesian,phi,rail = self.forward_kinematics(self.locations[self.cam_right_qr_name])
+                cartesian,phi,rail = self.pf400.forward_kinematics(self.locations[self.cam_right_qr_name])
                         # print(cartesian)
                         # print(cartesian[0] - rail)
                 if self.start_location == -990:
@@ -108,7 +108,7 @@ class CAMERA(PF400):
                             # print(cartesian[2])
                             # print(self.start_location[5])
                             # print(cartesian)
-                    self.locations[self.cam_right_qr_name] = self.inverse_kinematics(cartesian_coordinates = cartesian, phi = phi, rail = self.start_location[i])
+                    self.locations[self.cam_right_qr_name] = self.pf400.inverse_kinematics(cartesian_coordinates = cartesian, phi = phi, rail = self.start_location[i])
                     pass
                 else:
                     target_on_x_without_rail = cartesian[0] - rail
@@ -124,7 +124,7 @@ class CAMERA(PF400):
                             # print(cartesian[2])
                             # print(self.start_location[5])
                             # print(cartesian)
-                    self.locations[self.cam_right_qr_name] = self.inverse_kinematics(cartesian_coordinates = cartesian, phi = phi, rail = total_rail_travel)
+                    self.locations[self.cam_right_qr_name] = self.pf400.inverse_kinematics(cartesian_coordinates = cartesian, phi = phi, rail = total_rail_travel)
                     
                         # print(self.locations[self.cam_right_qr_name][0])
 
@@ -136,12 +136,12 @@ class CAMERA(PF400):
 
         print("Workcell exploration completed")
 
-        return self.locations
+        return self.module_list
 
     def scan_next_row(self, rail_loc=0.0):
 
         # Move to next row
-        self.move_one_joint(6,rail_loc, 2)
+        self.pf400.move_one_joint(6,rail_loc, 2)
         sleep(3)
         # Scan the next row
         self.scan_qr_code()
@@ -149,31 +149,12 @@ class CAMERA(PF400):
         print(self.cam_left_qr_name)
     
     def calctulate_module_location(self, target_loc, y_direction = 1, reverse_x = 0.0, offset_y = 0.0):
-        
-        # if reverse_x != 0:
-        #     x = reverse_x # Add self.robot_x_offset here ???
-        # else:    
-        #     x = target_loc[0] 
-        # y = (target_loc[1] + offset_y) * y_direction
-        # z = target_loc[2]
-        # phi = target_loc[3]
-
-        # target_joint_angles = self.inverse_kinematics(x,y,z,phi)
-        
-        # target_loc[0] = target_loc[2] # Setting z hight as the first joint angle for the tower
-        # target_loc[1] = target_joint_angles[0][0]
-        # target_loc[2] = target_joint_angles[0][1]
-        # target_loc[3] = target_joint_angles[0][2]
-        # target_loc[4] = 127.0 # An open gripper position for joint 5
-        # target_loc[5] = self.start_location[5] 
-        
-        # return target_loc
         pass
 
         
 if __name__ == "__main__":
-
-    cam = CAMERA()
+    connection = PF400()
+    cam = PF400_CAMERA(connection)
     cam.explore_workcell()
     print(cam.module_list)
     
