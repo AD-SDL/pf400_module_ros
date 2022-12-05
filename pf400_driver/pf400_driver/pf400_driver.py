@@ -617,7 +617,7 @@ class PF400(KINEMATICS):
 		self.send_command("gripper 2")
 		return self.get_gripper_state()
 
-	def move_one_joint(self, joint_num, target,pofile):
+	def move_one_joint(self, joint_num, target, move_pofile):
 		""" 
 		Description: Moves single joint to a target
 		Parameters: 
@@ -625,11 +625,11 @@ class PF400(KINEMATICS):
 					- target: Target location to move the sigle joint 
 					
 		"""
-		return self.send_command("moveoneaxis " + str(joint_num) + str(target) + str(profile)) 
+		return self.send_command("moveoneaxis " + str(joint_num) +  " " + str(target) + " " + str(move_pofile)) 
 
 	def move_multiple_joint(self, target1, target2):
 		""" Moves extra two joints to their targets"""
-		self.send_command("moveextraaxis " + str(target1) + str(target2)) 
+		self.send_command("moveextraaxis " + str(target1) + " " + str(target2)) 
 		pass
 
 	def move_gripper_safe_zone(self):
