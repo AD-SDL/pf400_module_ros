@@ -11,9 +11,11 @@ class CAMERA(PF400):
 
         super().__init__("192.168.50.50", 10100)    
 
-        self.scanner_1 = cv2.VideoCapture(0)
+        self.scanner_1 = cv2.VideoCapture(2)
+        # self.scanner_1.open("usb-046d_HD_Pro_Webcam_C920_806F6D8F-video-index0")
         self.detector_1 = cv2.QRCodeDetector()
-        self.scanner_2 = cv2.VideoCapture(1)
+        self.scanner_2 = cv2.VideoCapture(0)
+        # self.scanner_2.open("usb-046d_HD_Pro_Webcam_C920_B11F1D8F-video-index0")
         self.detector_2 = cv2.QRCodeDetector()
         
         self.stop_camera = False
@@ -30,25 +32,25 @@ class CAMERA(PF400):
         #                   "Module1": [262.550, 20.608, 119.290, 662.570, 0.0, 0],
         #                   "Biometra": [0,0,0,0,0,0]}
 
-        self.locations = {"Sciclops": [262.550, 20.608, 119.290, 662.570, 0.0, 0], 
-                          "OT2_Alpha": [197.185, 59.736, 90.509, 566.953, 82.069, 0],
-                          "OT2_Betha": [0,0,0,0,0,0],
-                          "Sealer": [231.788, -27.154, 313.011, 342.317, 0.0, 0.0],
+        self.locations = {"Sciclops": [222.0, -38.068, 335.876, 325.434, 79.923, 995.062], 
+                          "OT2_Alpha": [243.034, -31.484, 276.021, 383.640, 124.807, -585.407],
+                          "OT2_Betha": [163.230, -59.032, 270.965, 415.013, 129.982, -951.510],
+                          "Sealer": [201.128, -2.814, 264.373, 365.863, 79.144, 411.553],
                           "Peeler": [262.550, 20.608, 119.290, 662.570, 0.0, 0],
-                          "Azenta": [262.550, 20.608, 119.290, 662.570, 0.0, 0],
+                          "Azenta": [201.128, -2.814, 264.373, 365.863, 79.144, 411.553],
                           "Hidex": [262.550, 20.608, 119.290, 662.570, 0.0, 0],
-                          "Biometra": [0,0,0,0,0,0]}
+                          "Biometra": [247.0, 40.698, 38.294, 728.332, 123.077, 301.082]}
         self.module_list = []
         self.robot_reach = 753.0
         self.module_lenght = 685.8      
         # TODO: TABLE LENGHT IS MORE THAN ARM REACH. FIND THE FURTHEST REACH AND ADD THE RAIL LENGHT ON TOP TO FILL THE GAP 685.8
         self.start_location = self.neutral_joints 
 
-        self.start_location[5] = - 990
+        self.start_location = [- 990, -330, 360, 990]
 
     def scan_qr_code(self):  
         i =0
-        while i <6 :  
+        while i <8 :  
             sleep(0.5)
             ret_1, frame_1 = self.scanner_1.read()
             ret_2, frame_2 = self.scanner_2.read()
@@ -57,12 +59,12 @@ class CAMERA(PF400):
             # cv2.imshow('frame', frame)
             scanner_1_data, data2, data3 = self.detector_1.detectAndDecode(frame_1)
             scanner_2_data, data2, data3 = self.detector_2.detectAndDecode(frame_2)
-            print(scanner_1_data, scanner_2_data)
+            print("1:", scanner_1_data, "2: ",scanner_2_data)
             if scanner_1_data:
                 self.cam_left_qr_name = scanner_1_data
             if scanner_2_data:
                 self.cam_right_qr_name = scanner_2_data
-                return
+                
  
    
             if cv2.waitKey(1) & 0xFF == ord('q'):
@@ -87,10 +89,10 @@ class CAMERA(PF400):
 
         for i in range(4):
 
-            self.scan_next_row()
+            self.scan_next_row(self.start_location[i])
 
             if self.cam_left_qr_name not in self.module_list and self.cam_left_qr_name in self.locations.keys():
-                self.locations[self.cam_left_qr_name][5] = self.start_location[5]
+                self.locations[self.cam_left_qr_name][5] = self.start_location[i]
                 self.module_list.append(self.cam_left_qr_name) # Add the module into module list
                 left_cam_data = self.cam_left_qr_name
                 print(self.locations[self.cam_left_qr_name])
@@ -98,7 +100,7 @@ class CAMERA(PF400):
             if self.cam_right_qr_name not in self.module_list and self.cam_right_qr_name in self.locations.keys():
                 #TODO:Change this to a function (def reverse_module_location)
 
-                cartesian,phi,rail = self.forward_kinematics(self.locations[self.cam_right_qr_name][0])
+                cartesian,phi,rail = self.forward_kinematics(self.locations[self.cam_right_qr_name])
                         # print(cartesian)
                         # print(cartesian[0] - rail)
                 if self.start_location == -990:
@@ -110,20 +112,20 @@ class CAMERA(PF400):
                     reverse_target_on_x_axis = self.module_lenght - target_on_x_without_rail
 
                             # print(reverse_target_on_x_axis)
-                    cartesian[0] = reverse_target_on_x_axis + self.start_location[5] 
+                    cartesian[0] = reverse_target_on_x_axis + self.start_location[i] 
                     cartesian[1] = -cartesian[1] #Switch arm from left to right on y axis
                     cartesian[3] -= 180 
                             # print(cartesian[2])
                             # print(self.start_location[5])
                             # print(cartesian)
-                    self.locations[self.cam_right_qr_name] = self.inverse_kinematics(cartesian_coordinates = cartesian, phi = phi, rail = self.start_location[5])
+                    self.locations[self.cam_right_qr_name] = self.inverse_kinematics(cartesian_coordinates = cartesian, phi = phi, rail = self.start_location[i])
                     pass
                 else:
                     target_on_x_without_rail = cartesian[0] - rail
                     reverse_target_on_x_axis = self.module_lenght - target_on_x_without_rail
                     rail_travel = reverse_target_on_x_axis - target_on_x_without_rail # Find the lenght in between new target location and old target location
                     #Only the rail location will change to move the new target location. Isolated rail location at origin is considered 0. Robot can move to new location by only changing rail location.
-                    total_rail_travel = rail_travel + self.start_location[5] 
+                    total_rail_travel = rail_travel + self.start_location[i] 
 
                             # print(reverse_target_on_x_axis)
                     cartesian[0] = target_on_x_without_rail + total_rail_travel # Keeping the same x axis value while setting a new value to rail to move to the new location.
@@ -136,21 +138,21 @@ class CAMERA(PF400):
                     
                         # print(self.locations[self.cam_right_qr_name][0])
 
-                self.locations[self.cam_right_qr_name][5] = self.start_location[5]
+                self.locations[self.cam_right_qr_name][5] = self.start_location[i]
                 self.module_list.append(self.cam_right_qr_name) # Add the module into module list
                 right_cam_data = self.cam_right_qr_name
                 print(self.locations[self.cam_right_qr_name])
             
-            self.start_location[5] += 660
 
         print("Workcell exploration completed")
 
         return self.locations
 
-    def scan_next_row(self):
+    def scan_next_row(self, rail_loc=0.0):
 
         # Move to next row
-        self.move_joint(self.start_location, 2)
+        self.move_one_joint(6,rail_loc, 2)
+        sleep(3)
         # Scan the next row
         self.scan_qr_code()
 
