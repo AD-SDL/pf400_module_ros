@@ -16,3 +16,4 @@
 
 - Remove camera_client
 - Add module list check to detect the missing modules
+- Try to import the locations of the module from another file
