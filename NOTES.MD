@@ -13,3 +13,6 @@
 2) Put subscriber into weExecuter
 
 - Add table top descriptions
+
+- Remove camera_client
+- Add module list check to detect the missing modules
