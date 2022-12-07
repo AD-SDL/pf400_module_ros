@@ -92,11 +92,13 @@ class PF400ClientNode(Node):
         can preform.
         arameters:
         -----------
-        request: str
+        request.action_handle: str
             Request to the robot to deliver actions
-        response: str
-            The actions a robot can do, will be populated during execution
-
+        request.vars: str
+            Request to the robot to deliver actions
+        response.action_response: int16
+            Request to the robot to deliver actions
+        response.return_msg: str
         Returns
         -------
         str
@@ -109,11 +111,18 @@ class PF400ClientNode(Node):
 
             while self.state != "READY":
                 self.get_logger().info("Waiting for PF400 to switch READY state...")
+            
             vars = eval(request.vars)
             print(vars)
-
+            self.state = "BUSY"
+            self.stateCallback()
             module_list = self.module_explorer.explore_workcell()     #Recieve the module list
-            self.get_logger().info(module_list)
+            self.get_logger().info(str(module_list))
+            if module_list:
+                action_response = 0
+            response.action_response = action_response
+            response.return_msg= str(module_list)
+            return response
 
         if request.action_handle == "transfer":
 
@@ -123,8 +132,6 @@ class PF400ClientNode(Node):
             source_plate_rotation = ""
             target_plate_rotation = ""
             
-            # self.state = "BUSY"
-            # self.stateCallback()
             vars = eval(request.vars)
             print(vars)
 
@@ -158,10 +165,15 @@ class PF400ClientNode(Node):
             print("Source location: ", source)
             target = vars.get('target')
             print("Target location: ",target)
+            
+            self.state = "BUSY"
+            self.stateCallback()
+            return_err = self.pf400.transfer(source, target, source_plate_rotation, target_plate_rotation)
+            response.action_response = 0
+            response.return_msg= "all good pf4000"
+            return response
 
-            self.pf400.transfer(source, target, source_plate_rotation, target_plate_rotation)
-
-        elif request.action_handle == "remove_lid":
+        if request.action_handle == "remove_lid":
 
             while self.state != "READY":
                 print("Waiting for PF400 to switch READY state...")
@@ -188,17 +200,18 @@ class PF400ClientNode(Node):
             target = vars.get('target')
             print("Target location: ",target)
 
-            if 'lid_hight' not in vars.keys():
-                print('Using defult lid hight')
-                self.pf400.remove_lid(target, target_plate_rotation)
+            lid_height = vars.get('lid_height', 7.0)
+            print("Lid hight: ",lid_height)
+                
 
-            else:    
-                lid_hight = vars.get('lid_hight')
-                print("Lid hight: ",lid_hight)
-                self.pf400.remove_lid(target, lid_hight, target_plate_rotation)
+            self.state = "BUSY"
+            self.stateCallback()
+            return_err = self.pf400.remove_lid(target, lid_height, target_plate_rotation)
+            response.action_response = 0
+            response.return_msg= "all good pf4000"
+            return response
 
-
-        elif request.action_handle == "replace_lid":
+        if request.action_handle == "replace_lid":
 
             while self.state != "READY":
                 print("Waiting for PF400 to switch READY state...")
@@ -225,14 +238,14 @@ class PF400ClientNode(Node):
             target = vars.get('target')
             print("Target location: ",target)
 
-            if 'lid_hight' not in vars.keys():
+            if 'lid_height' not in vars.keys():
                 print('Using defult lid hight')
                 self.pf400.remove_lid(target, target_plate_rotation)
 
             else:    
-                lid_hight = vars.get('lid_hight')
-                print("Lid hight: ",lid_hight)
-                self.pf400.remove_lid(target, lid_hight, target_plate_rotation)
+                lid_height = vars.get('lid_height')
+                print("Lid hight: ",lid_height)
+                self.pf400.remove_lid(target, lid_height, target_plate_rotation)
                 
         if self.pf400.plate_state == -1:
             self.state = "ERROR"
@@ -243,6 +256,7 @@ class PF400ClientNode(Node):
         if self.pf400.robot_state == "ERROR":
             self.state = self.pf400.robot_state
 
+        #TODO: move every action into its own return
         return response
 
     def whereJCallback(self, request, response):
