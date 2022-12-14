@@ -118,7 +118,7 @@
 
   <link name="${prefix}left_finger">
     <visual>
-      <origin xyz="-0.02 -0.053 0.053" rpy="0 0 0"/>
+      <origin xyz="-0.02 -0.053 0.040" rpy="0 0 0"/>
       <geometry>
         <mesh filename="package://pf400_description/meshes/pf400_left_finger.STL" scale="0.001 0.001 0.001"/>
       </geometry>
@@ -128,13 +128,13 @@
       <geometry>
         <mesh filename="package://pf400_description/meshes/pf400_left_finger.STL" scale="0.001 0.001 0.001"/>
       </geometry>
-      <origin xyz="-0.02 -0.053 0.053" rpy="0 0 0"/>
+      <origin xyz="-0.02 -0.053 0.040" rpy="0 0 0"/>
     </collision>
   </link>
 
   <link name="${prefix}right_finger">
     <visual>
-      <origin xyz="-0.021 -0.028 0.105" rpy="-1.5708 0 0"/>
+      <origin xyz="-0.021 -0.028 0.092" rpy="-1.5708 0 0"/>
       <geometry>
         <mesh filename="package://pf400_description/meshes/pf400_right_finger.STL" scale="0.001 0.001 0.001"/>
       </geometry>
@@ -144,7 +144,7 @@
       <geometry>
         <mesh filename="package://pf400_description/meshes/pf400_right_finger.STL" scale="0.001 0.001 0.001"/>
       </geometry>
-      <origin xyz="-0.021 -0.028 0.105" rpy="-1.5708 0 0"/>
+      <origin xyz="-0.021 -0.028 0.092" rpy="-1.5708 0 0"/>
     </collision>
   </link>
 

@@ -29,7 +29,7 @@ class PF400DescriptionClient(Node):
         state_cb_group = ReentrantCallbackGroup()
 
         self.statePub = self.create_publisher(String, NODE_NAME + '/state',10)
-        self.stateTimer = self.create_timer(timer_period, callback = self.stateCallback, callback_group = state_cb_group)
+        # self.stateTimer = self.create_timer(timer_period, callback = self.stateCallback, callback_group = state_cb_group)
 
         self.joint_publisher = self.create_publisher(JointState,'joint_states', 10, callback_group = joint_cb_group)
         self.joint_state_handler = self.create_timer(timer_period, callback = self.joint_state_publisher_callback, callback_group = joint_cb_group)
