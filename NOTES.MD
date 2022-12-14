@@ -5,9 +5,10 @@
 4) IP/Port OT2
 5) Camera Number
 
-- Break description into correct modules.
-- Create PCR descriptin in rpl_workcell repo.
-- Create camera repo 
+- Break description into correct modules. FINISHED
+- Create PCR descriptin in rpl_workcell repo. FINISHED
+- Create camera repo FINISHED
+
 1) Change publisher and subscriber
 2) Make publisher publish image all the time 
 2) Put subscriber into weExecuter
