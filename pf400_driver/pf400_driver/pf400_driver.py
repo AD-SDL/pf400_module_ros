@@ -84,8 +84,10 @@ class PF400(KINEMATICS):
 		self.plate_width = 123
 		self.plate_source_rotation = 0 # 90 to rotate 90 degrees
 		self.plate_target_rotation = 0 # 90 to rotate 90 degrees
-		self.plate_ratation_deck = [94.0, 29.226, 72.895, 705.537, 79.22, 985.122] # Set Sciclops location for now
-		self.plate_lid_deck = [94.0, 29.226, 72.895, 705.537, 79.22, 985.122] # Set Sciclops location for now
+		self.plate_ratation_deck = [202.086, 37.732, 95.591, 673.245, 80.017, 985.091] 
+		self.plate_lid_deck = [202.086, 37.732, 95.591, 673.245, 80.017, 985.097] 
+		self.plate_camera_deck = [94.0, 29.226, 72.895, 705.537, 79.22, 985.122] 
+
 
 	def connect(self):
 		"""
@@ -872,7 +874,9 @@ if __name__ == "__main__":
 	OT2_betha_deck_2 = [163.230, -59.032, 270.965, 415.013, 129.982, -951.510]
 	OT2_alpha_deck_cooler = [243.034, -31.484, 276.021, 383.640, 124.807, -585.407]
 	thermocycler = [247.0, 40.698, 38.294, 728.332, 123.077, 301.082]
-	# robot.transfer(sciclops,OT2_alpha_deck_cooler,"narrow","wide")
+	# robot.transfer(sciclops,thermocycler,"narrow","wide")
+	# robot.transfer(thermocycler,sciclops, "wide","narrow")
+
 	# robot.transfer(OT2_alpha_deck_cooler,sciclops, "wide","narrow")
 
 	# robot.transfer(OT2_betha_deck_2,sealer,"wide","narrow")
