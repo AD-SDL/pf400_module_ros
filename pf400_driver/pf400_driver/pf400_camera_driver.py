@@ -32,9 +32,11 @@ class PF400_CAMERA():
                           "Azenta": [201.128, -2.814, 264.373, 365.863, 79.144, 411.553],
                           "Hidex": [262.550, 20.608, 119.290, 662.570, 0.0, 0],
                           "Biometra": [247.0, 40.698, 38.294, 728.332, 123.077, 301.082]}
+
         self.module_list = {1:"None",2:"None",3:"None",3:"None",4:"None",5:"None",6:"None",7:"None",8:"None"}
         self.robot_reach = 753.0
         self.module_lenght = 685.8      
+
         # TODO: TABLE LENGHT IS MORE THAN ARM REACH. FIND THE FURTHEST REACH AND ADD THE RAIL LENGHT ON TOP TO FILL THE GAP 685.8
         # self.start_location = self.neutral_joints 
         self.pf400.move_all_joints_neutral()
@@ -78,15 +80,14 @@ class PF400_CAMERA():
 
         for i in range(4):
 
-            self.scan_next_row(self.start_location[i])
-
-            if self.cam_left_qr_name not in self.module_list and self.cam_left_qr_name in self.locations.keys():
+            self.scan_next_row(self.start_location[i])         
+            if self.cam_left_qr_name not in self.module_list.values() and self.cam_left_qr_name in self.locations.keys():
                 self.locations[self.cam_left_qr_name][5] = self.start_location[i]
-                self.module_list.append(self.cam_left_qr_name) # Add the module into module list
+                self.module_list[i+1] = self.cam_left_qr_name # Add the module into module list
                 left_cam_data = self.cam_left_qr_name
                 print(self.locations[self.cam_left_qr_name])
 
-            if self.cam_right_qr_name not in self.module_list and self.cam_right_qr_name in self.locations.keys():
+            if self.cam_right_qr_name not in self.module_list.values() and self.cam_right_qr_name in self.locations.keys():
                 #TODO:Change this to a function (def reverse_module_location)
 
                 cartesian,phi,rail = self.pf400.forward_kinematics(self.locations[self.cam_right_qr_name])
@@ -128,7 +129,7 @@ class PF400_CAMERA():
                         # print(self.locations[self.cam_right_qr_name][0])
 
                 self.locations[self.cam_right_qr_name][5] = self.start_location[i]
-                self.module_list.append(self.cam_right_qr_name) # Add the module into module list
+                self.module_list[i+5] = self.cam_right_qr_name # Add the module into module list
                 right_cam_data = self.cam_right_qr_name
                 print(self.locations[self.cam_right_qr_name])
             
