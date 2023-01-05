@@ -32,7 +32,7 @@ class PF400_CAMERA():
                           "Azenta": [201.128, -2.814, 264.373, 365.863, 79.144, 411.553],
                           "Hidex": [262.550, 20.608, 119.290, 662.570, 0.0, 0],
                           "Biometra": [247.0, 40.698, 38.294, 728.332, 123.077, 301.082]}
-        self.module_list = []
+        self.module_list = {1:"None",2:"None",3:"None",3:"None",4:"None",5:"None",6:"None",7:"None",8:"None"}
         self.robot_reach = 753.0
         self.module_lenght = 685.8      
         # TODO: TABLE LENGHT IS MORE THAN ARM REACH. FIND THE FURTHEST REACH AND ADD THE RAIL LENGHT ON TOP TO FILL THE GAP 685.8
