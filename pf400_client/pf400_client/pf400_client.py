@@ -170,7 +170,7 @@ class PF400ClientNode(Node):
             source = vars.get('source')
             print("Source location: ", source)
             target = vars.get('target')
-            print("Target location: ",target)
+            print("Target location: ", target)
             
             self.state = "BUSY"
             self.stateCallback()
