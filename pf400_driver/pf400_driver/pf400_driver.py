@@ -364,19 +364,20 @@ class PF400(KINEMATICS):
 		coordinates_list = coordinates_list[1:-1]
 		return [float(x) for x in coordinates_list]
 
+	def get_gripper_lenght(self):
+		joint_angles = self.get_joint_states()
+		return joint_angles[4]
+
 	def get_gripper_state(self):
 		"""
 		"""
-		joints = self.get_joint_states()
-		if float(joints[4]) > self.gripper_closed_state + 1.0:
+		
+		if self.get_gripper_lenght() > self.gripper_closed_state + 1.0:
 			self.gripper_state = "open"
 		else:
 			self.gripper_state = 'closed'
 		return self.gripper_state
 
-	def get_gripper_lenght(self):
-		joint_angles = self.get_joint_states()
-		return joint_angles[4]
 
 	# SET COMMANDS
 	
@@ -788,7 +789,7 @@ class PF400(KINEMATICS):
 		fast_profile = 2
 
 		abovePos = list(map(add, source_location, self.above))
-
+		self.gripper_open()
 		self.move_all_joints_neutral(source_location)
 		self.move_joint(abovePos, fast_profile)
 		self.move_joint(source_location, fast_profile, False, True)
