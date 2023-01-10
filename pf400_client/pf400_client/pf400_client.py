@@ -29,11 +29,17 @@ class PF400ClientNode(Node):
         super().__init__(NODE_NAME)
         
         self.state = "UNKNOWN"
+        try:
+            self.pf400 = PF400("192.168.50.50", "10100")
 
-        self.pf400 = PF400("192.168.50.50", "10100")
-        self.pf400.initialize_robot()
-        self.get_logger().info("PF400 online")
-        self.module_explorer = PF400_CAMERA(self.pf400)
+        except:
+            self.state = "PF400 DISCONNECTED"
+            self.get_logger().error("Can not connect to pf400")
+        else:
+            self.get_logger().info("PF400 online")
+            self.pf400.initialize_robot()
+            self.module_explorer = PF400_CAMERA(self.pf400)
+
         timer_period = 0.5  # seconds
 
         self.stateTimer = self.create_timer(timer_period, self.stateCallback)
@@ -52,19 +58,24 @@ class PF400ClientNode(Node):
         '''
         Publishes the pf400 state to the 'state' topic. 
         '''
-        state = self.pf400.movement_state
-        if state == 0:
-            self.state = "POWER OFF"
-        elif state == 1:
-            self.state = "READY"
-        elif state == 2 or state == 3:
-            self.state = "BUSY"
-        msg = String()
-        msg.data = 'State: %s' % self.state
-        self.statePub.publish(msg)
-        self.get_logger().info(msg.data)
-        sleep(0.5)
-        
+        if self.state != "PF400 DISCONNECTED":
+            state = self.pf400.movement_state
+            if state == 0:
+                self.state = "POWER OFF"
+            elif state == 1:
+                self.state = "READY"
+            elif state == 2 or state == 3:
+                self.state = "BUSY"
+            msg = String()
+            msg.data = 'State: %s' % self.state
+            self.statePub.publish(msg)
+            self.get_logger().info(msg.data)
+            sleep(0.5)
+        else: 
+            msg = String()
+            msg.data = 'State: %s' % self.state
+            self.statePub.publish(msg)
+            self.get_logger().error(msg.data)
 
     def descriptionCallback(self, request, response):
         """The descriptionCallback function is a service that can be called to showcase the available actions a robot
