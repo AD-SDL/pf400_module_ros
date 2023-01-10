@@ -193,7 +193,7 @@ class PF400ClientNode(Node):
             
             self.state = "BUSY"
             self.stateCallback()
-            return_err = self.pf400.transfer(source, target, source_plate_rotation, target_plate_rotation)
+            self.pf400.transfer(source, target, source_plate_rotation, target_plate_rotation)
             response.action_response = 0
             response.action_msg= "all good pf4000"
             self.get_logger().info('Finished Action: ' + request.action_handle)
