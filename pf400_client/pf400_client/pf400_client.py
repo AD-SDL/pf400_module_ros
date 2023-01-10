@@ -2,6 +2,9 @@
 
 import rclpy                 # import Rospy
 from rclpy.node import Node  # import Rospy Node
+from rclpy.callback_groups import MutuallyExclusiveCallbackGroup, ReentrantCallbackGroup
+from rclpy.executors import MultiThreadedExecutor, SingleThreadedExecutor
+
 from std_msgs.msg import String
 from std_srvs.srv import Empty
 
@@ -27,6 +30,10 @@ class PF400ClientNode(Node):
         '''
 
         super().__init__(NODE_NAME)
+
+        action_cb_group = ReentrantCallbackGroup()
+        description_cb_group = ReentrantCallbackGroup()
+        state_cb_group = ReentrantCallbackGroup()
         
         self.state = "UNKNOWN"
         try:
@@ -42,14 +49,15 @@ class PF400ClientNode(Node):
 
         timer_period = 0.5  # seconds
 
-        self.stateTimer = self.create_timer(timer_period, self.stateCallback)
         self.statePub = self.create_publisher(String, NODE_NAME + '/state', 10)
+        self.stateTimer = self.create_timer(timer_period, callback = self.stateCallback, callback_group = state_cb_group)
+
         # self.stateTimer = self.create_timer(timer_period, self.stateCallback)
         state_thread = Thread(target = self.stateCallback)
         state_thread.start()
 
-        self.action_handler = self.create_service(WeiActions, NODE_NAME + "/action_handler", self.actionCallback)
-        self.description_handler = self.create_service(WeiDescription, NODE_NAME + "/description_handler", self.descriptionCallback)
+        self.action_handler = self.create_service(WeiActions, NODE_NAME + "/action_handler", self.actionCallback, callback_group = action_cb_group)
+        self.description_handler = self.create_service(WeiDescription, NODE_NAME + "/description_handler", self.descriptionCallback, callback_group = description_cb_group)
 
         self.description={}
 
@@ -141,13 +149,13 @@ class PF400ClientNode(Node):
         if request.action_handle == "transfer":
 
             while self.state != "READY":
-                print("Waiting for PF400 to switch READY state...")
+                self.get_logger().info("Waiting for PF400 to switch READY state...")
 
             source_plate_rotation = ""
             target_plate_rotation = ""
             
             vars = eval(request.vars)
-            print(vars)
+            self.get_logger().info(str(vars))
 
             if 'source' not in vars.keys():
                 err = 1
@@ -169,12 +177,12 @@ class PF400ClientNode(Node):
                 return response
 
             if 'source_plate_rotation' not in vars.keys():
-                print("Setting source plate rotation to 0")
+                self.get_logger().info("Setting source plate rotation to 0")
             else:
                 source_plate_rotation = str(vars.get('source_plate_rotation'))
 
             if 'target_plate_rotation' not in vars.keys():
-                print("Setting target plate rotation to 0")
+                self.get_logger().info("Setting target plate rotation to 0")
             else:
                 target_plate_rotation = str(vars.get('target_plate_rotation'))
 
@@ -194,24 +202,24 @@ class PF400ClientNode(Node):
         if request.action_handle == "remove_lid":
 
             while self.state != "READY":
-                print("Waiting for PF400 to switch READY state...")
+                self.get_logger().info("Waiting for PF400 to switch READY state...")
 
             target_plate_rotation = ""
     
             # self.state = "BUSY"
             # self.stateCallback()
             vars = eval(request.vars)
-            print(vars)
+            self.get_logger().info(str(vars))
 
             if 'target' not in vars.keys():
-                print("Drop off up location is not provided")
+                self.get_logger().info("Drop off up location is not provided")
                 return 
             if len(vars.get('target')) != 6:
-                print("Position 2 should be six joint angles lenght")
+                self.get_logger().info("Position 2 should be six joint angles lenght")
                 return
 
             if 'target_plate_rotation' not in vars.keys():
-                print("Setting target plate rotation to 0")
+                self.get_logger().info("Setting target plate rotation to 0")
             else:
                 target_plate_rotation = str(vars.get('target_plate_rotation'))
           
@@ -232,7 +240,7 @@ class PF400ClientNode(Node):
         if request.action_handle == "replace_lid":
 
             while self.state != "READY":
-                print("Waiting for PF400 to switch READY state...")
+                self.get_logger().info("Waiting for PF400 to switch READY state...")
 
             target_plate_rotation = ""
     
@@ -295,9 +303,22 @@ def main(args = None):
 
     NAME = "PF400_Client_Node"
     rclpy.init(args=args)  # initialize Ros2 communication
-    node = PF400ClientNode(NODE_NAME=NAME)
-    rclpy.spin(node)     # keep Ros2 communication open for action node
-    rclpy.shutdown()     # kill Ros2 communication
+
+    try:
+        pf400_client = PF400ClientNode(NODE_NAME=NAME)
+        executor = MultiThreadedExecutor()
+        executor.add_node(pf400_client)
+
+        try:
+            pf400_client.get_logger().info('Beginning client, shut down with CTRL-C')
+            executor.spin()
+        except KeyboardInterrupt:
+            pf400_client.get_logger().info('Keyboard interrupt, shutting down.\n')
+        finally:
+            executor.shutdown()
+            pf400_client.destroy_node()
+    finally:
+        rclpy.shutdown()
 
 if __name__ == '__main__':
     main()
