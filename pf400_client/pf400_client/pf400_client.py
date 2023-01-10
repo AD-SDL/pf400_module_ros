@@ -232,7 +232,7 @@ class PF400ClientNode(Node):
 
             self.state = "BUSY"
             self.stateCallback()
-            return_err = self.pf400.remove_lid(target, lid_height, target_plate_rotation)
+            self.pf400.remove_lid(target, lid_height, target_plate_rotation)
             response.action_response = 0
             response.action_msg= "all good pf4000"
             return response
