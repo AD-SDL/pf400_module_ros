@@ -2,7 +2,6 @@ import rclpy
 from rclpy.executors import MultiThreadedExecutor, SingleThreadedExecutor
 
 from rclpy.node import Node
-from rclpy.executors import MultiThreadedExecutor
 from rclpy.callback_groups import MutuallyExclusiveCallbackGroup, ReentrantCallbackGroup
 # from rclpy.clock import clock
 
