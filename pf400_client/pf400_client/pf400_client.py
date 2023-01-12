@@ -23,13 +23,14 @@ class PF400ClientNode(Node):
     The jointControlNode inputs data from the 'action' topic, providing a set of commands for the driver to execute. It then receives feedback, 
     based on the executed command and publishes the state of the peeler and a description of the peeler to the respective topics.
     '''
-    def __init__(self, NODE_NAME = "PF400_Client_Node"):
+    def __init__(self, TEMP_NODE_NAME = "PF400_Client_Node"):
         '''
         The init function is neccesary for the peelerNode class to initialize all variables, parameters, and other functions.
         Inside the function the parameters exist, and calls to other functions and services are made so they can be executed in main.
         '''
 
-        super().__init__(NODE_NAME)
+        super().__init__(TEMP_NODE_NAME)
+        node_name = self.get_name()
 
         action_cb_group = ReentrantCallbackGroup()
         description_cb_group = ReentrantCallbackGroup()
@@ -49,15 +50,15 @@ class PF400ClientNode(Node):
 
         timer_period = 0.5  # seconds
 
-        self.statePub = self.create_publisher(String, NODE_NAME + '/state', 10)
+        self.statePub = self.create_publisher(String, node_name + '/state', 10)
         self.stateTimer = self.create_timer(timer_period, callback = self.stateCallback, callback_group = state_cb_group)
 
         # self.stateTimer = self.create_timer(timer_period, self.stateCallback)
         state_thread = Thread(target = self.stateCallback)
         state_thread.start()
 
-        self.action_handler = self.create_service(WeiActions, NODE_NAME + "/action_handler", self.actionCallback, callback_group = action_cb_group)
-        self.description_handler = self.create_service(WeiDescription, NODE_NAME + "/description_handler", self.descriptionCallback, callback_group = description_cb_group)
+        self.action_handler = self.create_service(WeiActions, node_name + "/action_handler", self.actionCallback, callback_group = action_cb_group)
+        self.description_handler = self.create_service(WeiDescription, node_name + "/description_handler", self.descriptionCallback, callback_group = description_cb_group)
 
         self.description={}
 
