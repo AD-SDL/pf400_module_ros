@@ -307,11 +307,10 @@ class PF400ClientNode(Node):
 
 def main(args = None):
 
-    NAME = "PF400_Client_Node"
     rclpy.init(args=args)  # initialize Ros2 communication
 
     try:
-        pf400_client = PF400ClientNode(NODE_NAME=NAME)
+        pf400_client = PF400ClientNode()
         executor = MultiThreadedExecutor()
         executor.add_node(pf400_client)
 
