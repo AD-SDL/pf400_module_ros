@@ -42,8 +42,7 @@ class PF400ClientNode(Node):
 
         except Exception as error_msg:
             self.state = "PF400 CONNECTION ERROR"
-            self.get_logger().error("------- CANNOT CONNECT TO PF400! -------")
-            self.get_logger().error("Error message: " + error_msg)
+            self.get_logger().error("------- PF400 Error message: " + str(error_msg) +  (" -------"))
 
         else:
             self.get_logger().info("PF400 online")
