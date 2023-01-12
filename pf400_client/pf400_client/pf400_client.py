@@ -40,9 +40,11 @@ class PF400ClientNode(Node):
         try:
             self.pf400 = PF400("192.168.50.50", "10100")
 
-        except:
+        except Exception as error_msg:
             self.state = "PF400 CONNECTION ERROR"
-            self.get_logger().error("Can not connect to pf400")
+            self.get_logger().error("------- CANNOT CONNECT TO PF400! -------")
+            self.get_logger().error("Error message: " + error_msg)
+
         else:
             self.get_logger().info("PF400 online")
             self.pf400.initialize_robot()
