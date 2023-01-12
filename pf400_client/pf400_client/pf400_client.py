@@ -40,7 +40,7 @@ class PF400ClientNode(Node):
             self.pf400 = PF400("192.168.50.50", "10100")
 
         except:
-            self.state = "PF400 DISCONNECTED"
+            self.state = "PF400 CONNECTION ERROR"
             self.get_logger().error("Can not connect to pf400")
         else:
             self.get_logger().info("PF400 online")
@@ -66,7 +66,7 @@ class PF400ClientNode(Node):
         '''
         Publishes the pf400 state to the 'state' topic. 
         '''
-        if self.state != "PF400 DISCONNECTED":
+        if self.state != "PF400 CONNECTION ERROR":
             state = self.pf400.movement_state
             if state == 0:
                 self.state = "POWER OFF"
@@ -124,6 +124,9 @@ class PF400ClientNode(Node):
             The robot steps it can do
         """
         '''
+        if self.state == "PF400 CONNECTION ERROR":
+            self.get_logger().error("Connection error, cannot accept a job!")
+            return
         self.pf400.force_initialize_robot()
         self.get_logger().info('Received Action: ' + request.action_handle)
 
