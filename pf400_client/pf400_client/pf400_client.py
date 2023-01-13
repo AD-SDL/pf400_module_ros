@@ -30,20 +30,24 @@ class PF400ClientNode(Node):
         '''
 
         super().__init__(TEMP_NODE_NAME)
-        
         node_name = self.get_name()
-        robot_name = self.get_parameter("robot_name").get_parameter_value().string_value
+
+        # Setting temporary default parameter values        
+        self.declare_parameter("ip","127.0.0.1")
+        self.declare_parameter("port",8085)
+
+        # Recieving the real IP and PORT from the launch parameters
         ip =  self.get_parameter("ip").get_parameter_value().string_value
-        port = self.get_parameter("port").get_parameter_value().string_value
-        self.get_logger().info(robot_name+ip+port)
-        
+        port = self.get_parameter("port").get_parameter_value().integer_value
+
+        self.get_logger().info("Recieved IP: " + str(ip) + " Port:" + str(port))
+
         action_cb_group = ReentrantCallbackGroup()
         description_cb_group = ReentrantCallbackGroup()
         state_cb_group = ReentrantCallbackGroup()
         
         self.state = "UNKNOWN"
         try:
-            # self.pf400 = PF400("146.137.240.35", "10100")
             self.pf400 = PF400(ip, port)
 
 
