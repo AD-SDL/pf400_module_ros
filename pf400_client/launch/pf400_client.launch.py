@@ -18,7 +18,7 @@ def generate_launch_description():
     declare_use_port_cmd = DeclareLaunchArgument(
         name='port',
         default_value="10100",
-        description='Flag to accept port address')
+        description='Flag to accept port number')
 
     pf400_client = Node(
             package = 'pf400_client',
