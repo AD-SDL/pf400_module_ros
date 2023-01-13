@@ -35,7 +35,8 @@ class PF400ClientNode(Node):
         robot_name = self.get_parameter("robot_name").get_parameter_value().string_value
         ip =  self.get_parameter("ip").get_parameter_value().string_value
         port = self.get_parameter("port").get_parameter_value().string_value
-
+        self.get_logger().info(robot_name+ip+port)
+        
         action_cb_group = ReentrantCallbackGroup()
         description_cb_group = ReentrantCallbackGroup()
         state_cb_group = ReentrantCallbackGroup()
