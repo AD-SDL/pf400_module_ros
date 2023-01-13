@@ -36,7 +36,7 @@ class PF400ClientNode(Node):
         self.declare_parameter("ip","127.0.0.1")
         self.declare_parameter("port",8085)
 
-        # Recieving the real IP and PORT from the launch parameters
+        # Receiving the real IP and PORT from the launch parameters
         ip =  self.get_parameter("ip").get_parameter_value().string_value
         port = self.get_parameter("port").get_parameter_value().integer_value
 
