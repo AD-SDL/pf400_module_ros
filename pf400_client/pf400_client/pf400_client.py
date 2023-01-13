@@ -47,7 +47,6 @@ class PF400ClientNode(Node):
         action_cb_group = ReentrantCallbackGroup()
         description_cb_group = ReentrantCallbackGroup()
         state_cb_group = ReentrantCallbackGroup()
-        
 
         timer_period = 0.5  # seconds
 
@@ -116,7 +115,7 @@ class PF400ClientNode(Node):
             msg.data = 'State: %s' % self.state
             self.statePub.publish(msg)
             self.get_logger().error(msg.data)
-            self.get_logger().info("Trying to connect again! IP: " + self.ip + " Port:" + str(self.port))
+            self.get_logger().warn("Trying to connect again! IP: " + self.ip + " Port:" + str(self.port))
             self.connect_robot()
 
     def descriptionCallback(self, request, response):
