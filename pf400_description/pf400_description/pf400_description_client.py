@@ -75,25 +75,23 @@ class PF400DescriptionClient(Node):
             msg.data = 'State: %s' % self.state
             self.statePub.publish(msg)
             self.get_logger().error(msg.data)
-            self.get_logger().info("Trying to connect again! IP: " + self.ip + " Port:" + str(self.port))
+            self.get_logger().warn("Trying to connect again! IP: " + self.ip + " Port:" + str(self.port))
             self.connect_robot()
 
 
     def joint_state_publisher_callback(self):
         
-        # self.get_logger().info("BUGG")
+        if self.state == "PF400 CONNECTION ERROR":
+            return
+
         joint_states = self.pf400.refresh_joint_state()
         pf400_joint_msg = JointState()
         pf400_joint_msg.header = Header()
         pf400_joint_msg.header.stamp = self.get_clock().now().to_msg()
         pf400_joint_msg.name = ['J1', 'J2', 'J3', 'J4', 'J5','J5_mirror', 'J6']
         pf400_joint_msg.position = joint_states
-        # print(joint_states)
-
-        # pf400_joint_msg.position = [0.01, -1.34, 1.86, -3.03, 0.05, 0.05, 0.91]
         pf400_joint_msg.velocity = []
         pf400_joint_msg.effort = []
-
         self.joint_publisher.publish(pf400_joint_msg)
         self.get_logger().info('Publishing joint states: "%s"' % joint_states)
 
