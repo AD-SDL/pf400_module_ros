@@ -10,7 +10,8 @@ def generate_launch_description():
             namespace = 'std_ns',
             executable = 'pf400_client',
             output = "screen",
-            name='pf400Node'
+            name='pf400Node',
+            parameters=[{"robot_name": "PF400_1", "ip":"146.137.240.35", "port":"10100"}]
     )
 
     launch_d.add_action(pf400_client)
