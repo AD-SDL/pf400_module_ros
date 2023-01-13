@@ -38,7 +38,7 @@ class PF400ClientNode(Node):
         
         self.state = "UNKNOWN"
         try:
-            self.pf400 = PF400("192.168.50.50", "10100")
+            self.pf400 = PF400("146.137.240.35", "10100")
 
         except Exception as error_msg:
             self.state = "PF400 CONNECTION ERROR"
@@ -48,6 +48,7 @@ class PF400ClientNode(Node):
             self.get_logger().info("PF400 online")
             self.pf400.initialize_robot()
             self.module_explorer = PF400_CAMERA(self.pf400)
+
 
         timer_period = 0.5  # seconds
 
