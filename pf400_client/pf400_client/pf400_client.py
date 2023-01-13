@@ -40,7 +40,7 @@ class PF400ClientNode(Node):
         ip =  self.get_parameter("ip").get_parameter_value().string_value
         port = self.get_parameter("port").get_parameter_value().integer_value
 
-        self.get_logger().info("Recieved IP: " + str(ip) + " Port:" + str(port))
+        self.get_logger().info("Received IP: " + str(ip) + " Port:" + str(port))
 
         action_cb_group = ReentrantCallbackGroup()
         description_cb_group = ReentrantCallbackGroup()
