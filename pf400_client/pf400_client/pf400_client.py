@@ -30,7 +30,11 @@ class PF400ClientNode(Node):
         '''
 
         super().__init__(TEMP_NODE_NAME)
+        
         node_name = self.get_name()
+        robot_name = self.get_parameter("robot_name").get_parameter_value().string_value
+        ip =  self.get_parameter("ip").get_parameter_value().string_value
+        port = self.get_parameter("port").get_parameter_value().string_value
 
         action_cb_group = ReentrantCallbackGroup()
         description_cb_group = ReentrantCallbackGroup()
@@ -38,7 +42,9 @@ class PF400ClientNode(Node):
         
         self.state = "UNKNOWN"
         try:
-            self.pf400 = PF400("146.137.240.35", "10100")
+            # self.pf400 = PF400("146.137.240.35", "10100")
+            self.pf400 = PF400(ip, port)
+
 
         except Exception as error_msg:
             self.state = "PF400 CONNECTION ERROR"
