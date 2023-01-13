@@ -41,13 +41,13 @@ class PF400ClientNode(Node):
         self.port = self.get_parameter("port").get_parameter_value().integer_value
 
         self.get_logger().info("Received IP: " + self.ip + " Port:" + str(self.port))
+        self.state = "UNKNOWN"
+        self.connect_robot()
 
         action_cb_group = ReentrantCallbackGroup()
         description_cb_group = ReentrantCallbackGroup()
         state_cb_group = ReentrantCallbackGroup()
         
-        self.state = "UNKNOWN"
-        self.connect_robot()
 
         timer_period = 0.5  # seconds
 
@@ -81,18 +81,36 @@ class PF400ClientNode(Node):
         Publishes the pf400 state to the 'state' topic. 
         '''
         if self.state != "PF400 CONNECTION ERROR":
+            msg = String()
             state = self.pf400.movement_state
+            self.pf400.get_overall_state()
+            if self.pf400.attach_state == "-1":
+                msg.data = "State: Robot is not attached"
+                self.statePub.publish(msg)
+                self.get_logger().info(msg.data)
+                sleep(0.5)
+                self.pf400.attach_robot()
+                sleep(6) 
             if state == 0:
                 self.state = "POWER OFF"
+                msg.data = 'State: %s' % self.state
+                self.statePub.publish(msg)
+                self.get_logger().info(msg.data)
+                sleep(0.5)
+                self.pf400.initialize_robot()
             elif state == 1:
                 self.state = "READY"
+                msg.data = 'State: %s' % self.state
+                self.statePub.publish(msg)
+                self.get_logger().info(msg.data)
+                sleep(0.5)
             elif state == 2 or state == 3:
                 self.state = "BUSY"
-            msg = String()
-            msg.data = 'State: %s' % self.state
-            self.statePub.publish(msg)
-            self.get_logger().info(msg.data)
-            sleep(0.5)
+                msg.data = 'State: %s' % self.state
+                self.statePub.publish(msg)
+                self.get_logger().info(msg.data)
+                sleep(0.5)
+
         else: 
             msg = String()
             msg.data = 'State: %s' % self.state
