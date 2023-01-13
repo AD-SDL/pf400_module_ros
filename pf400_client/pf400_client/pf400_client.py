@@ -37,29 +37,17 @@ class PF400ClientNode(Node):
         self.declare_parameter("port",8085)
 
         # Receiving the real IP and PORT from the launch parameters
-        ip =  self.get_parameter("ip").get_parameter_value().string_value
-        port = self.get_parameter("port").get_parameter_value().integer_value
+        self.ip =  self.get_parameter("ip").get_parameter_value().string_value
+        self.port = self.get_parameter("port").get_parameter_value().integer_value
 
-        self.get_logger().info("Received IP: " + str(ip) + " Port:" + str(port))
+        self.get_logger().info("Received IP: " + self.ip + " Port:" + str(self.port))
 
         action_cb_group = ReentrantCallbackGroup()
         description_cb_group = ReentrantCallbackGroup()
         state_cb_group = ReentrantCallbackGroup()
         
         self.state = "UNKNOWN"
-        try:
-            self.pf400 = PF400(ip, port)
-
-
-        except Exception as error_msg:
-            self.state = "PF400 CONNECTION ERROR"
-            self.get_logger().error("------- PF400 Error message: " + str(error_msg) +  (" -------"))
-
-        else:
-            self.get_logger().info("PF400 online")
-            self.pf400.initialize_robot()
-            self.module_explorer = PF400_CAMERA(self.pf400)
-
+        self.connect_robot()
 
         timer_period = 0.5  # seconds
 
@@ -75,6 +63,18 @@ class PF400ClientNode(Node):
 
         self.description={}
 
+    def connect_robot(self):
+        try:
+            self.pf400 = PF400(self.ip, self.port)
+
+        except Exception as error_msg:
+            self.state = "PF400 CONNECTION ERROR"
+            self.get_logger().error("------- PF400 Error message: " + str(error_msg) +  (" -------"))
+
+        else:
+            self.get_logger().info("PF400 online")
+            self.pf400.initialize_robot()
+            self.module_explorer = PF400_CAMERA(self.pf400)
 
     def stateCallback(self):
         '''
@@ -98,6 +98,8 @@ class PF400ClientNode(Node):
             msg.data = 'State: %s' % self.state
             self.statePub.publish(msg)
             self.get_logger().error(msg.data)
+            self.get_logger().info("Trying to connect again! IP: " + self.ip + " Port:" + str(self.port))
+            self.connect_robot()
 
     def descriptionCallback(self, request, response):
         """The descriptionCallback function is a service that can be called to showcase the available actions a robot
