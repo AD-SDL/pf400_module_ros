@@ -7,7 +7,6 @@ from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 
 def generate_launch_description():
-    launch_d = LaunchDescription()
     ip = LaunchConfiguration('ip')
     port = LaunchConfiguration('port')
 
@@ -15,10 +14,11 @@ def generate_launch_description():
         name='ip',
         default_value="146.137.240.35",
         description='Flag to accept ip address')
+
     declare_use_port_cmd = DeclareLaunchArgument(
         name='port',
-        default_value = "10100",
-        description='Flag to accept port number')
+        default_value="10100",
+        description='Flag to accept ip address')
 
     pf400_client = Node(
             package = 'pf400_client',
@@ -26,9 +26,16 @@ def generate_launch_description():
             executable = 'pf400_client',
             output = "screen",
             name='pf400Node',
-            parameters=[{"robot_name": "PF400_1", "ip":ip, "port":port}]
+            parameters=[
+                {'ip':ip},
+                {'port':port}
+                ],
+            emulate_tty=True
+
     )
-    
+
+    launch_d = LaunchDescription()
+
     launch_d.add_action(declare_use_ip_cmd)
     launch_d.add_action(declare_use_port_cmd)
     launch_d.add_action(pf400_client)
