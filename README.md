@@ -30,11 +30,11 @@ This a ROS2 wrapper that accepts service calls from wei_client with string messa
 - Go to startup configuration under wizards and setup tools. Make sure that "Tcp_cmd_server_pa" project is loaded to be automatically compiled when the robot is turned on.
 - Go to Control Panels and then Operator Control panel. Verify that TCP Command Server is running. 
 
-![Control Panel TCP Server](https://github.com/AD-SDL/PF400_cobot/blob/master/resources/diagrams-figures/control-panel.png)
+![Control Panel TCP Server](https://github.com/AD-SDL/PF400_cobot/blob/main/resources/diagrams-figures/control-panel.png)
 
 - To free the robot joints manualy, stop the TCP server and go to Virtual Panel and choose free all joints, click plus.
 
-![Free Joints](https://github.com/AD-SDL/PF400_cobot/blob/master/resources/diagrams-figures/free-joint-mode.png)
+![Free Joints](https://github.com/AD-SDL/PF400_cobot/blob/main/resources/diagrams-figures/free-joint-mode.png)
 
 ## ROS Install
 - `cd ~`
@@ -66,7 +66,7 @@ Better to install in develop-mode while the config is still changing
 ### Launch with fake robot hardware
 - `ros2 launch pf400_description pf400_rviz.launch.py fake_hardware:=True`
 
-![RViz PF400 Visualization](https://github.com/AD-SDL/PF400_cobot/blob/master/resources/diagrams-figures/pf400-rviz.png)
+![RViz PF400 Visualization](https://github.com/AD-SDL/PF400_cobot/blob/main/resources/diagrams-figures/pf400-rviz.png)
 
 
 ## Create new configuration
