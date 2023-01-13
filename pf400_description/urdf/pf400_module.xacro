@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<robot name="PF400_Robot" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- Materials -->
+  <xacro:include filename="$(find pf400_description)/urdf/materials.xacro" />
+
+  <!-- Module Carts -->
+  <xacro:include filename="$(find pf400_description)/urdf/module_carts.urdf.xacro" />
+  <xacro:Module_Carts prefix="module_carts/"/>
+
+  <!-- PF400 -->
+  <xacro:include filename="$(find pf400_description)/urdf/PF400.urdf.xacro" />
+  <xacro:pf400 prefix="pf400/"/>
+  
+ <joint name="pf400_module" type="fixed">
+    <parent link="module_carts/pf400_cart"/>
+    <child link="pf400/rail_base"/>
+    <axis xyz="0 0 0"/>
+    <origin xyz="-0.14 -0.0198 0.83" rpy="0 0 0"/>
+    <limit effort="1000.0" lower="0" upper="0" velocity="0.5"/>
+  </joint>
+
+</robot>

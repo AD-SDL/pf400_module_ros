@@ -13,7 +13,7 @@ def generate_launch_description():
 
   pkg_share = FindPackageShare(package='pf400_description').find('pf400_description')
   default_rviz_config_path = os.path.join(pkg_share, 'config/pf400_rviz_config.rviz')
-  default_urdf_model_path = os.path.join(pkg_share, 'urdf/pf400_robot.xacro') 
+  default_urdf_model_path = os.path.join(pkg_share, 'urdf/pf400_module.xacro') 
  
   fake_hardware = LaunchConfiguration('fake_hardware')
   urdf_model = LaunchConfiguration('urdf_model')
@@ -26,6 +26,7 @@ def generate_launch_description():
     name='urdf_model', 
     default_value=default_urdf_model_path, 
     description='Absolute path to robot urdf file')
+    
      
   declare_rviz_config_file_cmd = DeclareLaunchArgument(
     name='rviz_config_file',
