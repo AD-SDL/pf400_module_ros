@@ -42,6 +42,7 @@ class PF400ClientNode(Node):
 
         self.get_logger().info("Received IP: " + self.ip + " Port:" + str(self.port))
         self.state = "UNKNOWN"
+        self.job_flag = False
         self.connect_robot()
 
         action_cb_group = ReentrantCallbackGroup()
@@ -87,28 +88,27 @@ class PF400ClientNode(Node):
                 msg.data = "State: Robot is not attached"
                 self.statePub.publish(msg)
                 self.get_logger().info(msg.data)
-                sleep(0.5)
                 self.pf400.attach_robot()
                 sleep(6) 
+                
             if state == 0:
                 self.state = "POWER OFF"
                 msg.data = 'State: %s' % self.state
                 self.statePub.publish(msg)
                 self.get_logger().info(msg.data)
-                sleep(0.5)
                 self.pf400.initialize_robot()
-            elif state == 1:
+
+            elif state == 1 and self.job_flag == False:
                 self.state = "READY"
                 msg.data = 'State: %s' % self.state
                 self.statePub.publish(msg)
                 self.get_logger().info(msg.data)
-                sleep(0.5)
+
             elif state == 2 or state == 3:
                 self.state = "BUSY"
                 msg.data = 'State: %s' % self.state
                 self.statePub.publish(msg)
                 self.get_logger().info(msg.data)
-                sleep(0.5)
 
         else: 
             msg = String()
@@ -157,13 +157,17 @@ class PF400ClientNode(Node):
             The robot steps it can do
         """
         '''
+
         if self.state == "PF400 CONNECTION ERROR":
             self.get_logger().error("Connection error, cannot accept a job!")
             return
+
+        self.job_flag = True    
         self.pf400.force_initialize_robot()
         self.get_logger().info('Received Action: ' + request.action_handle)
 
         err=0
+
         if request.action_handle == "explore_workcell":
 
             while self.state != "READY":
@@ -180,6 +184,7 @@ class PF400ClientNode(Node):
             response.action_response = action_response
             response.action_msg= str(module_list)
             self.get_logger().info('Finished Action: ' + request.action_handle)
+            self.job_flag = False
             return response
 
         if request.action_handle == "transfer":
@@ -210,6 +215,7 @@ class PF400ClientNode(Node):
                 response.action_response = -1
                 response.action_msg= msg
                 self.get_logger().info('Error: ' + msg)
+                self.job_flag = False
                 return response
 
             if 'source_plate_rotation' not in vars.keys():
@@ -231,8 +237,9 @@ class PF400ClientNode(Node):
             self.stateCallback()
             self.pf400.transfer(source, target, source_plate_rotation, target_plate_rotation)
             response.action_response = 0
-            response.action_msg= "all good pf4000"
+            response.action_msg= "All good PF400"
             self.get_logger().info('Finished Action: ' + request.action_handle)
+            self.job_flag = False
             return response
 
         if request.action_handle == "remove_lid":
@@ -249,9 +256,11 @@ class PF400ClientNode(Node):
 
             if 'target' not in vars.keys():
                 self.get_logger().info("Drop off up location is not provided")
+                self.job_flag = False
                 return 
             if len(vars.get('target')) != 6:
                 self.get_logger().info("Position 2 should be six joint angles lenght")
+                self.job_flag = False
                 return
 
             if 'target_plate_rotation' not in vars.keys():
@@ -270,7 +279,8 @@ class PF400ClientNode(Node):
             self.stateCallback()
             self.pf400.remove_lid(target, lid_height, target_plate_rotation)
             response.action_response = 0
-            response.action_msg= "all good pf4000"
+            response.action_msg= "All good PF400"
+            self.job_flag = False
             return response
 
         if request.action_handle == "replace_lid":
@@ -287,9 +297,12 @@ class PF400ClientNode(Node):
 
             if 'target' not in vars.keys():
                 print("Drop off up location is not provided")
+                self.job_flag = False
                 return 
+
             if len(vars.get('target')) != 6:
                 print("Position 2 should be six joint angles lenght")
+                self.job_flag = False
                 return
 
             if 'target_plate_rotation' not in vars.keys():
@@ -319,6 +332,7 @@ class PF400ClientNode(Node):
             self.state = self.pf400.robot_state
 
         #TODO: move every action into its own return
+        self.job_flag = False
         return response
 
     def whereJCallback(self, request, response):
@@ -332,8 +346,6 @@ class PF400ClientNode(Node):
         var  = self.pf400.send_command("wherej")
         print(var)
         return response
-
-
 
 def main(args = None):
 
