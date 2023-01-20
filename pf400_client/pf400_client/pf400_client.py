@@ -101,7 +101,7 @@ class PF400ClientNode(Node):
                 self.state = "POWER OFF"
                 msg.data = 'State: %s' % self.state
                 self.statePub.publish(msg)
-                self.get_logger().info(msg.data)
+                self.get_logger().warn(msg.data)
                 self.pf400.initialize_robot()
 
             elif state == 1 and self.job_flag == False:
@@ -115,7 +115,7 @@ class PF400ClientNode(Node):
                 msg.data = 'State: %s' % self.state
                 self.statePub.publish(msg)
                 self.get_logger().info(msg.data)
-
+            #TODO: GET EXECUTION ERROR
         else: 
             msg = String()
             msg.data = 'State: %s' % self.state
