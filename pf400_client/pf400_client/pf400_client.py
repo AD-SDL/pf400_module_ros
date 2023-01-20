@@ -80,10 +80,16 @@ class PF400ClientNode(Node):
         '''
         Publishes the pf400 state to the 'state' topic. 
         '''
-        if self.state != "PF400 CONNECTION ERROR":
-            msg = String()
+        try:
             state = self.pf400.movement_state
             self.pf400.get_overall_state()
+
+        except Exception as err:
+            self.get_logger().error("ROBOT IS NOT RESPONDING! ERROR: " + str(err))
+            self.state = "PF400 CONNECTION ERROR"
+
+        if self.state != "PF400 CONNECTION ERROR":
+            msg = String()
             if self.pf400.attach_state == "-1":
                 msg.data = "State: Robot is not attached"
                 self.statePub.publish(msg)
