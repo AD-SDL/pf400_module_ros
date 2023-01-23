@@ -116,7 +116,7 @@ class PF400ClientNode(Node):
                 msg.data = 'State: %s' % self.state
                 self.statePub.publish(msg)
                 self.get_logger().info(msg.data)
-            #TODO: GET EXECUTION ERROR  
+            #TODO: GET EXECUTION ERROR  FROM ROBOT ERROR CODES
         else: 
             msg.data = 'State: %s' % self.state
             self.statePub.publish(msg)
