@@ -111,12 +111,19 @@ class PF400ClientNode(Node):
                 self.statePub.publish(msg)
                 self.get_logger().info(msg.data)
 
-            elif state == 2 or state == 3:
+            elif self.pf400.robot_state == "ERROR":
+                self.state = "ERROR"
+                msg.data = 'State: %s' % self.state
+                self.statePub.publish(msg)
+                self.get_logger().error(msg.data)
+                self.get_logger().error("Error Message: " + self.pf400.robot_error_msg)
+
+            else:
                 self.state = "BUSY"
                 msg.data = 'State: %s' % self.state
                 self.statePub.publish(msg)
                 self.get_logger().info(msg.data)
-            #TODO: GET EXECUTION ERROR  FROM ROBOT ERROR CODES
+
         else: 
             msg.data = 'State: %s' % self.state
             self.statePub.publish(msg)
