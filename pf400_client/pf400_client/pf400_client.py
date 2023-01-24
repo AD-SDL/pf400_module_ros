@@ -18,7 +18,7 @@ from wei_services.srv import WeiActions
 from pf400_driver.pf400_driver import PF400
 from pf400_driver.pf400_camera_driver import PF400_CAMERA
 
-class PF400ClientNode(Node):
+class PF400Client(Node):
     '''
     The jointControlNode inputs data from the 'action' topic, providing a set of commands for the driver to execute. It then receives feedback, 
     based on the executed command and publishes the state of the peeler and a description of the peeler to the respective topics.
@@ -54,7 +54,6 @@ class PF400ClientNode(Node):
         self.statePub = self.create_publisher(String, node_name + '/state', 10)
         self.stateTimer = self.create_timer(timer_period, callback = self.stateCallback, callback_group = state_cb_group)
 
-        # self.stateTimer = self.create_timer(timer_period, self.stateCallback)
         state_thread = Thread(target = self.stateCallback)
         state_thread.start()
 
@@ -365,7 +364,7 @@ def main(args = None):
     rclpy.init(args=args)  # initialize Ros2 communication
 
     try:
-        pf400_client = PF400ClientNode()
+        pf400_client = PF400Client()
         executor = MultiThreadedExecutor()
         executor.add_node(pf400_client)
 
