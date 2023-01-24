@@ -31,7 +31,6 @@ def generate_launch_description():
                 {'port':port}
                 ],
             emulate_tty=True
-
     )
 
     launch_d = LaunchDescription()
