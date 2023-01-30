@@ -127,7 +127,7 @@ class PF400Client(Node):
                 self.get_logger().error(msg.data)
                 self.get_logger().error("Error Message: " + self.pf400.robot_error_msg)
 
-            else:
+            elif state == 2 and self.job_flag == True or state == 3 and self.job_flag == True:
                 self.state = "BUSY"
                 msg.data = 'State: %s' % self.state
                 self.statePub.publish(msg)
