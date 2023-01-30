@@ -94,6 +94,7 @@ class PF400Client(Node):
 
         try:
             state = self.pf400.movement_state
+            self.get_logger().warn("Move state: " + str(state))
             # self.pf400.get_overall_state()
 
         except Exception as err:
@@ -108,12 +109,6 @@ class PF400Client(Node):
                 self.get_logger().info(msg.data)
                 self.pf400.attach_robot()
                 sleep(6) 
-            
-            if self.state == "COMPLETED":
-                self.job_flag = False
-                msg.data = 'State: %s' % self.state
-                self.statePub.publish(msg)
-                self.get_logger().info(msg.data)
 
             if state == 0:
                 self.state = "POWER OFF"
@@ -122,6 +117,12 @@ class PF400Client(Node):
                 self.get_logger().warn(msg.data)
                 self.pf400.initialize_robot()
                 self.job_flag = False
+
+            if self.state == "COMPLETED":
+                self.job_flag = False
+                msg.data = 'State: %s' % self.state
+                self.statePub.publish(msg)
+                self.get_logger().info(msg.data)
 
             elif state == 1 and self.job_flag == False:
                 self.state = "READY"
@@ -142,12 +143,12 @@ class PF400Client(Node):
                 msg.data = 'State: %s' % self.state
                 self.statePub.publish(msg)
                 self.get_logger().info(msg.data)
-            # else: 
-            #     self.state = "ERROR"
-            #     msg.data = 'State: %s' % self.state
-            #     self.statePub.publish(msg)
-            #     self.get_logger().error("DATA LOSS")
-            #     self.job_flag = False
+            else: 
+                self.state = "ERROR"
+                msg.data = 'State: %s' % self.state
+                self.statePub.publish(msg)
+                self.get_logger().error("DATA LOSS")
+                self.job_flag = False
         else: 
             msg.data = 'State: %s' % self.state
             self.statePub.publish(msg)
