@@ -48,12 +48,14 @@ class PF400Client(Node):
         action_cb_group = ReentrantCallbackGroup()
         description_cb_group = ReentrantCallbackGroup()
         state_cb_group = ReentrantCallbackGroup()
+        state_refresher_cb_group = ReentrantCallbackGroup()
 
         timer_period = 0.5  # seconds
 
         self.statePub = self.create_publisher(String, node_name + '/state', 10)
         self.stateTimer = self.create_timer(timer_period, callback = self.stateCallback, callback_group = state_cb_group)
-
+        
+        self.StateRefresherTimer = self.create_timer(timer_period, callback = self.robot_state_refresher_callback, callback_group = state_refresher_cb_group)
         # state_thread = Thread(target = self.stateCallback)
         # state_thread.start()
 
@@ -74,6 +76,13 @@ class PF400Client(Node):
             self.get_logger().info("PF400 online")
             self.pf400.initialize_robot()
             self.module_explorer = PF400_CAMERA(self.pf400)
+
+    def robot_state_refresher_callback(self):
+        try:
+            self.pf400.get_robot_movement_state()
+            self.pf400.get_overall_state()
+        except Exception as err:
+            self.get_logger().info(err)
 
     def stateCallback(self):
         '''
