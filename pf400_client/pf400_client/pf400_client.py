@@ -127,7 +127,7 @@ class PF400Client(Node):
                 self.get_logger().error(msg.data)
                 self.get_logger().error("Error Message: " + self.pf400.robot_error_msg)
 
-            elif state == 2 and self.job_flag == True or state == 3 and self.job_flag == True:
+            else
                 self.state = "BUSY"
                 msg.data = 'State: %s' % self.state
                 self.statePub.publish(msg)
@@ -184,16 +184,17 @@ class PF400Client(Node):
             self.get_logger().error("Connection error, cannot accept a job!")
             return
 
+        while self.state != "READY":
+            self.get_logger().warn("Waiting for PF400 to switch READY state...")
+            sleep(0.5)
+
         self.job_flag = True    
-        self.pf400.force_initialize_robot()
+        # self.pf400.force_initialize_robot()
         self.get_logger().info('Received Action: ' + request.action_handle)
 
         err=0
 
         if request.action_handle == "explore_workcell":
-
-            while self.state != "READY":
-                self.get_logger().info("Waiting for PF400 to switch READY state...")
             
             vars = eval(request.vars)
             self.get_logger().info(vars)
@@ -209,10 +210,6 @@ class PF400Client(Node):
             return response
 
         if request.action_handle == "transfer":
-
-            while self.state != "READY":
-                self.get_logger().info("Waiting for PF400 to switch READY state...")
-                sleep(1)
 
             source_plate_rotation = ""
             target_plate_rotation = ""
@@ -265,9 +262,6 @@ class PF400Client(Node):
 
         if request.action_handle == "remove_lid":
 
-            while self.state != "READY":
-                self.get_logger().info("Waiting for PF400 to switch READY state...")
-
             target_plate_rotation = ""
     
             # self.state = "BUSY"
@@ -305,9 +299,6 @@ class PF400Client(Node):
             return response
 
         if request.action_handle == "replace_lid":
-
-            while self.state != "READY":
-                self.get_logger().info("Waiting for PF400 to switch READY state...")
 
             target_plate_rotation = ""
     
