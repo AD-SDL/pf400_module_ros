@@ -107,7 +107,13 @@ class PF400Client(Node):
                 self.get_logger().info(msg.data)
                 self.pf400.attach_robot()
                 sleep(6) 
-                
+            
+            if self.state == "COMPLETED":
+                self.job_flag = False
+                msg.data = 'State: %s' % self.state
+                self.statePub.publish(msg)
+                self.get_logger().info(msg.data)
+
             if state == 0:
                 self.state = "POWER OFF"
                 msg.data = 'State: %s' % self.state
@@ -135,6 +141,7 @@ class PF400Client(Node):
                 msg.data = 'State: %s' % self.state
                 self.statePub.publish(msg)
                 self.get_logger().info(msg.data)
+            elif
 
         else: 
             msg.data = 'State: %s' % self.state
