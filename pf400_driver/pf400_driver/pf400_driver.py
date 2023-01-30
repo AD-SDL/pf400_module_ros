@@ -134,11 +134,14 @@ class PF400(KINEMATICS):
 			if response != "" and response in self.error_codes:
 				self.handle_error_output(response)
 			else:
+				# CASUING TO MANY MESSAGES TO BE PRINTED. UNCOMMENT IF NEEDED
 				if response in self.output_codes:
-					print("<< " + self.output_codes[response])
+					# print("<< " + self.output_codes[response])
+					pass
 				else:
-					print("<< "+ response)
-					
+					# print("<< "+ response) 
+					pass
+
 				self.robot_state = "Normal"
 
 			return response		
@@ -353,7 +356,8 @@ class PF400(KINEMATICS):
 			else: 
 				self.initialization_state = state_msg[1]
 
-			print("Power: " + self.power_state + " Attach: " + self.attach_state + " Home: " + self.home_state + " Robot State: " + self.initialization_state)
+			# CASUING TO MANY MESSAGES TO BE PRINTED. UNCOMMENT IF NEEDED
+			# print("Power: " + self.power_state + " Attach: " + self.attach_state + " Home: " + self.home_state + " Robot State: " + self.initialization_state)
 
 			if self.power_state == "-1" or self.attach_state == "-1" or self.home_state == "-1" or self.initialization_state == "-1":
 				return -1
