@@ -17,7 +17,7 @@ from pf400_driver.pf400_kinematics import KINEMATICS
 class PF400(KINEMATICS):
 	commandLock = threading.Lock()
 
-	def __init__(self, host= "192.168.50.50", port = 10100, mode = 0):
+	def __init__(self, host= "146.137.240.35", port = 10100, mode = 0):
 		
 		"""
         Description: 
