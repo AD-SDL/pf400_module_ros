@@ -114,6 +114,7 @@ class PF400Client(Node):
                 self.statePub.publish(msg)
                 self.get_logger().warn(msg.data)
                 self.pf400.initialize_robot()
+                self.job_flag = False
 
             elif state == 1 and self.job_flag == False:
                 self.state = "READY"
@@ -127,8 +128,9 @@ class PF400Client(Node):
                 self.statePub.publish(msg)
                 self.get_logger().error(msg.data)
                 self.get_logger().error("Error Message: " + self.pf400.robot_error_msg)
+                self.job_flag = False
 
-            else:
+            elif (state == 1 and self.job_flag == True) or (state == 2 and self.job_flag == True) or (state == 3 and self.job_flag == True):
                 self.state = "BUSY"
                 msg.data = 'State: %s' % self.state
                 self.statePub.publish(msg)
