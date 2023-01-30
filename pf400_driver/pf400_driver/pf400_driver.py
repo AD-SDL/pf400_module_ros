@@ -140,7 +140,7 @@ class PF400(KINEMATICS):
 					# print("<< " + self.output_codes[response])
 					pass
 				else:
-					# print("<< "+ response) 
+					print("<< "+ response) 
 					pass
 
 				self.robot_state = "Normal"
