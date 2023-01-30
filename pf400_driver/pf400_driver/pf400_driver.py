@@ -10,8 +10,9 @@ import math
 from operator import add
 from time import sleep
 
-from pf400_driver.motion_profiles import motion_profiles
-from pf400_driver.error_codes import error_codes
+from pf400_driver.pf400_motion_profiles import motion_profiles
+from pf400_driver.pf400_error_codes import error_codes
+from pf400_driver.pf400_output_codes import output_codes
 from pf400_driver.pf400_kinematics import KINEMATICS
 
 class PF400(KINEMATICS):
@@ -41,6 +42,9 @@ class PF400(KINEMATICS):
 
 		# Default Motion Profile Paramiters. Using two profiles for faster and slower movements
 		self.motion_profiles = motion_profiles
+
+		# Output code list of the PF400
+		self.output_codes = output_codes
 
 		# Robot State
 		self.power_state = "0"
@@ -126,10 +130,15 @@ class PF400(KINEMATICS):
 			# print(">> " + command)
 			self.connection.write((command.encode("ascii") + b"\n"))
 			response = self.connection.read_until(b"\r\n").rstrip().decode("ascii")
+
 			if response != "" and response in self.error_codes:
 				self.handle_error_output(response)
 			else:
-				# print("<< "+ response)
+				if response in self.output_codes:
+					print("<< " + self.output_codes[response])
+				else:
+					print("<< "+ response)
+					
 				self.robot_state = "Normal"
 
 			return response		
