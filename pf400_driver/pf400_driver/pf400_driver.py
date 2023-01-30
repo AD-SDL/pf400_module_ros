@@ -326,18 +326,18 @@ class PF400(KINEMATICS):
 			"""
 			Decription: Checks general state
 			"""
+	
+			self.connection.write(("hp".encode("ascii") + b"\n"))
+			power_msg = self.connection.read_until(b"\r\n").rstrip().decode("ascii").split(" ")
 
-			power_msg = self.send_command("hp").split(" ")
-			# power_msg = power_msg.split(" ")
+			self.connection.write(("attach".encode("ascii") + b"\n"))
+			attach_msg = self.connection.read_until(b"\r\n").rstrip().decode("ascii").split(" ")
 
-			attach_msg = self.send_command("attach").split(" ")
-			# attach_msg = attach_msg.split(" ")
+			self.connection.write(("pd 2800".encode("ascii") + b"\n"))
+			home_msg = self.connection.read_until(b"\r\n").rstrip().decode("ascii").split(" ")
 
-			home_msg = self.send_command("pd 2800").split(" ")
-			# home_msg = home_msg.split(" ")
-
-			state_msg = self.send_command("sysState").split(" ")
-			# state_msg = state_msg.split(" ")
+			self.connection.write(("sysState".encode("ascii") + b"\n"))
+			state_msg = self.connection.read_until(b"\r\n").rstrip().decode("ascii").split(" ")
 
 			if len(power_msg) == 1 or power_msg[0].find("-") != -1 or power_msg[1] == "0":
 				self.power_state = "-1"
