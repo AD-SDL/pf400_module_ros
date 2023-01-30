@@ -262,6 +262,8 @@ class PF400(KINEMATICS):
 			print("Robot initialization successfull")
 		else:
 			print("Robot initialization failed")
+			self.robot_state = "ERROR"
+			self.robot_error_msg = "Robot initialization failed"
 
 	def force_initialize_robot(self):
 		"""
