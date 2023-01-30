@@ -141,7 +141,6 @@ class PF400Client(Node):
                 msg.data = 'State: %s' % self.state
                 self.statePub.publish(msg)
                 self.get_logger().info(msg.data)
-            elif
 
         else: 
             msg.data = 'State: %s' % self.state
