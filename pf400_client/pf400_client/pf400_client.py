@@ -79,9 +79,9 @@ class PF400Client(Node):
 
     def robot_state_refresher_callback(self):
         try:
-            pass
-            # self.pf400.get_robot_movement_state()
-            # self.pf400.get_overall_state()
+            if self.job_flag == False:
+                self.pf400.get_robot_movement_state()
+                self.pf400.get_overall_state()
         except Exception as err:
             self.state = "PF400 CONNECTION ERROR"
             self.get_logger().error(str(err))
