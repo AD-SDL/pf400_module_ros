@@ -82,7 +82,7 @@ class PF400Client(Node):
             self.pf400.get_robot_movement_state()
             self.pf400.get_overall_state()
         except Exception as err:
-            self.get_logger().info(err)
+            self.get_logger().error(str(err))
 
     def stateCallback(self):
         '''
