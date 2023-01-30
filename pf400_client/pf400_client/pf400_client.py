@@ -142,12 +142,12 @@ class PF400Client(Node):
                 msg.data = 'State: %s' % self.state
                 self.statePub.publish(msg)
                 self.get_logger().info(msg.data)
-            else: 
-                self.state = "ERROR"
-                msg.data = 'State: %s' % self.state
-                self.statePub.publish(msg)
-                self.get_logger().error("UNKOWN ERROR")
-                self.job_flag = False
+            # else: 
+            #     self.state = "ERROR"
+            #     msg.data = 'State: %s' % self.state
+            #     self.statePub.publish(msg)
+            #     self.get_logger().error("DATA LOSS")
+            #     self.job_flag = False
         else: 
             msg.data = 'State: %s' % self.state
             self.statePub.publish(msg)
