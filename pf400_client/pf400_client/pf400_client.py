@@ -83,7 +83,7 @@ class PF400Client(Node):
 
         try:
             state = self.pf400.movement_state
-            self.pf400.get_overall_state()
+            # self.pf400.get_overall_state()
 
         except Exception as err:
             self.get_logger().error("ROBOT IS NOT RESPONDING! ERROR: " + str(err))
