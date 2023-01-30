@@ -215,7 +215,7 @@ class PF400Client(Node):
             response.action_response = action_response
             response.action_msg= str(module_list)
             self.get_logger().info('Finished Action: ' + request.action_handle)
-            self.job_flag = False
+            self.state = "COMPLETED"
             return response
 
         if request.action_handle == "transfer":
@@ -243,7 +243,7 @@ class PF400Client(Node):
                 response.action_response = -1
                 response.action_msg= msg
                 self.get_logger().error('Error: ' + msg)
-                self.job_flag = False
+                self.state = "COMPLETED"
                 return response
 
             if 'source_plate_rotation' not in vars.keys():
@@ -266,26 +266,24 @@ class PF400Client(Node):
             response.action_response = 0
             response.action_msg= "All good PF400"
             self.get_logger().info('Finished Action: ' + request.action_handle)
-            self.job_flag = False
+            self.state = "COMPLETED"
             return response
 
         if request.action_handle == "remove_lid":
 
             target_plate_rotation = ""
-    
-            # self.state = "BUSY"
-            # self.stateCallback()
+
             vars = eval(request.vars)
             self.get_logger().info(str(vars))
 
             if 'target' not in vars.keys():
                 self.get_logger().error("Drop off up location is not provided. Canceling the job!")
-                self.job_flag = False
+                self.state = "COMPLETED"
                 return 
 
             if len(vars.get('target')) != 6:
                 self.get_logger().error("Position 2 should be six joint angles lenght. Canceling the job!")
-                self.job_flag = False
+                self.state = "COMPLETED"
                 return
 
             if 'target_plate_rotation' not in vars.keys():
@@ -303,7 +301,7 @@ class PF400Client(Node):
             self.pf400.remove_lid(target, lid_height, target_plate_rotation)
             response.action_response = 0
             response.action_msg= "All good PF400"
-            self.job_flag = False
+            self.state = "COMPLETED"
 
             return response
 
@@ -317,13 +315,13 @@ class PF400Client(Node):
             self.get_logger().info(vars)
 
             if 'target' not in vars.keys():
-                self.get_logger().error("Drop off up location is not provided. Canceling the job!")
-                self.job_flag = False
+                self.get_logger().error("Drop off location is not provided. Canceling the job!")
+                self.state = "COMPLETED"
                 return 
 
             if len(vars.get('target')) != 6:
                 self.get_logger().error("Position 2 should be six joint angles lenght. Canceling the job!")
-                self.job_flag = False
+                self.state = "COMPLETED"
                 return
 
             if 'target_plate_rotation' not in vars.keys():
@@ -354,7 +352,7 @@ class PF400Client(Node):
         #     self.state = self.pf400.robot_state
 
         #TODO: move every action into its own return
-        self.job_flag = False
+        self.state = "COMPLETED"
         return response
 
     def whereJCallback(self, request, response):
