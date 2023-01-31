@@ -118,18 +118,18 @@ class PF400Client(Node):
                 self.pf400.initialize_robot()
                 self.job_flag = False
 
-            if self.state == "COMPLETED":
-                self.job_flag = False
-                msg.data = 'State: %s' % self.state
-                self.statePub.publish(msg)
-                self.get_logger().info(msg.data)
-
             elif state == 1 and self.job_flag == False:
                 self.state = "READY"
                 msg.data = 'State: %s' % self.state
                 self.statePub.publish(msg)
                 self.get_logger().info(msg.data)
 
+            if self.state == "COMPLETED":
+                self.job_flag = False
+                msg.data = 'State: %s' % self.state
+                self.statePub.publish(msg)
+                self.get_logger().info(msg.data)
+                
             elif self.pf400.robot_state == "ERROR":
                 self.state = "ERROR"
                 msg.data = 'State: %s' % self.state
