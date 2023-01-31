@@ -82,6 +82,7 @@ class PF400Client(Node):
             if self.job_flag == False:
                 self.pf400.get_robot_movement_state()
                 self.pf400.get_overall_state()
+                self.get_logger().info("Refresh state")
         except Exception as err:
             self.state = "PF400 CONNECTION ERROR"
             self.get_logger().error(str(err))
@@ -129,7 +130,7 @@ class PF400Client(Node):
                 msg.data = 'State: %s' % self.state
                 self.statePub.publish(msg)
                 self.get_logger().info(msg.data)
-                
+
             elif self.pf400.robot_state == "ERROR":
                 self.state = "ERROR"
                 msg.data = 'State: %s' % self.state
