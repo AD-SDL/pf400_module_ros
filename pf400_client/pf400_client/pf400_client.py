@@ -88,6 +88,7 @@ class PF400Client(Node):
                 self.pf400.get_robot_movement_state()
                 self.pf400.get_overall_state()
                 self.get_logger().info("Refresh state")
+                self.state_refresher_timer = 0 
             
             if self.past_movement_state == self.movement_state:
                 self.state_refresher_timer += 1
