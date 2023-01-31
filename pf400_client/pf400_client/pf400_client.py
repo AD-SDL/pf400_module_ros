@@ -228,7 +228,7 @@ class PF400Client(Node):
 
         self.job_flag = True    
         # self.pf400.force_initialize_robot()
-        self.get_logger().info('Received Action: ' + request.action_handle)
+        self.get_logger().info('Received Action: ' + request.action_handle.upper())
 
         err=0
 
