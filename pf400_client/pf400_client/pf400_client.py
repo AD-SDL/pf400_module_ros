@@ -46,6 +46,7 @@ class PF400Client(Node):
         self.movement_state = -1
         self.past_movement_state = -1
         self.state_refresher_timer = 0
+
         self.connect_robot()
 
         action_cb_group = ReentrantCallbackGroup()
@@ -83,10 +84,11 @@ class PF400Client(Node):
     def robot_state_refresher_callback(self):
         "Refreshes the robot states if robot cannot update the state parameters automatically because it is not running any jobs"
         try:
-            if self.job_flag == False or self.state_refresher_timer > 20: #Only refresh the state manualy if robot is not running a job or has been stuck at a status for more than 20 refresh times.
+            if self.job_flag == False or self.state_refresher_timer > 30: #Only refresh the state manualy if robot is not running a job or has been stuck at a status for more than 20 refresh times.
                 self.pf400.get_robot_movement_state()
                 self.pf400.get_overall_state()
                 self.get_logger().info("Refresh state")
+                self.job_flag = False
             
             if self.past_movement_state == self.movement_state:
                 self.state_refresher_timer += 1
