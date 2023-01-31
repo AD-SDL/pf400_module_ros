@@ -14,7 +14,9 @@ def generate_launch_description():
   pkg_share = FindPackageShare(package='pf400_description').find('pf400_description')
   default_rviz_config_path = os.path.join(pkg_share, 'config/pf400_rviz_config.rviz')
   default_urdf_model_path = os.path.join(pkg_share, 'urdf/pf400_module.xacro') 
- 
+
+  ip = LaunchConfiguration('ip')
+  port = LaunchConfiguration('port')
   fake_hardware = LaunchConfiguration('fake_hardware')
   urdf_model = LaunchConfiguration('urdf_model')
   rviz_config_file = LaunchConfiguration('rviz_config_file')
@@ -22,11 +24,20 @@ def generate_launch_description():
   use_rviz = LaunchConfiguration('use_rviz')
   use_sim_time = LaunchConfiguration('use_sim_time')
  
+  declare_use_ip_cmd = DeclareLaunchArgument(
+    name='ip',
+    default_value="146.137.240.35",
+    description='Flag to accept ip address')
+
+  declare_use_port_cmd = DeclareLaunchArgument(
+    name='port',
+    default_value="10000",
+    description='Flag to accept port number')
+
   declare_urdf_model_path_cmd = DeclareLaunchArgument(
     name='urdf_model', 
     default_value=default_urdf_model_path, 
     description='Absolute path to robot urdf file')
-    
      
   declare_rviz_config_file_cmd = DeclareLaunchArgument(
     name='rviz_config_file',
@@ -53,7 +64,6 @@ def generate_launch_description():
     default_value='False',
     description='Use simulation (Gazebo) clock if true')
 
- 
   # A fake_hardware to manipulate the joint state values
   start_joint_state_publisher_fake_hardware_node = Node(
     condition=IfCondition(fake_hardware),
@@ -84,7 +94,12 @@ def generate_launch_description():
     package = "pf400_description",
     executable = 'pf400_description_client',
     name = 'PF400DescriptionNode',
-    output = 'screen'
+    output = 'screen',
+    parameters=[
+      {'ip':ip},
+      {'port':port}
+      ],
+    emulate_tty=True
   )
    
   # Create the launch description and populate
@@ -102,6 +117,8 @@ def generate_launch_description():
   ld.add_action(start_joint_state_publisher_fake_hardware_node)
   ld.add_action(start_robot_state_publisher_cmd)
   ld.add_action(start_rviz_cmd)
+  ld.add_action(declare_use_ip_cmd)
+  ld.add_action(declare_use_port_cmd)
   ld.add_action(start_pf400_description_client)
  
   return ld

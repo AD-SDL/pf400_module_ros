@@ -1,7 +1,4 @@
 error_codes = {
-        "0 7":"Power off - waiting for power request TRUE",
-        "0 20":"Power on - ready to have GPL attach robot",
-        "0 21":"21 GPL project attached to robot",
         "-1009":"*No robot attached*",
         "-1012":"*Joint out-of-range* Set robot joints within their range",
         "-1039":"*Position too close* Robot 1",
