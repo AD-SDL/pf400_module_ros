@@ -84,10 +84,13 @@ class PF400Client(Node):
     def robot_state_refresher_callback(self):
         "Refreshes the robot states if robot cannot update the state parameters automatically because it is not running any jobs"
         try:
+            # TODO: FIX the bug: When Action call and refresh state callback function is executed at the same time action call is being ignored.
+            # Refresh state callback runs "update state" functions while action_callback is running transfer and Network socket losses data when multiple commands were sent 
+
             if self.job_flag == False: #Only refresh the state manualy if robot is not running a job.
                 self.pf400.get_robot_movement_state()
                 self.pf400.get_overall_state()
-                self.get_logger().info("Refresh state")
+                # self.get_logger().info("Refresh state")
                 self.state_refresher_timer = 0 
             
             if self.past_movement_state == self.movement_state:
@@ -99,7 +102,7 @@ class PF400Client(Node):
             if self.state_refresher_timer > 25: # Refresh the state if robot has been stuck at a status for more than 25 refresh times.
                 self.pf400.get_robot_movement_state()
                 self.pf400.get_overall_state()
-                self.get_logger().info("Refresh state")
+                # self.get_logger().info("Refresh state, robot state is frozen...")
                 self.job_flag = False
 
         except Exception as err:
@@ -114,7 +117,7 @@ class PF400Client(Node):
 
         try:
             self.movement_state = self.pf400.movement_state
-            self.get_logger().warn("Move state: " + str(self.movement_state))
+            # self.get_logger().warn("Move state: " + str(self.movement_state))
 
         except Exception as err:
             self.get_logger().error("ROBOT IS NOT RESPONDING! ERROR: " + str(err))
