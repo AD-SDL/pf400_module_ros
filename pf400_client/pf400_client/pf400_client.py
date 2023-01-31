@@ -84,17 +84,22 @@ class PF400Client(Node):
     def robot_state_refresher_callback(self):
         "Refreshes the robot states if robot cannot update the state parameters automatically because it is not running any jobs"
         try:
-            if self.job_flag == False or self.state_refresher_timer > 30: #Only refresh the state manualy if robot is not running a job or has been stuck at a status for more than 20 refresh times.
+            if self.job_flag == False: #Only refresh the state manualy if robot is not running a job.
                 self.pf400.get_robot_movement_state()
                 self.pf400.get_overall_state()
                 self.get_logger().info("Refresh state")
-                self.job_flag = False
             
             if self.past_movement_state == self.movement_state:
                 self.state_refresher_timer += 1
             elif self.past_movement_state != self.movement_state:
                 self.past_movement_state = self.movement_state
                 self.state_refresher_timer = 0 
+
+            if self.state_refresher_timer > 25: # Refresh the state if robot has been stuck at a status for more than 25 refresh times.
+                self.pf400.get_robot_movement_state()
+                self.pf400.get_overall_state()
+                self.get_logger().info("Refresh state")
+                self.job_flag = False
 
         except Exception as err:
             # self.state = "PF400 CONNECTION ERROR"
@@ -109,7 +114,6 @@ class PF400Client(Node):
         try:
             self.movement_state = self.pf400.movement_state
             self.get_logger().warn("Move state: " + str(self.movement_state))
-            # self.pf400.get_overall_state()
 
         except Exception as err:
             self.get_logger().error("ROBOT IS NOT RESPONDING! ERROR: " + str(err))
@@ -129,7 +133,7 @@ class PF400Client(Node):
                 msg.data = 'State: %s' % self.state
                 self.statePub.publish(msg)
                 self.get_logger().warn(msg.data)
-                self.pf400.initialize_robot()
+                self.pf400.force_initialize_robot()
                 self.job_flag = False
 
             elif self.movement_state == 1 and self.job_flag == False:
