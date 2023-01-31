@@ -84,7 +84,7 @@ class PF400Client(Node):
                 self.pf400.get_overall_state()
                 self.get_logger().info("Refresh state")
         except Exception as err:
-            self.state = "PF400 CONNECTION ERROR"
+            # self.state = "PF400 CONNECTION ERROR"
             self.get_logger().error(str(err))
 
     def stateCallback(self):
