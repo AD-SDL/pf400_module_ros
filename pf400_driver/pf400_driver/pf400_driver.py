@@ -89,12 +89,12 @@ class PF400(KINEMATICS):
 		self.plate_width = 123
 		self.plate_source_rotation = 0 # 90 to rotate 90 degrees
 		self.plate_target_rotation = 0 # 90 to rotate 90 degrees
-		self.plate_ratation_deck = [143.479, -59.214, 122.877, 653.503, 82.069, 995.059]
-		self.plate_lid_deck = [143.479, -59.214, 122.877, 653.503, 82.069, 995.059] 
+		self.plate_ratation_deck = [160.485, 60.452, 234.133, 422.715, 81.916, 995.074]
+		self.plate_lid_deck = [144.485, 60.452, 234.133, 422.715, 81.916, 995.074] 
 		self.plate_camera_deck = [90.597,26.416, 66.422, 714.811, 81.916, 995.074] 
 		self.trash_bin = [218.457, -2.408, 38.829, 683.518, 89.109, 995.074]
  	 	
-
+# [143.479, -59.214, 122.877, 653.503, 82.069, 995.059]
 	def connect(self):
 		"""
 		Decription: Create a streaming socket to send string commands to the robot. 
@@ -451,14 +451,17 @@ class PF400(KINEMATICS):
 			- rotation_degree: 
 		"""
 		cartesian_coordinates, phi_angle, rail_pos = self.forward_kinematics(joint_states)
-
+		print(cartesian_coordinates)
 		# Fixing the orientation offset here
 		if rotation_degree == -90: # Yaw 90 to 0 degrees:
 			cartesian_coordinates[1] += 29
 			cartesian_coordinates[0] -= 3.5
-		elif rotation_degree == 90:
+		elif rotation_degree == 90 and cartesian_coordinates[1] > 0 :
 			cartesian_coordinates[1] -= 29
 			cartesian_coordinates[0] += 3.5
+		# elif rotation_degree == 90 and cartesian_coordinates[1] < 0 :
+			# cartesian_coordinates[1] += 29
+			# cartesian_coordinates[0] -= 3.5
 
 		if cartesian_coordinates[1] < 0:
 			#Location is on the right side of the robot
@@ -467,7 +470,7 @@ class PF400(KINEMATICS):
 			cartesian_coordinates[3] -= rotation_degree
 		
 		new_joint_angles = self.inverse_kinematics(cartesian_coordinates, phi_angle, rail_pos)
-		print(new_joint_angles)
+
 		return new_joint_angles
 		
 	def check_incorrect_plate_orientation(self, goal_location, goal_rotation):
@@ -798,7 +801,7 @@ class PF400(KINEMATICS):
 
 		# Ratating gripper to grab the plate from other rotation
 		target = self.set_plate_rotation(target, rotation_degree)
-		
+		print(target)
 		abovePos = list(map(add, target, self.above))
 		self.move_joint(abovePos, 1)
 		self.move_joint(target, 1, False, True)
@@ -906,8 +909,9 @@ if __name__ == "__main__":
 
 	thermocycler = [247.0, 40.698, 38.294, 728.332, 123.077, 301.082]
 	# robot.transfer(sciclops,OT2_alpha_deck_cooler,"narrow","wide")
-	# robot.move_all_joints_neutral()
-	robot.move_joint([143.479, 9.935946214614395, 289.63230548853096, 867.5977482968547, 123.0, 995.059])
+	robot.move_all_joints_neutral()
+	# robot.move_joint([160.485, 60.452, 234.133, 422.715, 81.916, 995.074])
+	robot.rotate_plate_on_deck(90)
 	# robot.transfer(OT2_alpha_deck_cooler,sciclops, "wide","narrow")
 
 	# robot.transfer(OT2_alpha_deck_cooler,sciclops, "wide","narrow")
@@ -941,6 +945,8 @@ if __name__ == "__main__":
 	# robot.transfer(loc2,pos1,0,0)
 	# robot.move_joint([262.55, -23.64349487517494, 347.28258625587307, 658.8289086193018, 123.0, 574.367])
 
+
 	#TODO
 	calculated_wrong_rotated_deck_location = [143.479, 9.935946214614395, 289.63230548853096, 867.5977482968547, 123.0, 995.059]
 	correct_rotated_deck_location = [143.721, -53.360, 86.801, 772.003, 70.820, 995.368]
+
