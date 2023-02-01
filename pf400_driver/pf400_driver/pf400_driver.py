@@ -89,7 +89,7 @@ class PF400(KINEMATICS):
 		self.plate_width = 123
 		self.plate_source_rotation = 0 # 90 to rotate 90 degrees
 		self.plate_target_rotation = 0 # 90 to rotate 90 degrees
-		self.plate_ratation_deck = [143.424, -26.352, 114.149, 629.002, 82.081, 995.105]
+		self.plate_ratation_deck = [155.424, -26.352, 114.149, 629.002, 82.081, 995.105]
 		self.plate_lid_deck = [143.424, -26.352, 114.149, 629.002, 82.081, 995.105] 
 		self.plate_camera_deck = [90.597,26.416, 66.422, 714.811, 81.916, 995.074] 
 		self.trash_bin = [218.457, -2.408, 38.829, 683.518, 89.109, 995.074]
@@ -453,23 +453,26 @@ class PF400(KINEMATICS):
 				inverse kinematics calculation will be calculated wrong!
 		"""
 		cartesian_coordinates, phi_angle, rail_pos = self.forward_kinematics(joint_states)
-		print(cartesian_coordinates)
+		# print(cartesian_coordinates)
 		# Fixing the orientation offset here
 		if rotation_degree == -90: # Yaw 90 to 0 degrees:
-			cartesian_coordinates[1] += 29
-			cartesian_coordinates[0] -= 3.5
-		elif rotation_degree == 90 and cartesian_coordinates[1] > 0 :
-			cartesian_coordinates[1] -= 29
-			cartesian_coordinates[0] += 3.5
+			cartesian_coordinates[1] += 4
+			cartesian_coordinates[0] -= 22
+		elif rotation_degree == 90 :
+			cartesian_coordinates[1] -= 4
+			cartesian_coordinates[0] -= 22
 		# elif rotation_degree == 90 and cartesian_coordinates[1] < 0 :
 		# 	cartesian_coordinates[1] += 5
 		# 	cartesian_coordinates[0] += 1.5
-
-		if cartesian_coordinates[1] < 0:
+		print(cartesian_coordinates[1])
+		print(joint_states[1])
+		if (cartesian_coordinates[1] < 0 and joint_states[1] > 0) or (cartesian_coordinates[1] > 0 and joint_states[1] > 0):
 			#Location is on the right side of the robot
 			cartesian_coordinates[3] += rotation_degree
-		elif cartesian_coordinates[1] > 0:
+			print("there")
+		elif (cartesian_coordinates[1] > 0 and joint_states[1] < 0) or (cartesian_coordinates[1] < 0 and joint_states[1] < 0):
 			cartesian_coordinates[3] -= rotation_degree
+			print("Here")
 		print(cartesian_coordinates)
 		new_joint_angles = self.inverse_kinematics(cartesian_coordinates, phi_angle, rail_pos)
 
@@ -910,10 +913,10 @@ if __name__ == "__main__":
  	 	 	 	 	 	 	 	 
 
 	thermocycler = [247.0, 40.698, 38.294, 728.332, 123.077, 301.082]
-	robot.transfer(sciclops,OT2_alpha_deck_cooler,"narrow","wide")
+	# robot.transfer(sciclops,OT2_alpha_deck_cooler,"narrow","wide")
 	# robot.move_all_joints_neutral()
 	# robot.move_joint([160.485, 60.452, 234.133, 422.715, 81.916, 995.074])
-	# robot.rotate_plate_on_deck(90)
+	robot.rotate_plate_on_deck(90)
 	# robot.transfer(OT2_alpha_deck_cooler,sciclops, "wide","narrow")
 
 	# robot.transfer(OT2_alpha_deck_cooler,sciclops, "wide","narrow")
