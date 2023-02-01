@@ -89,8 +89,8 @@ class PF400(KINEMATICS):
 		self.plate_width = 123
 		self.plate_source_rotation = 0 # 90 to rotate 90 degrees
 		self.plate_target_rotation = 0 # 90 to rotate 90 degrees
-		self.plate_ratation_deck = [145.0, -26.352, 114.149, 629.002, 82.081, 995.105]
-		self.plate_lid_deck = [145.0, -26.352, 114.149, 629.002, 82.081, 995.105] 
+		self.plate_ratation_deck = [144.5, -26.352, 114.149, 629.002, 82.081, 995.105]
+		self.plate_lid_deck = [144.5, -26.352, 114.149, 629.002, 82.081, 995.105] 
 		self.plate_camera_deck = [90.597,26.416, 66.422, 714.811, 81.916, 995.074] 
 		self.trash_bin = [218.457, -2.408, 38.829, 683.518, 89.109, 995.074]
  	 	
@@ -911,7 +911,7 @@ if __name__ == "__main__":
  	 	 	 	 	 	 	 	 
 
 	thermocycler = [247.0, 40.698, 38.294, 728.332, 123.077, 301.082]
-	robot.transfer(sciclops,OT2_alpha_deck_cooler,"narrow","wide")
+	# robot.transfer(sciclops,OT2_alpha_deck_cooler,"narrow","wide")
 	# robot.move_all_joints_neutral()
 	# robot.move_joint([160.485, 60.452, 234.133, 422.715, 81.916, 995.074])
 	# robot.rotate_plate_on_deck(90)
@@ -947,9 +947,3 @@ if __name__ == "__main__":
 	# robot.transfer(thermo2, pos1 ,"wide","narrow")
 	# robot.transfer(loc2,pos1,0,0)
 	# robot.move_joint([262.55, -23.64349487517494, 347.28258625587307, 658.8289086193018, 123.0, 574.367])
-
-
-	#TODO
-	calculated_wrong_rotated_deck_location = [143.479, 9.935946214614395, 289.63230548853096, 867.5977482968547, 123.0, 995.059]
-	correct_rotated_deck_location = [143.721, -53.360, 86.801, 772.003, 70.820, 995.368]
-
