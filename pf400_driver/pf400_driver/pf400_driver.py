@@ -89,12 +89,11 @@ class PF400(KINEMATICS):
 		self.plate_width = 123
 		self.plate_source_rotation = 0 # 90 to rotate 90 degrees
 		self.plate_target_rotation = 0 # 90 to rotate 90 degrees
-		self.plate_ratation_deck = [155.424, -26.352, 114.149, 629.002, 82.081, 995.105]
-		self.plate_lid_deck = [143.424, -26.352, 114.149, 629.002, 82.081, 995.105] 
+		self.plate_ratation_deck = [145.0, -26.352, 114.149, 629.002, 82.081, 995.105]
+		self.plate_lid_deck = [145.0, -26.352, 114.149, 629.002, 82.081, 995.105] 
 		self.plate_camera_deck = [90.597,26.416, 66.422, 714.811, 81.916, 995.074] 
 		self.trash_bin = [218.457, -2.408, 38.829, 683.518, 89.109, 995.074]
  	 	
-# [143.479, -59.214, 122.877, 653.503, 82.069, 995.059]
 	def connect(self):
 		"""
 		Decription: Create a streaming socket to send string commands to the robot. 
@@ -469,10 +468,8 @@ class PF400(KINEMATICS):
 		if (cartesian_coordinates[1] < 0 and joint_states[1] > 0) or (cartesian_coordinates[1] > 0 and joint_states[1] > 0):
 			#Location is on the right side of the robot
 			cartesian_coordinates[3] += rotation_degree
-			print("there")
 		elif (cartesian_coordinates[1] > 0 and joint_states[1] < 0) or (cartesian_coordinates[1] < 0 and joint_states[1] < 0):
 			cartesian_coordinates[3] -= rotation_degree
-			print("Here")
 		print(cartesian_coordinates)
 		new_joint_angles = self.inverse_kinematics(cartesian_coordinates, phi_angle, rail_pos)
 
@@ -798,7 +795,7 @@ class PF400(KINEMATICS):
 		self.move_joint(abovePos, 1)
 		self.move_joint(target, 1)
 		self.release_plate()
-		self.move_in_one_axis(profile = 1, axis_x = 0, axis_y = 0, axis_z = 60)
+		self.move_in_one_axis(profile = 1, axis_x = 0, axis_y = 0, axis_z = 100)
 		
 		# Fixing the offset on the z axis for OT2
 		if rotation_degree == -90 :	
@@ -913,10 +910,10 @@ if __name__ == "__main__":
  	 	 	 	 	 	 	 	 
 
 	thermocycler = [247.0, 40.698, 38.294, 728.332, 123.077, 301.082]
-	# robot.transfer(sciclops,OT2_alpha_deck_cooler,"narrow","wide")
+	robot.transfer(sciclops,OT2_alpha_deck_cooler,"narrow","wide")
 	# robot.move_all_joints_neutral()
 	# robot.move_joint([160.485, 60.452, 234.133, 422.715, 81.916, 995.074])
-	robot.rotate_plate_on_deck(90)
+	# robot.rotate_plate_on_deck(90)
 	# robot.transfer(OT2_alpha_deck_cooler,sciclops, "wide","narrow")
 
 	# robot.transfer(OT2_alpha_deck_cooler,sciclops, "wide","narrow")
