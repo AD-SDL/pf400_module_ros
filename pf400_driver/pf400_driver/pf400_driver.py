@@ -906,6 +906,7 @@ if __name__ == "__main__":
 
 	thermocycler = [247.0, 40.698, 38.294, 728.332, 123.077, 301.082]
 	# robot.transfer(sciclops,OT2_alpha_deck_cooler,"narrow","wide")
+	# robot.move_all_joints_neutral()
 	robot.move_joint([143.479, 9.935946214614395, 289.63230548853096, 867.5977482968547, 123.0, 995.059])
 	# robot.transfer(OT2_alpha_deck_cooler,sciclops, "wide","narrow")
 
@@ -940,5 +941,6 @@ if __name__ == "__main__":
 	# robot.transfer(loc2,pos1,0,0)
 	# robot.move_joint([262.55, -23.64349487517494, 347.28258625587307, 658.8289086193018, 123.0, 574.367])
 
-
-
+	#TODO
+	calculated_wrong_rotated_deck_location = [143.479, 9.935946214614395, 289.63230548853096, 867.5977482968547, 123.0, 995.059]
+	correct_rotated_deck_location = [143.721, -53.360, 86.801, 772.003, 70.820, 995.368]
