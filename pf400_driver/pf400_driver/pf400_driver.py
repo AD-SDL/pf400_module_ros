@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import rclpy
+# import rclpy
 import profile
 import telnetlib
 import threading
@@ -10,10 +10,10 @@ import math
 from operator import add
 from time import sleep
 
-from pf400_driver.pf400_motion_profiles import motion_profiles
-from pf400_driver.pf400_error_codes import error_codes
-from pf400_driver.pf400_output_codes import output_codes
-from pf400_driver.pf400_kinematics import KINEMATICS
+from pf400_motion_profiles import motion_profiles
+from pf400_error_codes import error_codes
+from pf400_output_codes import output_codes
+from pf400_kinematics import KINEMATICS
 
 class PF400(KINEMATICS):
 	commandLock = threading.Lock()
@@ -43,9 +43,6 @@ class PF400(KINEMATICS):
 		# Default Motion Profile Paramiters. Using two profiles for faster and slower movements
 		self.motion_profiles = motion_profiles
 
-		# Output code list of the PF400
-		self.output_codes = output_codes
-
 		# Robot State
 		self.power_state = "0"
 		self.attach_state = "0"
@@ -63,7 +60,6 @@ class PF400(KINEMATICS):
 
 		self.movement_state = self.get_robot_movement_state()
 		self.robot_state = "Normal"	
-		self.robot_error_msg = ""
 
 		# Gripper variables
 		self.gripper_open_state = 130.0
@@ -123,26 +119,17 @@ class PF400(KINEMATICS):
 
 			self.get_robot_movement_state()
 			if self.movement_state > 1:
-
-				# print("Waiting for robot movement to end before sending the new command") 	# CASUING TO MANY MESSAGES TO BE PRINTED. UNCOMMENT IF NEEDED
+				print("Waiting for robot movement to end before sending the new command")
 				while self.movement_state > 1:
 					self.get_robot_movement_state()
 
-			# print(">> " + command)
+			print(">> " + command)
 			self.connection.write((command.encode("ascii") + b"\n"))
 			response = self.connection.read_until(b"\r\n").rstrip().decode("ascii")
-
 			if response != "" and response in self.error_codes:
 				self.handle_error_output(response)
 			else:
-				# CASUING TO MANY MESSAGES TO BE PRINTED. UNCOMMENT IF NEEDED
-				if response in self.output_codes:
-					# print("<< " + self.output_codes[response])
-					pass
-				else:
-					# print("<< "+ response) 
-					pass
-
+				print("<< "+ response)
 				self.robot_state = "Normal"
 
 			return response		
@@ -158,16 +145,13 @@ class PF400(KINEMATICS):
         """
 		if not self.connection:
 			self.Connect()
-
-
-		if self.mode == 1:
+		if self.mode == 0:
+			# Set TCS to nonverbose
+			self.connection.write(("mode 0".encode("ascii") + b"\n"))
+		else:
 			# Set TCS to verbose
 			self.connection.write(("mode 1".encode("ascii") + b"\n"))
 			self.send_command("selectrobot 1")
-		else:
-			# Set TCS to nonverbose
-			self.connection.write(("mode 0".encode("ascii") + b"\n"))
-			print("Setting connection mode to 0")
 			
 		init_mode = self.connection.read_until(b"\r\n").rstrip().decode("ascii")
 
@@ -177,10 +161,8 @@ class PF400(KINEMATICS):
 		"""
 		if output in self.error_codes:
 			print("<< " + self.error_codes[output])
-			self.robot_error_msg = self.error_codes[output]
 		else:
 			print("<< TCS Unknown error: " + output)
-			self.robot_error_msg = output
 
 		self.robot_state = "ERROR"
 
@@ -262,8 +244,6 @@ class PF400(KINEMATICS):
 			print("Robot initialization successfull")
 		else:
 			print("Robot initialization failed")
-			self.robot_state = "ERROR"
-			self.robot_error_msg = "Robot initialization failed"
 
 	def force_initialize_robot(self):
 		"""
@@ -326,18 +306,18 @@ class PF400(KINEMATICS):
 			"""
 			Decription: Checks general state
 			"""
-	
-			self.connection.write(("hp".encode("ascii") + b"\n"))
-			power_msg = self.connection.read_until(b"\r\n").rstrip().decode("ascii").split(" ")
 
-			self.connection.write(("attach".encode("ascii") + b"\n"))
-			attach_msg = self.connection.read_until(b"\r\n").rstrip().decode("ascii").split(" ")
+			power_msg = self.send_command("hp").split(" ")
+			# power_msg = power_msg.split(" ")
 
-			self.connection.write(("pd 2800".encode("ascii") + b"\n"))
-			home_msg = self.connection.read_until(b"\r\n").rstrip().decode("ascii").split(" ")
+			attach_msg = self.send_command("attach").split(" ")
+			# attach_msg = attach_msg.split(" ")
 
-			self.connection.write(("sysState".encode("ascii") + b"\n"))
-			state_msg = self.connection.read_until(b"\r\n").rstrip().decode("ascii").split(" ")
+			home_msg = self.send_command("pd 2800").split(" ")
+			# home_msg = home_msg.split(" ")
+
+			state_msg = self.send_command("sysState").split(" ")
+			# state_msg = state_msg.split(" ")
 
 			if len(power_msg) == 1 or power_msg[0].find("-") != -1 or power_msg[1] == "0":
 				self.power_state = "-1"
@@ -359,8 +339,7 @@ class PF400(KINEMATICS):
 			else: 
 				self.initialization_state = state_msg[1]
 
-			# CASUING TO MANY MESSAGES TO BE PRINTED. UNCOMMENT IF NEEDED
-			# print("Power: " + self.power_state + " Attach: " + self.attach_state + " Home: " + self.home_state + " Robot State: " + self.initialization_state)
+			print("Power: " + self.power_state + " Attach: " + self.attach_state + " Home: " + self.home_state + " Robot State: " + self.initialization_state)
 
 			if self.power_state == "-1" or self.attach_state == "-1" or self.home_state == "-1" or self.initialization_state == "-1":
 				return -1
@@ -591,15 +570,13 @@ class PF400(KINEMATICS):
 			return
 
 		elif grab_plate_status[1] == "-1":
-
-			# print("Plate is grabed") 				# CASUING TO MANY MESSAGES TO BE PRINTED. UNCOMMENT IF NEEDED
+			print("Plate is grabed")
 			self.plate_state = 1
 			# self.gripper_closed_state = width
 			# self.set_gripper_close()
 
 		elif grab_plate_status[1] == "0" and width > 80: # Do not try smaller width 
-			
-			# print("No plate") 	# CASUING TO MANY MESSAGES TO BE PRINTED. UNCOMMENT IF NEEDED
+			print("No plate") 
 			width -= 1
 			self.grab_plate(width,speed,force)
 
@@ -627,8 +604,7 @@ class PF400(KINEMATICS):
 		if release_plate_status[0] == "1":
 			print("Plate is not released")
 		elif release_plate_status[0] == "0":
-			# CASUING TO MANY MESSAGES TO BE PRINTED. UNCOMMENT IF NEEDED
-			# print("Plate is released") 
+			print("Plate is released") 
 			self.plate_state = 0
 
 		return release_plate_status
@@ -892,7 +868,7 @@ class PF400(KINEMATICS):
 if __name__ == "__main__":
  
 	# from pf400_driver.pf400_driver import PF400
-	robot = PF400("192.168.50.50", 10100)
+	robot = PF400()
 
 	sciclops = [222.0, -38.068, 335.876, 325.434, 79.923, 995.062]
 	sealer = [201.128, -2.814, 264.373, 365.863, 79.144, 411.553]
