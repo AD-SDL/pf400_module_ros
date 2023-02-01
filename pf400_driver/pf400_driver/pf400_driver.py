@@ -85,11 +85,11 @@ class PF400(KINEMATICS):
 		self.plate_width = 123
 		self.plate_source_rotation = 0 # 90 to rotate 90 degrees
 		self.plate_target_rotation = 0 # 90 to rotate 90 degrees
-		self.plate_ratation_deck = [201.086, 37.732, 95.591, 673.245, 80.017, 985.091] 
-		self.plate_lid_deck = [201.086, 37.732, 95.591, 673.245, 80.017, 985.097] 
-		self.plate_camera_deck = [94.0, 29.226, 72.895, 705.537, 79.22, 985.122] 
-
-
+		self.plate_ratation_deck = [144.5, -26.352, 114.149, 629.002, 82.081, 995.105]
+		self.plate_lid_deck = [144.5, -26.352, 114.149, 629.002, 82.081, 995.105] 
+		self.plate_camera_deck = [90.597,26.416, 66.422, 714.811, 81.916, 995.074] 
+		self.trash_bin = [218.457, -2.408, 38.829, 683.518, 89.109, 995.074]
+ 	 	
 	def connect(self):
 		"""
 		Decription: Create a streaming socket to send string commands to the robot. 
@@ -427,23 +427,35 @@ class PF400(KINEMATICS):
 		Parameters:
 			- joint_states:
 			- rotation_degree: 
+		Note: If the rotation requires changing the "Quadrant" on the coordinate plane, 
+				inverse kinematics calculation will be calculated wrong!
 		"""
 		cartesian_coordinates, phi_angle, rail_pos = self.forward_kinematics(joint_states)
-
+		# print(cartesian_coordinates)
 		# Fixing the orientation offset here
 		if rotation_degree == -90: # Yaw 90 to 0 degrees:
-			cartesian_coordinates[1] += 29
-			cartesian_coordinates[0] -= 3.5
-		elif rotation_degree == 90:
-			cartesian_coordinates[1] -= 29
-			cartesian_coordinates[0] += 3.5
+			cartesian_coordinates[1] += 4
+			cartesian_coordinates[0] += 29
+			print("here")
+		elif rotation_degree == 90 :
+			cartesian_coordinates[1] -= 4
+			cartesian_coordinates[0] -= 29
 
-		if cartesian_coordinates[1] < 0:
+		# print(cartesian_coordinates[1])
+		# print(joint_states[1])
+
+		if cartesian_coordinates[1] < 0 :
 			#Location is on the right side of the robot
 			cartesian_coordinates[3] += rotation_degree
-		elif cartesian_coordinates[1] > 0:
+		elif cartesian_coordinates[1] > 0 and joint_states[1]:
 			cartesian_coordinates[3] -= rotation_degree
-		
+
+		# if (cartesian_coordinates[1] < 0 and joint_states[1] > 0) or (cartesian_coordinates[1] > 0 and joint_states[1] > 0):
+		# 	#Location is on the right side of the robot
+		# 	cartesian_coordinates[3] += rotation_degree
+		# elif (cartesian_coordinates[1] > 0 and joint_states[1] < 0) or (cartesian_coordinates[1] < 0 and joint_states[1] < 0):
+		# 	cartesian_coordinates[3] -= rotation_degree
+
 		new_joint_angles = self.inverse_kinematics(cartesian_coordinates, phi_angle, rail_pos)
 
 		return new_joint_angles
@@ -766,14 +778,15 @@ class PF400(KINEMATICS):
 		self.move_joint(target, 1)
 		self.release_plate()
 		self.move_in_one_axis(profile = 1, axis_x = 0, axis_y = 0, axis_z = 60)
-		
-		# Fixing the offset on the z axis
+		self.gripper_open()
+
+		# Fixing the offset on the z axis for OT2
 		if rotation_degree == -90 :	
 			target[0] -= 5 #Setting vertical rail 5 mm lower
 
-		# Ratating gripper to grab the plate from other rotation
+		# Rotating gripper to grab the plate from other rotation
 		target = self.set_plate_rotation(target, rotation_degree)
-		
+		# print(target)
 		abovePos = list(map(add, target, self.above))
 		self.move_joint(abovePos, 1)
 		self.move_joint(target, 1, False, True)
@@ -876,10 +889,15 @@ if __name__ == "__main__":
  	
 	OT2_betha_deck_2 = [163.230, -59.032, 270.965, 415.013, 129.982, -951.510]
 	OT2_alpha_deck_cooler = [247.999, -30.702, 275.835, 381.513, 124.830, -585.403]
- 	 	 	 	 	 
+ 	 	
+	gamma = [161.481, 60.986, 88.774, 657.358, 124.091, -951.510] 	 	 	 	 	 	 	 
 
 	thermocycler = [247.0, 40.698, 38.294, 728.332, 123.077, 301.082]
+	# robot.transfer(gamma, robot.plate_camera_deck, "wide", "narrow")
 	# robot.transfer(sciclops,OT2_alpha_deck_cooler,"narrow","wide")
+	# robot.move_all_joints_neutral()
+	# robot.move_joint([160.485, 60.452, 234.133, 422.715, 81.916, 995.074])
+	robot.rotate_plate_on_deck(-90)
 	# robot.transfer(OT2_alpha_deck_cooler,sciclops, "wide","narrow")
 
 	# robot.transfer(OT2_alpha_deck_cooler,sciclops, "wide","narrow")
@@ -912,6 +930,3 @@ if __name__ == "__main__":
 	# robot.transfer(thermo2, pos1 ,"wide","narrow")
 	# robot.transfer(loc2,pos1,0,0)
 	# robot.move_joint([262.55, -23.64349487517494, 347.28258625587307, 658.8289086193018, 123.0, 574.367])
-
-
-
