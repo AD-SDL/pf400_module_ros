@@ -456,10 +456,10 @@ class PF400(KINEMATICS):
 		# Fixing the orientation offset here
 		if rotation_degree == -90: # Yaw 90 to 0 degrees:
 			cartesian_coordinates[1] += 4
-			cartesian_coordinates[0] -= 22
+			cartesian_coordinates[0] -= 29
 		elif rotation_degree == 90 :
 			cartesian_coordinates[1] -= 4
-			cartesian_coordinates[0] -= 22
+			cartesian_coordinates[0] -= 29
 		# elif rotation_degree == 90 and cartesian_coordinates[1] < 0 :
 		# 	cartesian_coordinates[1] += 5
 		# 	cartesian_coordinates[0] += 1.5
@@ -795,8 +795,9 @@ class PF400(KINEMATICS):
 		self.move_joint(abovePos, 1)
 		self.move_joint(target, 1)
 		self.release_plate()
-		self.move_in_one_axis(profile = 1, axis_x = 0, axis_y = 0, axis_z = 100)
-		
+		self.move_in_one_axis(profile = 1, axis_x = 0, axis_y = 0, axis_z = 60)
+		self.gripper_open()
+
 		# Fixing the offset on the z axis for OT2
 		if rotation_degree == -90 :	
 			target[0] -= 5 #Setting vertical rail 5 mm lower
