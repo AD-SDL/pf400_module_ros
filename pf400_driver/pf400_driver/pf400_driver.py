@@ -76,7 +76,7 @@ class PF400(KINEMATICS):
 		self.module_right_dist = 350.0
 
 		# Sample variables
-		self.sample_above_height = 60.0
+		self.sample_above_height = 100.0
 		self.above = [self.sample_above_height,0,0,0,0,0]
 		self.y_recoil = 300.0	
 
