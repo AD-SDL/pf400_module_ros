@@ -89,7 +89,7 @@ class PF400(KINEMATICS):
 		self.plate_width = 123
 		self.plate_source_rotation = 0 # 90 to rotate 90 degrees
 		self.plate_target_rotation = 0 # 90 to rotate 90 degrees
-		self.plate_ratation_deck = [160.485, 60.452, 234.133, 422.715, 81.916, 995.074]
+		self.plate_ratation_deck = [165.485, 60.452, 234.133, 422.715, 81.916, 995.074]
 		self.plate_lid_deck = [144.485, 60.452, 234.133, 422.715, 81.916, 995.074] 
 		self.plate_camera_deck = [90.597,26.416, 66.422, 714.811, 81.916, 995.074] 
 		self.trash_bin = [218.457, -2.408, 38.829, 683.518, 89.109, 995.074]
@@ -449,6 +449,8 @@ class PF400(KINEMATICS):
 		Parameters:
 			- joint_states:
 			- rotation_degree: 
+		Note: If the rotation requires changing the "Quadrant" on the coordinate plane, 
+				inverse kinematics calculation will be calculated wrong!
 		"""
 		cartesian_coordinates, phi_angle, rail_pos = self.forward_kinematics(joint_states)
 		print(cartesian_coordinates)
@@ -459,16 +461,16 @@ class PF400(KINEMATICS):
 		elif rotation_degree == 90 and cartesian_coordinates[1] > 0 :
 			cartesian_coordinates[1] -= 29
 			cartesian_coordinates[0] += 3.5
-		# elif rotation_degree == 90 and cartesian_coordinates[1] < 0 :
-			# cartesian_coordinates[1] += 29
-			# cartesian_coordinates[0] -= 3.5
+		elif rotation_degree == 90 and cartesian_coordinates[1] < 0 :
+			cartesian_coordinates[1] += 5
+			cartesian_coordinates[0] += 1.5
 
 		if cartesian_coordinates[1] < 0:
 			#Location is on the right side of the robot
 			cartesian_coordinates[3] += rotation_degree
 		elif cartesian_coordinates[1] > 0:
 			cartesian_coordinates[3] -= rotation_degree
-		
+		print(cartesian_coordinates)
 		new_joint_angles = self.inverse_kinematics(cartesian_coordinates, phi_angle, rail_pos)
 
 		return new_joint_angles
@@ -795,13 +797,13 @@ class PF400(KINEMATICS):
 		self.release_plate()
 		self.move_in_one_axis(profile = 1, axis_x = 0, axis_y = 0, axis_z = 60)
 		
-		# Fixing the offset on the z axis
+		# Fixing the offset on the z axis for OT2
 		if rotation_degree == -90 :	
 			target[0] -= 5 #Setting vertical rail 5 mm lower
 
-		# Ratating gripper to grab the plate from other rotation
+		# Rotating gripper to grab the plate from other rotation
 		target = self.set_plate_rotation(target, rotation_degree)
-		print(target)
+		# print(target)
 		abovePos = list(map(add, target, self.above))
 		self.move_joint(abovePos, 1)
 		self.move_joint(target, 1, False, True)
