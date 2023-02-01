@@ -10,10 +10,10 @@ import math
 from operator import add
 from time import sleep
 
-from pf400_driver.pf400_motion_profiles import motion_profiles
-from pf400_driver.pf400_error_codes import error_codes
-from pf400_driver.pf400_output_codes import output_codes
-from pf400_driver.pf400_kinematics import KINEMATICS
+from pf400_motion_profiles import motion_profiles
+from pf400_error_codes import error_codes
+from pf400_output_codes import output_codes
+from pf400_kinematics import KINEMATICS
 
 class PF400(KINEMATICS):
 	commandLock = threading.Lock()
@@ -89,10 +89,11 @@ class PF400(KINEMATICS):
 		self.plate_width = 123
 		self.plate_source_rotation = 0 # 90 to rotate 90 degrees
 		self.plate_target_rotation = 0 # 90 to rotate 90 degrees
-		self.plate_ratation_deck = [201.086, 37.732, 95.591, 673.245, 80.017, 985.091] 
-		self.plate_lid_deck = [201.086, 37.732, 95.591, 673.245, 80.017, 985.097] 
-		self.plate_camera_deck = [94.0, 29.226, 72.895, 705.537, 79.22, 985.122] 
-
+		self.plate_ratation_deck = [143.479, -59.214, 122.877, 653.503, 82.069, 995.059]
+		self.plate_lid_deck = [143.479, -59.214, 122.877, 653.503, 82.069, 995.059] 
+		self.plate_camera_deck = [90.597,26.416, 66.422, 714.811, 81.916, 995.074] 
+		self.trash_bin = [218.457, -2.408, 38.829, 683.518, 89.109, 995.074]
+ 	 	
 
 	def connect(self):
 		"""
@@ -466,7 +467,7 @@ class PF400(KINEMATICS):
 			cartesian_coordinates[3] -= rotation_degree
 		
 		new_joint_angles = self.inverse_kinematics(cartesian_coordinates, phi_angle, rail_pos)
-
+		print(new_joint_angles)
 		return new_joint_angles
 		
 	def check_incorrect_plate_orientation(self, goal_location, goal_rotation):
@@ -892,7 +893,7 @@ class PF400(KINEMATICS):
 if __name__ == "__main__":
  
 	# from pf400_driver.pf400_driver import PF400
-	robot = PF400("192.168.50.50", 10100)
+	robot = PF400()
 
 	sciclops = [222.0, -38.068, 335.876, 325.434, 79.923, 995.062]
 	sealer = [201.128, -2.814, 264.373, 365.863, 79.144, 411.553]
@@ -900,10 +901,12 @@ if __name__ == "__main__":
  	
 	OT2_betha_deck_2 = [163.230, -59.032, 270.965, 415.013, 129.982, -951.510]
 	OT2_alpha_deck_cooler = [247.999, -30.702, 275.835, 381.513, 124.830, -585.403]
- 	 	 	 	 	 
+ 	 	
+ 	 	 	 	 	 	 	 	 
 
 	thermocycler = [247.0, 40.698, 38.294, 728.332, 123.077, 301.082]
 	# robot.transfer(sciclops,OT2_alpha_deck_cooler,"narrow","wide")
+	robot.move_joint([143.479, 9.935946214614395, 289.63230548853096, 867.5977482968547, 123.0, 995.059])
 	# robot.transfer(OT2_alpha_deck_cooler,sciclops, "wide","narrow")
 
 	# robot.transfer(OT2_alpha_deck_cooler,sciclops, "wide","narrow")
