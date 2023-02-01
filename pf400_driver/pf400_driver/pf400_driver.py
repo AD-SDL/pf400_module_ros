@@ -89,8 +89,8 @@ class PF400(KINEMATICS):
 		self.plate_width = 123
 		self.plate_source_rotation = 0 # 90 to rotate 90 degrees
 		self.plate_target_rotation = 0 # 90 to rotate 90 degrees
-		self.plate_ratation_deck = [165.485, 60.452, 234.133, 422.715, 81.916, 995.074]
-		self.plate_lid_deck = [144.485, 60.452, 234.133, 422.715, 81.916, 995.074] 
+		self.plate_ratation_deck = [143.424, -26.352, 114.149, 629.002, 82.081, 995.105]
+		self.plate_lid_deck = [143.424, -26.352, 114.149, 629.002, 82.081, 995.105] 
 		self.plate_camera_deck = [90.597,26.416, 66.422, 714.811, 81.916, 995.074] 
 		self.trash_bin = [218.457, -2.408, 38.829, 683.518, 89.109, 995.074]
  	 	
@@ -461,9 +461,9 @@ class PF400(KINEMATICS):
 		elif rotation_degree == 90 and cartesian_coordinates[1] > 0 :
 			cartesian_coordinates[1] -= 29
 			cartesian_coordinates[0] += 3.5
-		elif rotation_degree == 90 and cartesian_coordinates[1] < 0 :
-			cartesian_coordinates[1] += 5
-			cartesian_coordinates[0] += 1.5
+		# elif rotation_degree == 90 and cartesian_coordinates[1] < 0 :
+		# 	cartesian_coordinates[1] += 5
+		# 	cartesian_coordinates[0] += 1.5
 
 		if cartesian_coordinates[1] < 0:
 			#Location is on the right side of the robot
@@ -910,10 +910,10 @@ if __name__ == "__main__":
  	 	 	 	 	 	 	 	 
 
 	thermocycler = [247.0, 40.698, 38.294, 728.332, 123.077, 301.082]
-	# robot.transfer(sciclops,OT2_alpha_deck_cooler,"narrow","wide")
-	robot.move_all_joints_neutral()
+	robot.transfer(sciclops,OT2_alpha_deck_cooler,"narrow","wide")
+	# robot.move_all_joints_neutral()
 	# robot.move_joint([160.485, 60.452, 234.133, 422.715, 81.916, 995.074])
-	robot.rotate_plate_on_deck(90)
+	# robot.rotate_plate_on_deck(90)
 	# robot.transfer(OT2_alpha_deck_cooler,sciclops, "wide","narrow")
 
 	# robot.transfer(OT2_alpha_deck_cooler,sciclops, "wide","narrow")
