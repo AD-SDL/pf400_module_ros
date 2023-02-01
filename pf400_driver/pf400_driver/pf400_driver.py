@@ -456,21 +456,27 @@ class PF400(KINEMATICS):
 		# Fixing the orientation offset here
 		if rotation_degree == -90: # Yaw 90 to 0 degrees:
 			cartesian_coordinates[1] += 4
-			cartesian_coordinates[0] -= 29
+			cartesian_coordinates[0] += 29
+			print("here")
 		elif rotation_degree == 90 :
 			cartesian_coordinates[1] -= 4
 			cartesian_coordinates[0] -= 29
-		# elif rotation_degree == 90 and cartesian_coordinates[1] < 0 :
-		# 	cartesian_coordinates[1] += 5
-		# 	cartesian_coordinates[0] += 1.5
-		print(cartesian_coordinates[1])
-		print(joint_states[1])
-		if (cartesian_coordinates[1] < 0 and joint_states[1] > 0) or (cartesian_coordinates[1] > 0 and joint_states[1] > 0):
+
+		# print(cartesian_coordinates[1])
+		# print(joint_states[1])
+
+		if cartesian_coordinates[1] < 0 :
 			#Location is on the right side of the robot
 			cartesian_coordinates[3] += rotation_degree
-		elif (cartesian_coordinates[1] > 0 and joint_states[1] < 0) or (cartesian_coordinates[1] < 0 and joint_states[1] < 0):
+		elif cartesian_coordinates[1] > 0 and joint_states[1]:
 			cartesian_coordinates[3] -= rotation_degree
-		print(cartesian_coordinates)
+
+		# if (cartesian_coordinates[1] < 0 and joint_states[1] > 0) or (cartesian_coordinates[1] > 0 and joint_states[1] > 0):
+		# 	#Location is on the right side of the robot
+		# 	cartesian_coordinates[3] += rotation_degree
+		# elif (cartesian_coordinates[1] > 0 and joint_states[1] < 0) or (cartesian_coordinates[1] < 0 and joint_states[1] < 0):
+		# 	cartesian_coordinates[3] -= rotation_degree
+
 		new_joint_angles = self.inverse_kinematics(cartesian_coordinates, phi_angle, rail_pos)
 
 		return new_joint_angles
@@ -908,13 +914,14 @@ if __name__ == "__main__":
 	OT2_betha_deck_2 = [163.230, -59.032, 270.965, 415.013, 129.982, -951.510]
 	OT2_alpha_deck_cooler = [247.999, -30.702, 275.835, 381.513, 124.830, -585.403]
  	 	
- 	 	 	 	 	 	 	 	 
+	gamma = [161.481, 60.986, 88.774, 657.358, 124.091, -951.510] 	 	 	 	 	 	 	 
 
 	thermocycler = [247.0, 40.698, 38.294, 728.332, 123.077, 301.082]
+	# robot.transfer(gamma, robot.plate_camera_deck, "wide", "narrow")
 	# robot.transfer(sciclops,OT2_alpha_deck_cooler,"narrow","wide")
 	# robot.move_all_joints_neutral()
 	# robot.move_joint([160.485, 60.452, 234.133, 422.715, 81.916, 995.074])
-	# robot.rotate_plate_on_deck(90)
+	robot.rotate_plate_on_deck(-90)
 	# robot.transfer(OT2_alpha_deck_cooler,sciclops, "wide","narrow")
 
 	# robot.transfer(OT2_alpha_deck_cooler,sciclops, "wide","narrow")
