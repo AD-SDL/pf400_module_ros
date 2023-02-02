@@ -41,7 +41,10 @@ class PF400Client(Node):
         self.port = self.get_parameter("port").get_parameter_value().integer_value
 
         self.get_logger().info("Received IP: " + self.ip + " Port:" + str(self.port))
+      
         self.state = "UNKNOWN"
+        self.pf400_error_message = ""
+        self.pf400_state = ""
         self.job_flag = False
         self.movement_state = -1
         self.past_movement_state = -1
@@ -60,6 +63,7 @@ class PF400Client(Node):
         self.stateTimer = self.create_timer(timer_period, callback = self.stateCallback, callback_group = state_cb_group)
         
         self.StateRefresherTimer = self.create_timer(timer_period, callback = self.robot_state_refresher_callback, callback_group = state_refresher_cb_group)
+       
         # state_thread = Thread(target = self.stateCallback)
         # state_thread.start()
 
@@ -128,7 +132,7 @@ class PF400Client(Node):
             if self.pf400.attach_state == "-1":
                 msg.data = "State: Robot is not attached"
                 self.statePub.publish(msg)
-                self.get_logger().info(msg.data)
+                self.get_logger().warn(msg.data)
                 self.pf400.attach_robot()
                 sleep(6) 
 
@@ -136,21 +140,9 @@ class PF400Client(Node):
                 self.state = "POWER OFF"
                 msg.data = 'State: %s' % self.state
                 self.statePub.publish(msg)
-                self.get_logger().warn(msg.data)
+                self.get_logger().error(msg.data)
                 self.pf400.force_initialize_robot()
                 self.job_flag = False
-
-            elif self.movement_state == 1 and self.job_flag == False:
-                self.state = "READY"
-                msg.data = 'State: %s' % self.state
-                self.statePub.publish(msg)
-                self.get_logger().info(msg.data)
-
-            if self.state == "COMPLETED":
-                self.job_flag = False
-                msg.data = 'State: %s' % self.state
-                self.statePub.publish(msg)
-                self.get_logger().info(msg.data)
 
             elif self.pf400.robot_state == "ERROR":
                 self.state = "ERROR"
@@ -160,11 +152,33 @@ class PF400Client(Node):
                 self.get_logger().error("Error Message: " + self.pf400.robot_error_msg)
                 self.job_flag = False
 
-            elif (self.movement_state >= 1 and self.job_flag == True) or  self.movement_state >= 2:
+            elif self.state == "COMPLETED":
+                self.job_flag = False
+                msg.data = 'State: %s' % self.state
+                self.statePub.publish(msg)
+                self.get_logger().info(msg.data)
+
+            elif (self.movement_state >= 1 and self.job_flag == True) or self.movement_state >= 2:
                 self.state = "BUSY"
                 msg.data = 'State: %s' % self.state
                 self.statePub.publish(msg)
                 self.get_logger().info(msg.data)
+
+            elif self.movement_state == 1 and self.job_flag == False:
+                self.state = "READY"
+                msg.data = 'State: %s' % self.state
+                self.statePub.publish(msg)
+                self.get_logger().info(msg.data)
+
+        if self.pf400.plate_state == -1:
+            self.state = "ERROR"
+            self.get_logger().error("Transfer cannot be completed, missing plate!")
+        else:
+            self.state = "COMPLETED"
+
+
+
+  
             # else: 
             #     self.state = "ERROR"
             #     msg.data = 'State: %s' % self.state
@@ -219,8 +233,11 @@ class PF400Client(Node):
         '''
 
         if self.state == "PF400 CONNECTION ERROR":
-            self.get_logger().error("Connection error, cannot accept a job!")
-            return
+            message = "Connection error, cannot accept a job!"
+            self.get_logger().error(message)
+            response.action_response = -1
+            response.action_msg= message
+            return response
 
         while self.state != "READY":
             self.get_logger().warn("Waiting for PF400 to switch READY state...")
@@ -239,8 +256,10 @@ class PF400Client(Node):
 
             module_list = self.module_explorer.explore_workcell()     #Recieve the module list
             self.get_logger().info(str(module_list))
+
             if module_list:
                 action_response = 0
+
             response.action_response = action_response
             response.action_msg= str(module_list)
             self.get_logger().info('Finished Action: ' + request.action_handle)
@@ -293,7 +312,7 @@ class PF400Client(Node):
             self.pf400.transfer(source, target, source_plate_rotation, target_plate_rotation)
 
             response.action_response = 0
-            response.action_msg= "All good PF400"
+            response.action_msg = "PF400 succsessfuly completed a transfer"
             self.get_logger().info('Finished Action: ' + request.action_handle)
             self.state = "COMPLETED"
             return response
@@ -371,11 +390,6 @@ class PF400Client(Node):
                 self.get_logger().info("Lid hight: " + str(lid_height))
                 self.pf400.remove_lid(target, lid_height, target_plate_rotation)
                 
-        if self.pf400.plate_state == -1:
-            self.state = "ERROR"
-            self.get_logger().error("Transfer cannot be completed, missing plate!")
-        else:
-            self.state = "COMPLETED"
 
         # if self.pf400.robot_state == "ERROR":
         #     self.state = self.pf400.robot_state
