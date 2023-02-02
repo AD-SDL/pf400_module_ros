@@ -128,15 +128,25 @@ class PF400Client(Node):
             self.state = "PF400 CONNECTION ERROR"
 
         if self.state != "PF400 CONNECTION ERROR":
-
+            
+            # Addition check if robot wasn't attached to the software adter recovering from Power Off state
             if self.pf400.attach_state == "-1":
                 msg.data = "State: Robot is not attached"
                 self.statePub.publish(msg)
                 self.get_logger().warn(msg.data)
-                self.pf400.attach_robot()
+                self.pf400.force_initialize_robot()
                 sleep(6) 
-                
 
+            # Publishing robot warning messages if the job wasn't completed successfully
+            if self.pf400.robot_warning.upper() != "CLEAR":
+                self.state = self.pf400.robot_warning
+                msg.data = 'State: %s' % self.state
+                self.statePub.publish(msg)
+                self.get_logger().warn(msg.data)
+                self.pf400.robot_warning = "CLEAR"
+                self.job_flag = False
+
+            # Checking real robot state parameters and publishing the current state
             if self.movement_state == 0:
                 self.state = "POWER OFF"
                 msg.data = 'State: %s' % self.state
@@ -154,10 +164,10 @@ class PF400Client(Node):
                 self.job_flag = False
 
             elif self.state == "COMPLETED":
-                self.job_flag = False
                 msg.data = 'State: %s' % self.state
                 self.statePub.publish(msg)
                 self.get_logger().info(msg.data)
+                self.job_flag = False
 
             elif (self.movement_state >= 1 and self.job_flag == True) or self.movement_state >= 2:
                 self.state = "BUSY"
@@ -171,13 +181,7 @@ class PF400Client(Node):
                 self.statePub.publish(msg)
                 self.get_logger().info(msg.data)
 
-  
-            # else: 
-            #     self.state = "ERROR"
-            #     msg.data = 'State: %s' % self.state
-            #     self.statePub.publish(msg)
-            #     self.get_logger().error("DATA LOSS")
-            #     # self.job_flag = False
+
         else: 
             msg.data = 'State: %s' % self.state
             self.statePub.publish(msg)
