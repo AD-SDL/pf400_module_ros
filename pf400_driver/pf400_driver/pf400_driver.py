@@ -10,10 +10,10 @@ import math
 from operator import add
 from time import sleep
 
-from pf400_motion_profiles import motion_profiles
-from pf400_error_codes import error_codes
-from pf400_output_codes import output_codes
-from pf400_kinematics import KINEMATICS
+from pf400_driver.pf400_motion_profiles import motion_profiles
+from pf400_driver.pf400_error_codes import error_codes
+from pf400_driver.pf400_output_codes import output_codes
+from pf400_driver.pf400_kinematics import KINEMATICS
 
 class PF400(KINEMATICS):
 	commandLock = threading.Lock()
