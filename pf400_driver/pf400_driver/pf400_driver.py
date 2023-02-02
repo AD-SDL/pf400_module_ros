@@ -64,6 +64,7 @@ class PF400(KINEMATICS):
 		self.movement_state = self.get_robot_movement_state()
 		self.robot_state = "Normal"	
 		self.robot_error_msg = ""
+		self.robot_warning = ""
 
 		# Gripper variables
 		self.gripper_open_state = 130.0
@@ -607,9 +608,10 @@ class PF400(KINEMATICS):
 
 		elif width <= 80:
 			print("PLATE WAS NOT FOUND!")
-			self.robot_state = "Missing Plate"
+			self.robot_warning = "Missing Plate"
 			# TODO: Stop robot transfer here
 			self.plate_state = -1
+
 		return grab_plate_status
 
 	def release_plate(self, width: int = 130, speed:int = 100):
@@ -732,6 +734,8 @@ class PF400(KINEMATICS):
 		"""Remove the lid from the plate"""
 		# TODO: TAKE PLATE TYPE AS A VARAIBLE TO CALCULATE LID HIGHT
 		target = copy.deepcopy(target_loc)
+		self.robot_warning = "CLEAR"
+
 		self.force_initialize_robot()
 
 		if target_plate_rotation.lower() == "wide":
@@ -744,6 +748,11 @@ class PF400(KINEMATICS):
 		target[0] += lid_height
 		self.pick_plate(target)
 
+		if self.plate_state == -1: 
+			self.robot_warning = "MISSING PLATE"
+			print("Remove Lid cannot be completed, missing plate!")
+			return # Stopping job here
+
 		if self.plate_target_rotation == 90:
 			# Need a transition from 90 degree to 0 degree
 			self.rotate_plate_on_deck(-self.plate_target_rotation)
@@ -754,6 +763,7 @@ class PF400(KINEMATICS):
 		"""Replace the lid on the plate"""
 		# TODO: TAKE PLATE TYPE AS A VARAIBLE TO CALCULATE LID HIGHT
 		target = copy.deepcopy(target_loc)
+		self.robot_warning = "CLEAR"
 
 		self.force_initialize_robot()
 
@@ -764,6 +774,12 @@ class PF400(KINEMATICS):
 			self.plate_target_rotation = 0
 
 		self.pick_plate(self.plate_lid_deck)
+
+		if self.plate_state == -1: 
+			self.robot_warning = "MISSING PLATE"
+			print("Replace Lid cannot be completed, missing plate!")
+			return # Stopping job here
+
 		if self.plate_target_rotation == 90:
 			# Need a transition from 90 degree to 0 degree
 			self.rotate_plate_on_deck(self.plate_target_rotation)
@@ -859,6 +875,9 @@ class PF400(KINEMATICS):
 		source = copy.deepcopy(source_loc)
 		target = copy.deepcopy(target_loc)
 
+		self.robot_warning = "CLEAR"
+
+
 		if source_plate_rotation.lower() == "wide":
 			plate_source_rotation = 90
 
@@ -878,6 +897,7 @@ class PF400(KINEMATICS):
 		self.pick_plate(source)
 
 		if self.plate_state == -1: 
+			self.robot_warning = "MISSING PLATE"
 			print("Transfer cannot be completed, missing plate!")
 			return # Stopping transfer here
 
