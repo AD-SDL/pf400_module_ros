@@ -43,6 +43,9 @@ class PF400(KINEMATICS):
 		# Default Motion Profile Paramiters. Using two profiles for faster and slower movements
 		self.motion_profiles = motion_profiles
 
+		# Output code list of the PF400
+		self.output_codes = output_codes
+
 		# Robot State
 		self.power_state = "0"
 		self.attach_state = "0"
@@ -60,6 +63,7 @@ class PF400(KINEMATICS):
 
 		self.movement_state = self.get_robot_movement_state()
 		self.robot_state = "Normal"	
+		self.robot_error_msg = ""
 
 		# Gripper variables
 		self.gripper_open_state = 130.0
@@ -123,16 +127,25 @@ class PF400(KINEMATICS):
 				while self.movement_state > 1:
 					self.get_robot_movement_state()
 
-			print(">> " + command)
+			# print(">> " + command)
 			self.connection.write((command.encode("ascii") + b"\n"))
 			response = self.connection.read_until(b"\r\n").rstrip().decode("ascii")
-			if response != "" and response in self.error_codes:
+			
+			if response != "" and response in self.error_codes or response.split(" ")[0].find("-") != -1:
+				self.robot_state = "ERROR"
 				self.handle_error_output(response)
 			else:
-				print("<< "+ response)
-				self.robot_state = "Normal"
+				# CASUING TO MANY MESSAGES TO BE PRINTED. UNCOMMENT IF NEEDED
+				if response in self.output_codes:
+					# print("<< " + self.output_codes[response])
+					pass
+				else:
+					# print("<< "+ response) 
+					pass
 
-			return response		
+				self.robot_state = "NORMAL"
+				self.robot_error_msg = ""
+	
 
 		finally:
 		
@@ -161,10 +174,10 @@ class PF400(KINEMATICS):
 		"""
 		if output in self.error_codes:
 			print("<< " + self.error_codes[output])
+			self.robot_error_msg = self.error_codes[output]
 		else:
 			print("<< TCS Unknown error: " + output)
-
-		self.robot_state = "ERROR"
+			self.robot_error_msg = output
 
 
 	def check_robot_state(self, wait:int = 0.1):
