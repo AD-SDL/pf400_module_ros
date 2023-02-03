@@ -306,12 +306,18 @@ class PF400Client(Node):
             target = vars.get('target')
             self.get_logger().info("Target location: "+ str(target))
             
-            self.pf400.transfer(source, target, source_plate_rotation, target_plate_rotation)
+            try:
+                self.pf400.transfer(source, target, source_plate_rotation, target_plate_rotation)
+            except Exception as err:
+                response.action_response = -1
+                response.action_msg= "Transfer failed. Error:" + err
+            else:    
+                response.action_response = 0
+                response.action_msg = "PF400 succsessfuly completed a transfer"
 
-            response.action_response = 0
-            response.action_msg = "PF400 succsessfuly completed a transfer"
             self.get_logger().info('Finished Action: ' + request.action_handle)
             self.state = "COMPLETED"
+
             return response
 
         elif request.action_handle == "remove_lid":
@@ -350,10 +356,15 @@ class PF400Client(Node):
             lid_height = vars.get('lid_height', 7.0)
             self.get_logger().info("Lid hight: " + str(lid_height))
                 
+            try:
+                self.pf400.remove_lid(target, lid_height, target_plate_rotation)
+            except Exception as err:
+                response.action_response = -1
+                response.action_msg= "Remove lid failed. Error:" + err
+            else:    
+                response.action_response = 0
+                response.action_msg= "Remove lid successfully completed"
 
-            self.pf400.remove_lid(target, lid_height, target_plate_rotation)
-            response.action_response = 0
-            response.action_msg= "All good PF400"
             self.state = "COMPLETED"
 
             return response
@@ -395,19 +406,38 @@ class PF400Client(Node):
 
             if 'lid_height' not in vars.keys():
                 self.get_logger().info('Using defult lid hight')
-                self.pf400.remove_lid(target, target_plate_rotation)
 
+                try:
+                    self.pf400.replace_lid(target, target_plate_rotation)
+                except Exception as err:
+                    response.action_response = -1
+                    response.action_msg= "Replace lid failed. Error:" + err
+                else:    
+                    response.action_response = 0
+                    response.action_msg= "Replace lid successfully completed"
             else:    
                 lid_height = vars.get('lid_height')
 
                 self.get_logger().info("Lid hight: " + str(lid_height))
-                self.pf400.remove_lid(target, lid_height, target_plate_rotation)
+
+                try:    
+                    self.pf400.replace_lid(target, lid_height, target_plate_rotation)
+                except Exception as err:
+                    response.action_response = -1
+                    response.action_msg= "Replace lid failed. Error:" + err
+                else:    
+                    response.action_response = 0
+                    response.action_msg= "Replace lid successfully completed"
+            
+            self.state = "COMPLETED"
+            return response
 
         else:
             msg = "UNKOWN ACTION REQUEST! Available actions: explore_workcell, transfer, remove_lid, replace_lid"
             response.action_response = -1
             response.action_msg= msg
             self.get_logger().error('Error: ' + msg)
+            self.state = "COMPLETED"
             return response
 
 
