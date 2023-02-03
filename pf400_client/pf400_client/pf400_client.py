@@ -62,7 +62,7 @@ class PF400Client(Node):
         self.statePub = self.create_publisher(String, node_name + '/state', 10)
         self.stateTimer = self.create_timer(timer_period, callback = self.stateCallback, callback_group = state_cb_group)
         
-        self.StateRefresherTimer = self.create_timer(timer_period, callback = self.robot_state_refresher_callback, callback_group = state_refresher_cb_group)
+        self.StateRefresherTimer = self.create_timer(timer_period+0.1, callback = self.robot_state_refresher_callback, callback_group = state_refresher_cb_group)
        
         # state_thread = Thread(target = self.stateCallback)
         # state_thread.start()
