@@ -372,9 +372,7 @@ class PF400Client(Node):
         elif request.action_handle == "replace_lid":
 
             target_plate_rotation = ""
-    
-            # self.state = "BUSY"
-            # self.stateCallback()
+
             vars = eval(request.vars)
             self.get_logger().info(vars)
 
