@@ -61,8 +61,7 @@ class PF400(KINEMATICS):
 			self.status_port_initilization()
 
 		sleep(2)
-		self.movement_state = -2
-		self.get_robot_movement_state()
+		self.movement_state = self.get_robot_movement_state()
 		self.robot_state = "Normal"	
 		self.robot_error_msg = ""
 		self.robot_warning = ""
@@ -136,6 +135,7 @@ class PF400(KINEMATICS):
 			if response != "" and response in self.error_codes:
 				self.robot_state = "ERROR"
 				self.handle_error_output(response)
+				return self.robot_error_msg
 			else:
 				# CASUING TO MANY MESSAGES TO BE PRINTED. UNCOMMENT IF NEEDED
 				if response in self.output_codes:
@@ -147,7 +147,8 @@ class PF400(KINEMATICS):
 
 				self.robot_state = "NORMAL"
 				self.robot_error_msg = ""
-	
+
+			return response
 
 		finally:
 		
@@ -182,7 +183,6 @@ class PF400(KINEMATICS):
 		else:
 			print("<< TCS Unknown error: " + output)
 			self.robot_error_msg = output
-
 
 	def check_robot_state(self, wait:int = 0.1):
 		"""
@@ -313,7 +313,6 @@ class PF400(KINEMATICS):
 		self.connection.write(("state".encode("ascii") + b"\n"))
 	
 		movement_state = self.connection.read_until(b"\r\n").rstrip().decode("ascii")
-		print("bug",movement_state, "BUGG")
 		if movement_state != "" and movement_state in self.error_codes:
 			self.handle_error_output(movement_state)
 		else:
@@ -368,7 +367,6 @@ class PF400(KINEMATICS):
         Description: Locates the robot and returns the joint locations for all 6 joints.
         """
 		states = self.send_command("wherej")
-		print(states)
 		joints = states.split(' ')
 		joints = joints[1:] 
 		return [float(x) for x in joints]
