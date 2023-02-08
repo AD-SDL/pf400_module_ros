@@ -307,8 +307,12 @@ class PF400Client(Node):
                 self.pf400.transfer(source, target, source_plate_rotation, target_plate_rotation)
 
             except Exception as err:
+                if err:
+                    response.action_msg = "Transfer failed. Error:" + err
+                else:
+                    response.action_msg = self.pf400.robot_warning.upper()
+
                 response.action_response = -1
-                response.action_msg= "Transfer failed. Error:" + err
                 self.get_logger().info('Finished Action: ' + request.action_handle)
 
             else:    
