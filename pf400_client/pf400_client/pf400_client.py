@@ -310,18 +310,17 @@ class PF400Client(Node):
             except Exception as err:
                 response.action_msg = "Transfer failed. Error:" + err
                 response.action_response = -1
+                self.get_logger().info('Finished Action: ' + request.action_handle)
+                if self.pf400.robot_warning.upper() != "CLEAR":
+                    response.action_msg = self.pf400.robot_warning.upper()
+                self.state = "ERROR"
             else:    
                 response.action_response = 0
                 response.action_msg = "PF400 succsessfuly completed a transfer"
                 self.get_logger().info('Finished Action: ' + request.action_handle)
                 self.state = "COMPLETED"
-                return response
 
             finally:
-                self.get_logger().info('Finished Action: ' + request.action_handle)
-                if self.pf400.robot_warning.upper() != "CLEAR":
-                    response.action_msg = self.pf400.robot_warning.upper()
-                self.state = "ERROR"
                 return response
 
         elif request.action_handle == "remove_lid":
