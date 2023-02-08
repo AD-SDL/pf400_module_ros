@@ -307,14 +307,8 @@ class PF400Client(Node):
                 self.pf400.transfer(source, target, source_plate_rotation, target_plate_rotation)
 
             except Exception as err:
-                if err:
-                    response.action_msg = "Transfer failed. Error:" + err
-                else:
-                    response.action_msg = self.pf400.robot_warning.upper()
-
+                response.action_msg = "Transfer failed. Error:" + err
                 response.action_response = -1
-                self.get_logger().info('Finished Action: ' + request.action_handle)
-
             else:    
                 response.action_response = 0
                 response.action_msg = "PF400 succsessfuly completed a transfer"
@@ -323,6 +317,9 @@ class PF400Client(Node):
                 return response
 
             finally:
+                self.get_logger().info('Finished Action: ' + request.action_handle)
+                if self.pf400.robot_warning.upper() != "CLEAR":
+                    response.action_msg = self.pf400.robot_warning.upper()
                 self.state = "ERROR"
                 return response
 
@@ -439,7 +436,7 @@ class PF400Client(Node):
         else:
             msg = "UNKOWN ACTION REQUEST! Available actions: explore_workcell, transfer, remove_lid, replace_lid"
             response.action_response = -1
-            response.action_msg= msg
+            response.action_msg = msg
             self.get_logger().error('Error: ' + msg)
             self.state = "COMPLETED"
             return response
