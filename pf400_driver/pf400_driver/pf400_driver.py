@@ -145,13 +145,15 @@ class PF400(KINEMATICS):
         """
 		if not self.connection:
 			self.Connect()
-		if self.mode == 0:
-			# Set TCS to nonverbose
-			self.connection.write(("mode 0".encode("ascii") + b"\n"))
-		else:
+			
+		if self.mode == 1:
 			# Set TCS to verbose
 			self.connection.write(("mode 1".encode("ascii") + b"\n"))
 			self.send_command("selectrobot 1")
+		else:
+			# Set TCS to nonverbose
+			self.connection.write(("mode 0".encode("ascii") + b"\n"))
+			print("Setting connection mode to 0")
 			
 		init_mode = self.connection.read_until(b"\r\n").rstrip().decode("ascii")
 
