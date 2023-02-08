@@ -55,13 +55,14 @@ class PF400(KINEMATICS):
 		# Initialize robot 
 		self.connect()
 		self.init_connection_mode()
-		
 		if port == 10100:
 			self.force_initialize_robot()
 		elif port == 10000:
 			self.status_port_initilization()
 
-		self.movement_state = self.get_robot_movement_state()
+		sleep(2)
+		self.movement_state = -2
+		self.get_robot_movement_state()
 		self.robot_state = "Normal"	
 		self.robot_error_msg = ""
 		self.robot_warning = ""
@@ -310,11 +311,11 @@ class PF400(KINEMATICS):
 		self.connection.write(("state".encode("ascii") + b"\n"))
 	
 		movement_state = self.connection.read_until(b"\r\n").rstrip().decode("ascii")
-
+		print("bug",movement_state, "BUGG")
 		if movement_state != "" and movement_state in self.error_codes:
 			self.handle_error_output(movement_state)
 		else:
-			self.movement_state = int(float(movement_state.split()[1]))
+			self.movement_state = int(float(movement_state.split(" ")[1]))
 			
 	def get_overall_state(self):
 			"""
@@ -365,6 +366,7 @@ class PF400(KINEMATICS):
         Description: Locates the robot and returns the joint locations for all 6 joints.
         """
 		states = self.send_command("wherej")
+		print(states)
 		joints = states.split(' ')
 		joints = joints[1:] 
 		return [float(x) for x in joints]
@@ -930,7 +932,7 @@ if __name__ == "__main__":
 	# robot.transfer(sciclops,OT2_alpha_deck_cooler,"narrow","wide")
 	# robot.move_all_joints_neutral()
 	# robot.move_joint([160.485, 60.452, 234.133, 422.715, 81.916, 995.074])
-	robot.rotate_plate_on_deck(-90)
+	# robot.rotate_plate_on_deck(-90)
 	# robot.transfer(OT2_alpha_deck_cooler,sciclops, "wide","narrow")
 
 	# robot.transfer(OT2_alpha_deck_cooler,sciclops, "wide","narrow")
