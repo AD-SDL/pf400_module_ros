@@ -51,7 +51,8 @@ class PF400Client(Node):
         self.state_refresher_timer = 0
 
         self.connect_robot()
-
+        sleep(5)
+        
         action_cb_group = ReentrantCallbackGroup()
         description_cb_group = ReentrantCallbackGroup()
         state_cb_group = ReentrantCallbackGroup()
@@ -62,10 +63,7 @@ class PF400Client(Node):
         self.statePub = self.create_publisher(String, node_name + '/state', 10)
         self.stateTimer = self.create_timer(timer_period, callback = self.stateCallback, callback_group = state_cb_group)
         
-        self.StateRefresherTimer = self.create_timer(timer_period+0.1, callback = self.robot_state_refresher_callback, callback_group = state_refresher_cb_group)
-       
-        # state_thread = Thread(target = self.stateCallback)
-        # state_thread.start()
+        self.StateRefresherTimer = self.create_timer(timer_period+1, callback = self.robot_state_refresher_callback, callback_group = state_refresher_cb_group)
 
         self.action_handler = self.create_service(WeiActions, node_name + "/action_handler", self.actionCallback, callback_group = action_cb_group)
         self.description_handler = self.create_service(WeiDescription, node_name + "/description_handler", self.descriptionCallback, callback_group = description_cb_group)
