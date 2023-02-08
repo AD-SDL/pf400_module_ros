@@ -305,21 +305,21 @@ class PF400Client(Node):
             
             try:
                 self.pf400.transfer(source, target, source_plate_rotation, target_plate_rotation)
+
             except Exception as err:
                 response.action_response = -1
                 response.action_msg= "Transfer failed. Error:" + err
                 self.get_logger().info('Finished Action: ' + request.action_handle)
+
+            else:    
+                response.action_response = 0
+                response.action_msg = "PF400 succsessfuly completed a transfer"
+                self.get_logger().info('Finished Action: ' + request.action_handle)
                 self.state = "COMPLETED"
                 return response
 
-            else:    
-
-                response.action_response = 0
-                response.action_msg = "PF400 succsessfuly completed a transfer"
-
-                self.get_logger().info('Finished Action: ' + request.action_handle)
-                self.state = "COMPLETED"
-
+            finally:
+                self.state = "ERROR"
                 return response
 
         elif request.action_handle == "remove_lid":
