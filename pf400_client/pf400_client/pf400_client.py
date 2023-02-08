@@ -160,7 +160,7 @@ class PF400Client(Node):
                 self.get_logger().error("Error Message: " + self.pf400.robot_error_msg)
                 self.job_flag = False
 
-            elif self.state == "COMPLETED":
+            elif self.state == "COMPLETED" and self.job_flag == True:
                 msg.data = 'State: %s' % self.state
                 self.statePub.publish(msg)
                 self.get_logger().info(msg.data)
@@ -311,7 +311,7 @@ class PF400Client(Node):
                 self.get_logger().info('Finished Action: ' + request.action_handle)
                 self.state = "COMPLETED"
                 return response
-                
+
             else:    
                 if self.pf400.robot_warning.upper() != "CLEAR":
                     response.action_response = -1
