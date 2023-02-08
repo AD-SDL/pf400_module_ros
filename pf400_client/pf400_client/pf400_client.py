@@ -51,7 +51,7 @@ class PF400Client(Node):
         self.state_refresher_timer = 0
 
         self.connect_robot()
-                
+
         action_cb_group = ReentrantCallbackGroup()
         description_cb_group = ReentrantCallbackGroup()
         state_cb_group = ReentrantCallbackGroup()
@@ -308,6 +308,10 @@ class PF400Client(Node):
             except Exception as err:
                 response.action_response = -1
                 response.action_msg= "Transfer failed. Error:" + err
+                self.get_logger().info('Finished Action: ' + request.action_handle)
+                self.state = "COMPLETED"
+                return response
+                
             else:    
                 if self.pf400.robot_warning.upper() != "CLEAR":
                     response.action_response = -1
@@ -316,10 +320,10 @@ class PF400Client(Node):
                     response.action_response = 0
                     response.action_msg = "PF400 succsessfuly completed a transfer"
 
-            self.get_logger().info('Finished Action: ' + request.action_handle)
-            self.state = "COMPLETED"
+                self.get_logger().info('Finished Action: ' + request.action_handle)
+                self.state = "COMPLETED"
 
-            return response
+                return response
 
         elif request.action_handle == "remove_lid":
 
