@@ -452,7 +452,6 @@ class PF400(KINEMATICS):
 		if rotation_degree == -90: # Yaw 90 to 0 degrees:
 			cartesian_coordinates[1] += 4
 			cartesian_coordinates[0] += 29
-			print("here")
 		elif rotation_degree == 90 :
 			cartesian_coordinates[1] -= 4
 			cartesian_coordinates[0] -= 29
@@ -822,6 +821,9 @@ class PF400(KINEMATICS):
 		self.move_joint(abovePos, 1)
 		self.move_joint(target, 1, False, True)
 		self.grab_plate(self.plate_width,100,10)
+		if self.plate_state == -1: 
+			self.robot_warning = "MISSING PLATE"
+			print("Rotation cannot be completed, missing plate!")
 		self.move_in_one_axis(profile = 1, axis_x = 0, axis_y = 0, axis_z = 60)
 		self.move_all_joints_neutral(target)
 
@@ -901,6 +903,8 @@ class PF400(KINEMATICS):
 		if self.plate_state == -1: 
 			self.robot_warning = "MISSING PLATE"
 			print("Transfer cannot be completed, missing plate!")
+			self.move_all_joints_neutral()
+			sleep(5)
 			return # Stopping transfer here
 
 		if plate_source_rotation == 90 and plate_target_rotation == 0:
