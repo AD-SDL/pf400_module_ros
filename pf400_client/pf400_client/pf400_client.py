@@ -41,14 +41,18 @@ class PF400Client(Node):
         self.port = self.get_parameter("port").get_parameter_value().integer_value
 
         self.get_logger().info("Received IP: " + self.ip + " Port:" + str(self.port))
+      
         self.state = "UNKNOWN"
+        self.pf400_error_message = ""
+        self.pf400_state = ""
         self.job_flag = False
         self.movement_state = -1
         self.past_movement_state = -1
         self.state_refresher_timer = 0
 
         self.connect_robot()
-
+        sleep(5)
+        
         action_cb_group = ReentrantCallbackGroup()
         description_cb_group = ReentrantCallbackGroup()
         state_cb_group = ReentrantCallbackGroup()
@@ -59,9 +63,7 @@ class PF400Client(Node):
         self.statePub = self.create_publisher(String, node_name + '/state', 10)
         self.stateTimer = self.create_timer(timer_period, callback = self.stateCallback, callback_group = state_cb_group)
         
-        self.StateRefresherTimer = self.create_timer(timer_period, callback = self.robot_state_refresher_callback, callback_group = state_refresher_cb_group)
-        # state_thread = Thread(target = self.stateCallback)
-        # state_thread.start()
+        self.StateRefresherTimer = self.create_timer(timer_period+1, callback = self.robot_state_refresher_callback, callback_group = state_refresher_cb_group)
 
         self.action_handler = self.create_service(WeiActions, node_name + "/action_handler", self.actionCallback, callback_group = action_cb_group)
         self.description_handler = self.create_service(WeiDescription, node_name + "/description_handler", self.descriptionCallback, callback_group = description_cb_group)
@@ -124,33 +126,32 @@ class PF400Client(Node):
             self.state = "PF400 CONNECTION ERROR"
 
         if self.state != "PF400 CONNECTION ERROR":
-
+            
+            # Addition check if robot wasn't attached to the software adter recovering from Power Off state
             if self.pf400.attach_state == "-1":
                 msg.data = "State: Robot is not attached"
                 self.statePub.publish(msg)
-                self.get_logger().info(msg.data)
-                self.pf400.attach_robot()
+                self.get_logger().warn(msg.data)
+                self.pf400.force_initialize_robot()
                 sleep(6) 
 
+            # Publishing robot warning messages if the job wasn't completed successfully
+            if self.pf400.robot_warning.upper() != "CLEAR":
+                self.state = self.pf400.robot_warning
+                msg.data = 'State: %s' % self.state
+                self.statePub.publish(msg)
+                self.get_logger().warn(msg.data)
+                self.pf400.robot_warning = "CLEAR"
+                self.job_flag = False
+
+            # Checking real robot state parameters and publishing the current state
             if self.movement_state == 0:
                 self.state = "POWER OFF"
                 msg.data = 'State: %s' % self.state
                 self.statePub.publish(msg)
-                self.get_logger().warn(msg.data)
+                self.get_logger().error(msg.data)
                 self.pf400.force_initialize_robot()
                 self.job_flag = False
-
-            elif self.movement_state == 1 and self.job_flag == False:
-                self.state = "READY"
-                msg.data = 'State: %s' % self.state
-                self.statePub.publish(msg)
-                self.get_logger().info(msg.data)
-
-            if self.state == "COMPLETED":
-                self.job_flag = False
-                msg.data = 'State: %s' % self.state
-                self.statePub.publish(msg)
-                self.get_logger().info(msg.data)
 
             elif self.pf400.robot_state == "ERROR":
                 self.state = "ERROR"
@@ -160,17 +161,25 @@ class PF400Client(Node):
                 self.get_logger().error("Error Message: " + self.pf400.robot_error_msg)
                 self.job_flag = False
 
-            elif (self.movement_state >= 1 and self.job_flag == True) or  self.movement_state >= 2:
+            elif self.state == "COMPLETED":
+                msg.data = 'State: %s' % self.state
+                self.statePub.publish(msg)
+                self.get_logger().info(msg.data)
+                self.job_flag = False
+
+            elif (self.movement_state >= 1 and self.job_flag == True) or self.movement_state >= 2:
                 self.state = "BUSY"
                 msg.data = 'State: %s' % self.state
                 self.statePub.publish(msg)
                 self.get_logger().info(msg.data)
-            # else: 
-            #     self.state = "ERROR"
-            #     msg.data = 'State: %s' % self.state
-            #     self.statePub.publish(msg)
-            #     self.get_logger().error("DATA LOSS")
-            #     # self.job_flag = False
+
+            elif self.movement_state == 1 and self.job_flag == False:
+                self.state = "READY"
+                msg.data = 'State: %s' % self.state
+                self.statePub.publish(msg)
+                self.get_logger().info(msg.data)
+
+
         else: 
             msg.data = 'State: %s' % self.state
             self.statePub.publish(msg)
@@ -219,8 +228,11 @@ class PF400Client(Node):
         '''
 
         if self.state == "PF400 CONNECTION ERROR":
-            self.get_logger().error("Connection error, cannot accept a job!")
-            return
+            message = "Connection error, cannot accept a job!"
+            self.get_logger().error(message)
+            response.action_response = -1
+            response.action_msg= message
+            return response
 
         while self.state != "READY":
             self.get_logger().warn("Waiting for PF400 to switch READY state...")
@@ -239,15 +251,17 @@ class PF400Client(Node):
 
             module_list = self.module_explorer.explore_workcell()     #Recieve the module list
             self.get_logger().info(str(module_list))
+
             if module_list:
                 action_response = 0
+
             response.action_response = action_response
             response.action_msg= str(module_list)
             self.get_logger().info('Finished Action: ' + request.action_handle)
             self.state = "COMPLETED"
             return response
 
-        if request.action_handle == "transfer":
+        elif request.action_handle == "transfer":
 
             source_plate_rotation = ""
             target_plate_rotation = ""
@@ -290,30 +304,44 @@ class PF400Client(Node):
             target = vars.get('target')
             self.get_logger().info("Target location: "+ str(target))
             
-            self.pf400.transfer(source, target, source_plate_rotation, target_plate_rotation)
+            try:
+                self.pf400.transfer(source, target, source_plate_rotation, target_plate_rotation)
+            except Exception as err:
+                response.action_response = -1
+                response.action_msg= "Transfer failed. Error:" + err
+            else:    
+                response.action_response = 0
+                response.action_msg = "PF400 succsessfuly completed a transfer"
 
-            response.action_response = 0
-            response.action_msg= "All good PF400"
             self.get_logger().info('Finished Action: ' + request.action_handle)
             self.state = "COMPLETED"
+
             return response
 
-        if request.action_handle == "remove_lid":
+        elif request.action_handle == "remove_lid":
 
             target_plate_rotation = ""
-
             vars = eval(request.vars)
             self.get_logger().info(str(vars))
 
             if 'target' not in vars.keys():
-                self.get_logger().error("Drop off up location is not provided. Canceling the job!")
+                err = 1
+                msg = "Target location is not provided. Canceling the job!"
+                self.get_logger().error(msg)
                 self.state = "COMPLETED"
-                return 
+                 
 
             if len(vars.get('target')) != 6:
-                self.get_logger().error("Position 2 should be six joint angles lenght. Canceling the job!")
+                err = 1
+                msg = "Target position should be six joint angles lenght. Canceling the job!"
+                self.get_logger().error(msg)
                 self.state = "COMPLETED"
-                return
+            
+            if err:
+                response.action_response = -1
+                response.action_msg= msg
+                self.get_logger().error('Error: ' + msg)
+                return response
 
             if 'target_plate_rotation' not in vars.keys():
                 self.get_logger().info("Setting target plate rotation to 0")
@@ -326,32 +354,43 @@ class PF400Client(Node):
             lid_height = vars.get('lid_height', 7.0)
             self.get_logger().info("Lid hight: " + str(lid_height))
                 
+            try:
+                self.pf400.remove_lid(target, lid_height, target_plate_rotation)
+            except Exception as err:
+                response.action_response = -1
+                response.action_msg= "Remove lid failed. Error:" + err
+            else:    
+                response.action_response = 0
+                response.action_msg= "Remove lid successfully completed"
 
-            self.pf400.remove_lid(target, lid_height, target_plate_rotation)
-            response.action_response = 0
-            response.action_msg= "All good PF400"
             self.state = "COMPLETED"
 
             return response
 
-        if request.action_handle == "replace_lid":
+        elif request.action_handle == "replace_lid":
 
             target_plate_rotation = ""
-    
-            # self.state = "BUSY"
-            # self.stateCallback()
+
             vars = eval(request.vars)
             self.get_logger().info(vars)
 
             if 'target' not in vars.keys():
-                self.get_logger().error("Drop off location is not provided. Canceling the job!")
+                err = 1
+                msg = "Drop off location is not provided. Canceling the job!"
+                self.get_logger().error(msg)
                 self.state = "COMPLETED"
-                return 
 
             if len(vars.get('target')) != 6:
-                self.get_logger().error("Position 2 should be six joint angles lenght. Canceling the job!")
+                err = 1
+                msg = "Position 2 should be six joint angles lenght. Canceling the job!"
+                self.get_logger().error(msg)
                 self.state = "COMPLETED"
-                return
+
+            if err:
+                response.action_response = -1
+                response.action_msg= msg
+                self.get_logger().error('Error: ' + msg)
+                return response
 
             if 'target_plate_rotation' not in vars.keys():
                 self.get_logger().info("Setting target plate rotation to 0")
@@ -363,26 +402,41 @@ class PF400Client(Node):
 
             if 'lid_height' not in vars.keys():
                 self.get_logger().info('Using defult lid hight')
-                self.pf400.remove_lid(target, target_plate_rotation)
 
+                try:
+                    self.pf400.replace_lid(target, target_plate_rotation)
+                except Exception as err:
+                    response.action_response = -1
+                    response.action_msg= "Replace lid failed. Error:" + err
+                else:    
+                    response.action_response = 0
+                    response.action_msg= "Replace lid successfully completed"
             else:    
                 lid_height = vars.get('lid_height')
 
                 self.get_logger().info("Lid hight: " + str(lid_height))
-                self.pf400.remove_lid(target, lid_height, target_plate_rotation)
-                
-        if self.pf400.plate_state == -1:
-            self.state = "ERROR"
-            self.get_logger().error("Transfer cannot be completed, missing plate!")
-        else:
+
+                try:    
+                    self.pf400.replace_lid(target, lid_height, target_plate_rotation)
+                except Exception as err:
+                    response.action_response = -1
+                    response.action_msg= "Replace lid failed. Error:" + err
+                else:    
+                    response.action_response = 0
+                    response.action_msg= "Replace lid successfully completed"
+            
             self.state = "COMPLETED"
+            return response
 
-        # if self.pf400.robot_state == "ERROR":
-        #     self.state = self.pf400.robot_state
+        else:
+            msg = "UNKOWN ACTION REQUEST! Available actions: explore_workcell, transfer, remove_lid, replace_lid"
+            response.action_response = -1
+            response.action_msg= msg
+            self.get_logger().error('Error: ' + msg)
+            self.state = "COMPLETED"
+            return response
 
-        #TODO: move every action into its own return
-        self.state = "COMPLETED"
-        return response
+
 
     def whereJCallback(self, request, response):
         '''

@@ -10,10 +10,10 @@ import math
 from operator import add
 from time import sleep
 
-from pf400_motion_profiles import motion_profiles
-from pf400_error_codes import error_codes
-from pf400_output_codes import output_codes
-from pf400_kinematics import KINEMATICS
+from pf400_driver.pf400_motion_profiles import motion_profiles
+from pf400_driver.pf400_error_codes import error_codes
+from pf400_driver.pf400_output_codes import output_codes
+from pf400_driver.pf400_kinematics import KINEMATICS
 
 class PF400(KINEMATICS):
 	commandLock = threading.Lock()
@@ -43,6 +43,9 @@ class PF400(KINEMATICS):
 		# Default Motion Profile Paramiters. Using two profiles for faster and slower movements
 		self.motion_profiles = motion_profiles
 
+		# Output code list of the PF400
+		self.output_codes = output_codes
+
 		# Robot State
 		self.power_state = "0"
 		self.attach_state = "0"
@@ -52,14 +55,17 @@ class PF400(KINEMATICS):
 		# Initialize robot 
 		self.connect()
 		self.init_connection_mode()
-		
 		if port == 10100:
 			self.force_initialize_robot()
 		elif port == 10000:
 			self.status_port_initilization()
 
-		self.movement_state = self.get_robot_movement_state()
+		sleep(2)
+		self.movement_state = -2
+		self.get_robot_movement_state()
 		self.robot_state = "Normal"	
+		self.robot_error_msg = ""
+		self.robot_warning = ""
 
 		# Gripper variables
 		self.gripper_open_state = 130.0
@@ -123,16 +129,25 @@ class PF400(KINEMATICS):
 				while self.movement_state > 1:
 					self.get_robot_movement_state()
 
-			print(">> " + command)
+			# print(">> " + command)
 			self.connection.write((command.encode("ascii") + b"\n"))
 			response = self.connection.read_until(b"\r\n").rstrip().decode("ascii")
+			
 			if response != "" and response in self.error_codes:
+				self.robot_state = "ERROR"
 				self.handle_error_output(response)
 			else:
-				print("<< "+ response)
-				self.robot_state = "Normal"
+				# CASUING TO MANY MESSAGES TO BE PRINTED. UNCOMMENT IF NEEDED
+				if response in self.output_codes:
+					# print("<< " + self.output_codes[response])
+					pass
+				else:
+					# print("<< "+ response) 
+					pass
 
-			return response		
+				self.robot_state = "NORMAL"
+				self.robot_error_msg = ""
+	
 
 		finally:
 		
@@ -163,10 +178,10 @@ class PF400(KINEMATICS):
 		"""
 		if output in self.error_codes:
 			print("<< " + self.error_codes[output])
+			self.robot_error_msg = self.error_codes[output]
 		else:
 			print("<< TCS Unknown error: " + output)
-
-		self.robot_state = "ERROR"
+			self.robot_error_msg = output
 
 
 	def check_robot_state(self, wait:int = 0.1):
@@ -298,28 +313,28 @@ class PF400(KINEMATICS):
 		self.connection.write(("state".encode("ascii") + b"\n"))
 	
 		movement_state = self.connection.read_until(b"\r\n").rstrip().decode("ascii")
-
+		print("bug",movement_state, "BUGG")
 		if movement_state != "" and movement_state in self.error_codes:
 			self.handle_error_output(movement_state)
 		else:
-			self.movement_state = int(float(movement_state.split()[1]))
+			self.movement_state = int(float(movement_state.split(" ")[1]))
 			
 	def get_overall_state(self):
 			"""
 			Decription: Checks general state
 			"""
 
-			power_msg = self.send_command("hp").split(" ")
-			# power_msg = power_msg.split(" ")
+			self.connection.write(("hp".encode("ascii") + b"\n"))
+			power_msg = self.connection.read_until(b"\r\n").rstrip().decode("ascii").split(" ")
 
-			attach_msg = self.send_command("attach").split(" ")
-			# attach_msg = attach_msg.split(" ")
+			self.connection.write(("attach".encode("ascii") + b"\n"))
+			attach_msg = self.connection.read_until(b"\r\n").rstrip().decode("ascii").split(" ")
 
-			home_msg = self.send_command("pd 2800").split(" ")
-			# home_msg = home_msg.split(" ")
+			self.connection.write(("pd 2800".encode("ascii") + b"\n"))
+			home_msg = self.connection.read_until(b"\r\n").rstrip().decode("ascii").split(" ")
 
-			state_msg = self.send_command("sysState").split(" ")
-			# state_msg = state_msg.split(" ")
+			self.connection.write(("sysState".encode("ascii") + b"\n"))
+			state_msg = self.connection.read_until(b"\r\n").rstrip().decode("ascii").split(" ")
 
 			if len(power_msg) == 1 or power_msg[0].find("-") != -1 or power_msg[1] == "0":
 				self.power_state = "-1"
@@ -353,6 +368,7 @@ class PF400(KINEMATICS):
         Description: Locates the robot and returns the joint locations for all 6 joints.
         """
 		states = self.send_command("wherej")
+		print(states)
 		joints = states.split(' ')
 		joints = joints[1:] 
 		return [float(x) for x in joints]
@@ -596,9 +612,10 @@ class PF400(KINEMATICS):
 
 		elif width <= 80:
 			print("PLATE WAS NOT FOUND!")
-			self.robot_state = "Missing Plate"
+			self.robot_warning = "Missing Plate"
 			# TODO: Stop robot transfer here
 			self.plate_state = -1
+
 		return grab_plate_status
 
 	def release_plate(self, width: int = 130, speed:int = 100):
@@ -721,6 +738,8 @@ class PF400(KINEMATICS):
 		"""Remove the lid from the plate"""
 		# TODO: TAKE PLATE TYPE AS A VARAIBLE TO CALCULATE LID HIGHT
 		target = copy.deepcopy(target_loc)
+		self.robot_warning = "CLEAR"
+
 		self.force_initialize_robot()
 
 		if target_plate_rotation.lower() == "wide":
@@ -733,6 +752,11 @@ class PF400(KINEMATICS):
 		target[0] += lid_height
 		self.pick_plate(target)
 
+		if self.plate_state == -1: 
+			self.robot_warning = "MISSING PLATE"
+			print("Remove Lid cannot be completed, missing plate!")
+			return # Stopping job here
+
 		if self.plate_target_rotation == 90:
 			# Need a transition from 90 degree to 0 degree
 			self.rotate_plate_on_deck(-self.plate_target_rotation)
@@ -743,6 +767,7 @@ class PF400(KINEMATICS):
 		"""Replace the lid on the plate"""
 		# TODO: TAKE PLATE TYPE AS A VARAIBLE TO CALCULATE LID HIGHT
 		target = copy.deepcopy(target_loc)
+		self.robot_warning = "CLEAR"
 
 		self.force_initialize_robot()
 
@@ -753,6 +778,12 @@ class PF400(KINEMATICS):
 			self.plate_target_rotation = 0
 
 		self.pick_plate(self.plate_lid_deck)
+
+		if self.plate_state == -1: 
+			self.robot_warning = "MISSING PLATE"
+			print("Replace Lid cannot be completed, missing plate!")
+			return # Stopping job here
+
 		if self.plate_target_rotation == 90:
 			# Need a transition from 90 degree to 0 degree
 			self.rotate_plate_on_deck(self.plate_target_rotation)
@@ -848,6 +879,9 @@ class PF400(KINEMATICS):
 		source = copy.deepcopy(source_loc)
 		target = copy.deepcopy(target_loc)
 
+		self.robot_warning = "CLEAR"
+
+
 		if source_plate_rotation.lower() == "wide":
 			plate_source_rotation = 90
 
@@ -867,6 +901,7 @@ class PF400(KINEMATICS):
 		self.pick_plate(source)
 
 		if self.plate_state == -1: 
+			self.robot_warning = "MISSING PLATE"
 			print("Transfer cannot be completed, missing plate!")
 			return # Stopping transfer here
 
@@ -899,7 +934,7 @@ if __name__ == "__main__":
 	# robot.transfer(sciclops,OT2_alpha_deck_cooler,"narrow","wide")
 	# robot.move_all_joints_neutral()
 	# robot.move_joint([160.485, 60.452, 234.133, 422.715, 81.916, 995.074])
-	robot.rotate_plate_on_deck(-90)
+	# robot.rotate_plate_on_deck(-90)
 	# robot.transfer(OT2_alpha_deck_cooler,sciclops, "wide","narrow")
 
 	# robot.transfer(OT2_alpha_deck_cooler,sciclops, "wide","narrow")
