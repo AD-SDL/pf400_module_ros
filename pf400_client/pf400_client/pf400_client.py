@@ -51,8 +51,7 @@ class PF400Client(Node):
         self.state_refresher_timer = 0
 
         self.connect_robot()
-        sleep(5)
-        
+                
         action_cb_group = ReentrantCallbackGroup()
         description_cb_group = ReentrantCallbackGroup()
         state_cb_group = ReentrantCallbackGroup()

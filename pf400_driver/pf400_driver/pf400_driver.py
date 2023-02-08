@@ -355,7 +355,7 @@ class PF400(KINEMATICS):
 			else: 
 				self.initialization_state = state_msg[1]
 
-			print("Power: " + self.power_state + " Attach: " + self.attach_state + " Home: " + self.home_state + " Robot State: " + self.initialization_state)
+			# print("Power: " + self.power_state + " Attach: " + self.attach_state + " Home: " + self.home_state + " Robot State: " + self.initialization_state)
 
 			if self.power_state == "-1" or self.attach_state == "-1" or self.home_state == "-1" or self.initialization_state == "-1":
 				return -1
