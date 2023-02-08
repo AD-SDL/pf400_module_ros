@@ -233,9 +233,11 @@ class PF400Client(Node):
             response.action_msg= message
             return response
 
+        sleep(2)
         while self.state != "READY":
             self.get_logger().warn("Waiting for PF400 to switch READY state...")
-            sleep(0.5)
+            self.stateCallback()
+            sleep(1)
 
         self.job_flag = True    
         # self.pf400.force_initialize_robot()

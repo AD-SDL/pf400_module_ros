@@ -124,7 +124,7 @@ class PF400(KINEMATICS):
 
 			self.get_robot_movement_state()
 			if self.movement_state > 1:
-				print("Waiting for robot movement to end before sending the new command")
+				# print("Waiting for robot movement to end before sending the new command")
 				while self.movement_state > 1:
 					self.get_robot_movement_state()
 
@@ -597,13 +597,13 @@ class PF400(KINEMATICS):
 			return
 
 		elif grab_plate_status[1] == "-1":
-			print("Plate is grabed")
+			# print("Plate is grabed")
 			self.plate_state = 1
 			# self.gripper_closed_state = width
 			# self.set_gripper_close()
 
 		elif grab_plate_status[1] == "0" and width > 80: # Do not try smaller width 
-			print("No plate") 
+			# print("No plate") 
 			width -= 1
 			self.grab_plate(width,speed,force)
 
@@ -632,7 +632,7 @@ class PF400(KINEMATICS):
 		if release_plate_status[0] == "1":
 			print("Plate is not released")
 		elif release_plate_status[0] == "0":
-			print("Plate is released") 
+			# print("Plate is released") 
 			self.plate_state = 0
 
 		return release_plate_status
