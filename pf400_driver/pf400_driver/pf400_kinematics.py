@@ -5,10 +5,10 @@ import numpy as np
 
 class KINEMATICS():
     def __init__(self):
-        # Robot joint lenghts
-        self.shoulder_lenght = 302
-        self.elbow_lenght = 289
-        self.end_effector_lenght = 162
+        # Robot joint lengths
+        self.shoulder_length = 302
+        self.elbow_length = 289
+        self.end_effector_length = 162
 
 
     def forward_kinematics(self, joint_states:list):
@@ -19,7 +19,7 @@ class KINEMATICS():
         Return:
             - cartesian_coordinates: Returns the calculated cartesian coordinates of the given joint states
             - phi: Phi angle in degress to be used for inverse kinematics
-            - joint_state[5]: The rail lenght. Needs to be supstracted from x axis if calculated coordinates will be fed into inverse kinematics
+            - joint_state[5]: The rail length. Needs to be supstracted from x axis if calculated coordinates will be fed into inverse kinematics
         """
 
         if joint_states[2] > 180:
@@ -33,8 +33,8 @@ class KINEMATICS():
         gripper_angle = math.radians(joint_states[3]) # Joint 4
 
 
-        x = self.shoulder_lenght*math.cos(shoulder_angle) + self.elbow_lenght*math.cos(shoulder_angle+elbow_angle) + self.end_effector_lenght*math.cos(shoulder_angle+elbow_angle+gripper_angle) 
-        y = self.shoulder_lenght*math.sin(shoulder_angle) + self.elbow_lenght*math.sin(shoulder_angle+elbow_angle) + self.end_effector_lenght*math.sin(shoulder_angle+elbow_angle+gripper_angle) 
+        x = self.shoulder_length*math.cos(shoulder_angle) + self.elbow_length*math.cos(shoulder_angle+elbow_angle) + self.end_effector_length*math.cos(shoulder_angle+elbow_angle+gripper_angle) 
+        y = self.shoulder_length*math.sin(shoulder_angle) + self.elbow_length*math.sin(shoulder_angle+elbow_angle) + self.end_effector_length*math.sin(shoulder_angle+elbow_angle+gripper_angle) 
         z = joint_states[0]
 
         phi = math.degrees(shoulder_angle) + adjusted_angle_j3 + math.degrees(gripper_angle)
@@ -60,7 +60,7 @@ class KINEMATICS():
 
         return cartesian_coordinates, round(phi,3), joint_states[5] 
 
-    def inverse_kinematics(self, cartesian_coordinates:list, phi:float, rail:float = 0.0, get_gripper_lenght:float = 123.0):
+    def inverse_kinematics(self, cartesian_coordinates:list, phi:float, rail:float = 0.0, get_gripper_length:float = 123.0):
 
         """
         Desciption: Calculates the inverse kinematics for a given array of cartesian coordinates. 
@@ -90,13 +90,13 @@ class KINEMATICS():
 
         phie = math.radians(phi)
 
-        x_second_joint = xe - self.end_effector_lenght * math.cos(phie) 
-        y_second_joint = ye - self.end_effector_lenght * math.sin(phie)
+        x_second_joint = xe - self.end_effector_length * math.cos(phie) 
+        y_second_joint = ye - self.end_effector_length * math.sin(phie)
 
         radius = math.sqrt(x_second_joint**2 + y_second_joint**2) 
-        gamma = math.acos((radius * radius + self.shoulder_lenght * self.shoulder_lenght - self.elbow_lenght * self.elbow_lenght)/(2 * radius * self.shoulder_lenght)) 
+        gamma = math.acos((radius * radius + self.shoulder_length * self.shoulder_length - self.elbow_length * self.elbow_length)/(2 * radius * self.shoulder_length)) 
 
-        theta2 = math.pi - math.acos((self.shoulder_lenght * self.shoulder_lenght + self.elbow_lenght * self.elbow_lenght - radius*radius)/(2 * self.shoulder_lenght * self.elbow_lenght))
+        theta2 = math.pi - math.acos((self.shoulder_length * self.shoulder_length + self.elbow_length * self.elbow_length - radius*radius)/(2 * self.shoulder_length * self.elbow_length))
         theta1 = math.atan2(y_second_joint, x_second_joint) - gamma 
         theta3 = phie - theta1 - theta2
 
@@ -119,6 +119,6 @@ class KINEMATICS():
             # print("theta2: ", Joint_3) 
             # print("theta3: ", Joint_4)
 
-        return [Joint_1, Joint_2, Joint_3, Joint_4, get_gripper_lenght, rail]
+        return [Joint_1, Joint_2, Joint_3, Joint_4, get_gripper_length, rail]
 
 
