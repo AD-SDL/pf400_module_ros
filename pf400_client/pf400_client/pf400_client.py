@@ -62,10 +62,7 @@ class PF400Client(Node):
         self.statePub = self.create_publisher(String, node_name + '/state', 10)
         self.stateTimer = self.create_timer(timer_period, callback = self.stateCallback, callback_group = state_cb_group)
         
-        self.StateRefresherTimer = self.create_timer(timer_period+0.1, callback = self.robot_state_refresher_callback, callback_group = state_refresher_cb_group)
-       
-        # state_thread = Thread(target = self.stateCallback)
-        # state_thread.start()
+        self.StateRefresherTimer = self.create_timer(timer_period+1, callback = self.robot_state_refresher_callback, callback_group = state_refresher_cb_group)
 
         self.action_handler = self.create_service(WeiActions, node_name + "/action_handler", self.actionCallback, callback_group = action_cb_group)
         self.description_handler = self.create_service(WeiDescription, node_name + "/description_handler", self.descriptionCallback, callback_group = description_cb_group)
@@ -163,7 +160,7 @@ class PF400Client(Node):
                 self.get_logger().error("Error Message: " + self.pf400.robot_error_msg)
                 self.job_flag = False
 
-            elif self.state == "COMPLETED":
+            elif self.state == "COMPLETED" and self.job_flag == True:
                 msg.data = 'State: %s' % self.state
                 self.statePub.publish(msg)
                 self.get_logger().info(msg.data)
@@ -238,7 +235,8 @@ class PF400Client(Node):
 
         while self.state != "READY":
             self.get_logger().warn("Waiting for PF400 to switch READY state...")
-            sleep(0.5)
+            self.stateCallback()
+            sleep(0.2)
 
         self.job_flag = True    
         # self.pf400.force_initialize_robot()
@@ -308,17 +306,21 @@ class PF400Client(Node):
             
             try:
                 self.pf400.transfer(source, target, source_plate_rotation, target_plate_rotation)
+
             except Exception as err:
+                response.action_msg = "Transfer failed. Error:" + err
                 response.action_response = -1
-                response.action_msg= "Transfer failed. Error:" + err
+                if self.pf400.robot_warning.upper() != "CLEAR":
+                    response.action_msg = self.pf400.robot_warning.upper()
+                self.state = "ERROR"
             else:    
                 response.action_response = 0
                 response.action_msg = "PF400 succsessfully completed a transfer"
+                self.state = "COMPLETED"
 
-            self.get_logger().info('Finished Action: ' + request.action_handle)
-            self.state = "COMPLETED"
-
-            return response
+            finally:
+                self.get_logger().info('Finished Action: ' + request.action_handle)
+                return response
 
         elif request.action_handle == "remove_lid":
 
@@ -433,7 +435,7 @@ class PF400Client(Node):
         else:
             msg = "UNKOWN ACTION REQUEST! Available actions: explore_workcell, transfer, remove_lid, replace_lid"
             response.action_response = -1
-            response.action_msg= msg
+            response.action_msg = msg
             self.get_logger().error('Error: ' + msg)
             self.state = "COMPLETED"
             return response

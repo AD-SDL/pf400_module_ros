@@ -55,12 +55,12 @@ class PF400(KINEMATICS):
 		# Initialize robot 
 		self.connect()
 		self.init_connection_mode()
-		
 		if port == 10100:
 			self.force_initialize_robot()
 		elif port == 10000:
 			self.status_port_initilization()
 
+		sleep(2)
 		self.movement_state = self.get_robot_movement_state()
 		self.robot_state = "Normal"	
 		self.robot_error_msg = ""
@@ -124,7 +124,7 @@ class PF400(KINEMATICS):
 
 			self.get_robot_movement_state()
 			if self.movement_state > 1:
-				print("Waiting for robot movement to end before sending the new command")
+				# print("Waiting for robot movement to end before sending the new command")
 				while self.movement_state > 1:
 					self.get_robot_movement_state()
 
@@ -132,9 +132,10 @@ class PF400(KINEMATICS):
 			self.connection.write((command.encode("ascii") + b"\n"))
 			response = self.connection.read_until(b"\r\n").rstrip().decode("ascii")
 			
-			if response != "" and response in self.error_codes or response.split(" ")[0].find("-") != -1:
+			if response != "" and response in self.error_codes:
 				self.robot_state = "ERROR"
 				self.handle_error_output(response)
+				return self.robot_error_msg
 			else:
 				# CASUING TO MANY MESSAGES TO BE PRINTED. UNCOMMENT IF NEEDED
 				if response in self.output_codes:
@@ -146,7 +147,8 @@ class PF400(KINEMATICS):
 
 				self.robot_state = "NORMAL"
 				self.robot_error_msg = ""
-	
+
+			return response
 
 		finally:
 		
@@ -159,13 +161,15 @@ class PF400(KINEMATICS):
         """
 		if not self.connection:
 			self.Connect()
-		if self.mode == 0:
-			# Set TCS to nonverbose
-			self.connection.write(("mode 0".encode("ascii") + b"\n"))
-		else:
+			
+		if self.mode == 1:
 			# Set TCS to verbose
 			self.connection.write(("mode 1".encode("ascii") + b"\n"))
 			self.send_command("selectrobot 1")
+		else:
+			# Set TCS to nonverbose
+			self.connection.write(("mode 0".encode("ascii") + b"\n"))
+			print("Setting connection mode to 0")
 			
 		init_mode = self.connection.read_until(b"\r\n").rstrip().decode("ascii")
 
@@ -179,7 +183,6 @@ class PF400(KINEMATICS):
 		else:
 			print("<< TCS Unknown error: " + output)
 			self.robot_error_msg = output
-
 
 	def check_robot_state(self, wait:int = 0.1):
 		"""
@@ -310,28 +313,27 @@ class PF400(KINEMATICS):
 		self.connection.write(("state".encode("ascii") + b"\n"))
 	
 		movement_state = self.connection.read_until(b"\r\n").rstrip().decode("ascii")
-
 		if movement_state != "" and movement_state in self.error_codes:
 			self.handle_error_output(movement_state)
 		else:
-			self.movement_state = int(float(movement_state.split()[1]))
+			self.movement_state = int(float(movement_state.split(" ")[1]))
 			
 	def get_overall_state(self):
 			"""
 			Decription: Checks general state
 			"""
 
-			power_msg = self.send_command("hp").split(" ")
-			# power_msg = power_msg.split(" ")
+			self.connection.write(("hp".encode("ascii") + b"\n"))
+			power_msg = self.connection.read_until(b"\r\n").rstrip().decode("ascii").split(" ")
 
-			attach_msg = self.send_command("attach").split(" ")
-			# attach_msg = attach_msg.split(" ")
+			self.connection.write(("attach".encode("ascii") + b"\n"))
+			attach_msg = self.connection.read_until(b"\r\n").rstrip().decode("ascii").split(" ")
 
-			home_msg = self.send_command("pd 2800").split(" ")
-			# home_msg = home_msg.split(" ")
+			self.connection.write(("pd 2800".encode("ascii") + b"\n"))
+			home_msg = self.connection.read_until(b"\r\n").rstrip().decode("ascii").split(" ")
 
-			state_msg = self.send_command("sysState").split(" ")
-			# state_msg = state_msg.split(" ")
+			self.connection.write(("sysState".encode("ascii") + b"\n"))
+			state_msg = self.connection.read_until(b"\r\n").rstrip().decode("ascii").split(" ")
 
 			if len(power_msg) == 1 or power_msg[0].find("-") != -1 or power_msg[1] == "0":
 				self.power_state = "-1"
@@ -353,7 +355,7 @@ class PF400(KINEMATICS):
 			else: 
 				self.initialization_state = state_msg[1]
 
-			print("Power: " + self.power_state + " Attach: " + self.attach_state + " Home: " + self.home_state + " Robot State: " + self.initialization_state)
+			# print("Power: " + self.power_state + " Attach: " + self.attach_state + " Home: " + self.home_state + " Robot State: " + self.initialization_state)
 
 			if self.power_state == "-1" or self.attach_state == "-1" or self.home_state == "-1" or self.initialization_state == "-1":
 				return -1
@@ -450,7 +452,6 @@ class PF400(KINEMATICS):
 		if rotation_degree == -90: # Yaw 90 to 0 degrees:
 			cartesian_coordinates[1] += 4
 			cartesian_coordinates[0] += 29
-			print("here")
 		elif rotation_degree == 90 :
 			cartesian_coordinates[1] -= 4
 			cartesian_coordinates[0] -= 29
@@ -596,13 +597,13 @@ class PF400(KINEMATICS):
 			return
 
 		elif grab_plate_status[1] == "-1":
-			print("Plate is grabed")
+			# print("Plate is grabed")
 			self.plate_state = 1
 			# self.gripper_closed_state = width
 			# self.set_gripper_close()
 
 		elif grab_plate_status[1] == "0" and width > 80: # Do not try smaller width 
-			print("No plate") 
+			# print("No plate") 
 			width -= 1
 			self.grab_plate(width,speed,force)
 
@@ -631,7 +632,7 @@ class PF400(KINEMATICS):
 		if release_plate_status[0] == "1":
 			print("Plate is not released")
 		elif release_plate_status[0] == "0":
-			print("Plate is released") 
+			# print("Plate is released") 
 			self.plate_state = 0
 
 		return release_plate_status
@@ -708,11 +709,11 @@ class PF400(KINEMATICS):
 		current_location = self.get_joint_states()
 
 		if not v_rail:
-			v_rail = current_location[0] # Keep the horizontal rail same
+			v_rail = current_location[0] # Keep the vertical rail same
 		if not h_rail:
 			h_rail = current_location[5] # Keep the horizontal rail same
 
-		self.neutral_joints[0] = v_rail + 60.0
+		self.neutral_joints[0] = v_rail + self.sample_above_height
 		self.neutral_joints[5] = h_rail
 
 		self.move_joint(self.neutral_joints,2)
@@ -806,7 +807,7 @@ class PF400(KINEMATICS):
 		self.move_joint(abovePos, 1)
 		self.move_joint(target, 1)
 		self.release_plate()
-		self.move_in_one_axis(profile = 1, axis_x = 0, axis_y = 0, axis_z = 60)
+		self.move_in_one_axis(profile = 1, axis_x = 0, axis_y = 0, axis_z = self.sample_above_height)
 		self.gripper_open()
 
 		# Fixing the offset on the z axis for OT2
@@ -820,7 +821,10 @@ class PF400(KINEMATICS):
 		self.move_joint(abovePos, 1)
 		self.move_joint(target, 1, False, True)
 		self.grab_plate(self.plate_width,100,10)
-		self.move_in_one_axis(profile = 1, axis_x = 0, axis_y = 0, axis_z = 60)
+		if self.plate_state == -1: 
+			self.robot_warning = "MISSING PLATE"
+			print("Rotation cannot be completed, missing plate!")
+		self.move_in_one_axis(profile = 1, axis_x = 0, axis_y = 0, axis_z = self.sample_above_height)
 		self.move_all_joints_neutral(target)
 
 
@@ -837,7 +841,7 @@ class PF400(KINEMATICS):
 		self.move_joint(abovePos, fast_profile)
 		self.move_joint(source_location, fast_profile, False, True)
 		self.grab_plate(self.plate_width,100,10)
-		self.move_in_one_axis(profile = 1, axis_x = 0, axis_y = 0, axis_z = 60)
+		self.move_in_one_axis(profile = 1, axis_x = 0, axis_y = 0, axis_z = self.sample_above_height)
 		self.move_all_joints_neutral(source_location)
 
 		# TODO: USE BELOW MOVE_ONE_AXIS FUNCTIONS TO MOVE ABOVE AND FRONT OF THE EACH TARGET LOCATIONS
@@ -857,7 +861,7 @@ class PF400(KINEMATICS):
 		self.move_joint(abovePos, slow_profile)
 		self.move_joint(target_location, slow_profile)
 		self.release_plate()
-		self.move_in_one_axis(profile = 1, axis_x = 0, axis_y = 0, axis_z = 60)
+		self.move_in_one_axis(profile = 1, axis_x = 0, axis_y = 0, axis_z = self.sample_above_height)
 		self.move_all_joints_neutral(target_location)
 
 	def transfer(self, source_loc:list, target_loc:list, source_plate_rotation:str = "", target_plate_rotation:str= ""):
@@ -899,6 +903,8 @@ class PF400(KINEMATICS):
 		if self.plate_state == -1: 
 			self.robot_warning = "MISSING PLATE"
 			print("Transfer cannot be completed, missing plate!")
+			self.move_all_joints_neutral()
+			sleep(5)
 			return # Stopping transfer here
 
 		if plate_source_rotation == 90 and plate_target_rotation == 0:
@@ -930,7 +936,7 @@ if __name__ == "__main__":
 	# robot.transfer(sciclops,OT2_alpha_deck_cooler,"narrow","wide")
 	# robot.move_all_joints_neutral()
 	# robot.move_joint([160.485, 60.452, 234.133, 422.715, 81.916, 995.074])
-	robot.rotate_plate_on_deck(-90)
+	# robot.rotate_plate_on_deck(-90)
 	# robot.transfer(OT2_alpha_deck_cooler,sciclops, "wide","narrow")
 
 	# robot.transfer(OT2_alpha_deck_cooler,sciclops, "wide","narrow")
