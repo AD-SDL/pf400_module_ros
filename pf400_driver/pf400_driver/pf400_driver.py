@@ -709,11 +709,11 @@ class PF400(KINEMATICS):
 		current_location = self.get_joint_states()
 
 		if not v_rail:
-			v_rail = current_location[0] # Keep the horizontal rail same
+			v_rail = current_location[0] # Keep the vertical rail same
 		if not h_rail:
 			h_rail = current_location[5] # Keep the horizontal rail same
 
-		self.neutral_joints[0] = v_rail + 60.0
+		self.neutral_joints[0] = v_rail + self.sample_above_height
 		self.neutral_joints[5] = h_rail
 
 		self.move_joint(self.neutral_joints,2)
@@ -807,7 +807,7 @@ class PF400(KINEMATICS):
 		self.move_joint(abovePos, 1)
 		self.move_joint(target, 1)
 		self.release_plate()
-		self.move_in_one_axis(profile = 1, axis_x = 0, axis_y = 0, axis_z = 60)
+		self.move_in_one_axis(profile = 1, axis_x = 0, axis_y = 0, axis_z = self.sample_above_height)
 		self.gripper_open()
 
 		# Fixing the offset on the z axis for OT2
@@ -824,7 +824,7 @@ class PF400(KINEMATICS):
 		if self.plate_state == -1: 
 			self.robot_warning = "MISSING PLATE"
 			print("Rotation cannot be completed, missing plate!")
-		self.move_in_one_axis(profile = 1, axis_x = 0, axis_y = 0, axis_z = 60)
+		self.move_in_one_axis(profile = 1, axis_x = 0, axis_y = 0, axis_z = self.sample_above_height)
 		self.move_all_joints_neutral(target)
 
 
@@ -841,7 +841,7 @@ class PF400(KINEMATICS):
 		self.move_joint(abovePos, fast_profile)
 		self.move_joint(source_location, fast_profile, False, True)
 		self.grab_plate(self.plate_width,100,10)
-		self.move_in_one_axis(profile = 1, axis_x = 0, axis_y = 0, axis_z = 60)
+		self.move_in_one_axis(profile = 1, axis_x = 0, axis_y = 0, axis_z = self.sample_above_height)
 		self.move_all_joints_neutral(source_location)
 
 		# TODO: USE BELOW MOVE_ONE_AXIS FUNCTIONS TO MOVE ABOVE AND FRONT OF THE EACH TARGET LOCATIONS
@@ -861,7 +861,7 @@ class PF400(KINEMATICS):
 		self.move_joint(abovePos, slow_profile)
 		self.move_joint(target_location, slow_profile)
 		self.release_plate()
-		self.move_in_one_axis(profile = 1, axis_x = 0, axis_y = 0, axis_z = 60)
+		self.move_in_one_axis(profile = 1, axis_x = 0, axis_y = 0, axis_z = self.sample_above_height)
 		self.move_all_joints_neutral(target_location)
 
 	def transfer(self, source_loc:list, target_loc:list, source_plate_rotation:str = "", target_plate_rotation:str= ""):
