@@ -235,7 +235,6 @@ class PF400Client(Node):
 
         while self.state != "READY":
             self.get_logger().warn("Waiting for PF400 to switch READY state...")
-            self.stateCallback()
             sleep(0.2)
 
         self.job_flag = True    
