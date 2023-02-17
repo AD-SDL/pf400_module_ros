@@ -95,7 +95,7 @@ class PF400Client(Node):
                 # self.get_logger().info("Refresh state")
                 self.state_refresher_timer = 0 
 
-            elif self.state_refresher_timer > 25: # Refresh the state if robot has been stuck at a status for more than 25 refresh times.
+            elif self.state_refresher_timer > 60: # Refresh the state if robot has been stuck at a status for more than 25 refresh times.
                 self.pf400.get_robot_movement_state()
                 self.pf400.get_overall_state()
                 # self.get_logger().info("Refresh state, robot state is frozen...")
