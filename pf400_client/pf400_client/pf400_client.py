@@ -58,6 +58,7 @@ class PF400Client(Node):
         state_refresher_cb_group = ReentrantCallbackGroup()
 
         timer_period = 0.5  # seconds
+        sleep(1) # Sleep till robot connection is established to start checking for state information 
 
         self.statePub = self.create_publisher(String, node_name + '/state', 10)
         self.stateTimer = self.create_timer(timer_period, callback = self.stateCallback, callback_group = state_cb_group)
@@ -93,21 +94,21 @@ class PF400Client(Node):
                 self.pf400.get_overall_state()
                 # self.get_logger().info("Refresh state")
                 self.state_refresher_timer = 0 
-            
+
+            elif self.state_refresher_timer > 25: # Refresh the state if robot has been stuck at a status for more than 25 refresh times.
+                self.pf400.get_robot_movement_state()
+                self.pf400.get_overall_state()
+                # self.get_logger().info("Refresh state, robot state is frozen...")
+                self.job_flag = False
+
             if self.past_movement_state == self.movement_state:
                 self.state_refresher_timer += 1
             elif self.past_movement_state != self.movement_state:
                 self.past_movement_state = self.movement_state
                 self.state_refresher_timer = 0 
 
-            if self.state_refresher_timer > 25: # Refresh the state if robot has been stuck at a status for more than 25 refresh times.
-                self.pf400.get_robot_movement_state()
-                self.pf400.get_overall_state()
-                # self.get_logger().info("Refresh state, robot state is frozen...")
-                self.job_flag = False
-
         except Exception as err:
-            # self.state = "PF400 CONNECTION ERROR"
+            self.state = "ERROR"
             self.get_logger().error(str(err))
 
     def stateCallback(self):
@@ -310,17 +311,16 @@ class PF400Client(Node):
             except Exception as err:
                 response.action_msg = "Transfer failed. Error:" + err
                 response.action_response = -1
-                self.get_logger().info('Finished Action: ' + request.action_handle)
                 if self.pf400.robot_warning.upper() != "CLEAR":
                     response.action_msg = self.pf400.robot_warning.upper()
                 self.state = "ERROR"
             else:    
                 response.action_response = 0
-                response.action_msg = "PF400 succsessfuly completed a transfer"
-                self.get_logger().info('Finished Action: ' + request.action_handle)
+                response.action_msg = "PF400 succsessfully completed a transfer"
                 self.state = "COMPLETED"
 
             finally:
+                self.get_logger().info('Finished Action: ' + request.action_handle)
                 return response
 
         elif request.action_handle == "remove_lid":
@@ -438,7 +438,7 @@ class PF400Client(Node):
             response.action_response = -1
             response.action_msg = msg
             self.get_logger().error('Error: ' + msg)
-            self.state = "COMPLETED"
+            self.state = "ERROR"
             return response
 
 
