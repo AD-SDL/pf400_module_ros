@@ -24,7 +24,7 @@ This is a sub class of the PF400 class, which includes more specific functions t
 ## pf400_client 
 This is a ROS2 wrapper that accepts service calls from wei_client with string messages to execute transfers between source and target locations.
 
-*`ros2 launch pf400_client pf400_client.launch.py`
+-`ros2 launch pf400_client pf400_client.launch.py`
 
 # Development
 ## Enable remote connections on PF400
