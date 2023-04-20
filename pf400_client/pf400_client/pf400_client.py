@@ -45,7 +45,7 @@ class PF400Client(Node):
         self.state = "UNKNOWN"
         self.pf400_error_message = ""
         self.pf400_state = ""
-        self.job_flag = False
+        self.action_flag = "READY"
         self.movement_state = -1
         self.past_movement_state = -1
         self.state_refresher_timer = 0
@@ -89,7 +89,7 @@ class PF400Client(Node):
             # TODO: FIX the bug: When Action call and refresh state callback function is executed at the same time action call is being ignored.
             # Refresh state callback runs "update state" functions while action_callback is running transfer and Network socket losses data when multiple commands were sent 
 
-            if self.job_flag == False: #Only refresh the state manualy if robot is not running a job.
+            if self.action_flag == "READY": #Only refresh the state manualy if robot is not running a job.
                 self.pf400.get_robot_movement_state()
                 self.pf400.get_overall_state()
                 # self.get_logger().info("Refresh state")
@@ -99,7 +99,7 @@ class PF400Client(Node):
                 self.pf400.get_robot_movement_state()
                 self.pf400.get_overall_state()
                 # self.get_logger().info("Refresh state, robot state is frozen...")
-                self.job_flag = False
+                self.action_flag = "READY"
 
             if self.past_movement_state == self.movement_state:
                 self.state_refresher_timer += 1
@@ -142,7 +142,7 @@ class PF400Client(Node):
                 self.statePub.publish(msg)
                 self.get_logger().warn(msg.data)
                 self.pf400.robot_warning = "CLEAR"
-                self.job_flag = False
+                self.action_flag = "READY"
 
             # Checking real robot state parameters and publishing the current state
             if self.movement_state == 0:
@@ -151,7 +151,7 @@ class PF400Client(Node):
                 self.statePub.publish(msg)
                 self.get_logger().error(msg.data)
                 self.pf400.force_initialize_robot()
-                self.job_flag = False
+                self.action_flag = "READY"
 
             elif self.pf400.robot_state == "ERROR":
                 self.state = "ERROR"
@@ -159,21 +159,21 @@ class PF400Client(Node):
                 self.statePub.publish(msg)
                 self.get_logger().error(msg.data)
                 self.get_logger().error("Error Message: " + self.pf400.robot_error_msg)
-                self.job_flag = False
+                self.action_flag = "READY"
 
-            elif self.state == "COMPLETED" and self.job_flag == True:
+            elif self.state == "COMPLETED" and self.action_flag == "BUSY":
                 msg.data = 'State: %s' % self.state
                 self.statePub.publish(msg)
                 self.get_logger().info(msg.data)
-                self.job_flag = False
+                self.action_flag = "READY"
 
-            elif (self.movement_state >= 1 and self.job_flag == True) or self.movement_state >= 2:
+            elif (self.movement_state >= 1 and self.action_flag == "BUSY") or self.movement_state >= 2:
                 self.state = "BUSY"
                 msg.data = 'State: %s' % self.state
                 self.statePub.publish(msg)
                 self.get_logger().info(msg.data)
 
-            elif self.movement_state == 1 and self.job_flag == False:
+            elif self.movement_state == 1 and self.action_flag == "READY":
                 self.state = "READY"
                 msg.data = 'State: %s' % self.state
                 self.statePub.publish(msg)
@@ -238,8 +238,7 @@ class PF400Client(Node):
             self.get_logger().warn("Waiting for PF400 to switch READY state...")
             sleep(0.2)
 
-        self.job_flag = True    
-        # self.pf400.force_initialize_robot()
+        self.action_flag = "BUSY"    
         self.get_logger().info('Received Action: ' + request.action_handle.upper())
 
         err=0
