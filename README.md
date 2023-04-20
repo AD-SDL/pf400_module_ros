@@ -63,6 +63,6 @@ This is a ROS2 wrapper that accepts service calls from wei_client with string me
 ## Resources
 
 * Original documents `/resources/documents`
-* Serverside VBA software `/resources/original_tcp_code`
+* Server side VBA software `/resources/original_tcp_code`
 * Backup config files `/resources/config_files`
 
