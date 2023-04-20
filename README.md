@@ -1,7 +1,7 @@
 # pf400_driver
 A repository for PF400 Collaborative Robot Arm driver, including user manuals and remote control interfaces.
 
-## PF400 Remote Client
+## PF400 Driver
 Python interface that allows remote commands to be executed using simple string messages over telnet socket on PF400 cobot.  `pf400_module/pf400_driver/pf400_driver/pf400_driver.py`
 
 - PF400 is the main object that will be used for operations such as remote connection as well as sending movement commands.
@@ -28,7 +28,7 @@ This is a ROS2 wrapper that accepts service calls from wei_client with string me
 
 # Development
 ## Enable remote connections on PF400
-- Enter IP address of the PF400 (192.168.50.50) in a web browser and then clink on Admin.
+- Enter IP address of the PF400 (146.137.240.35) in a web browser and then clink on Admin.
 - Go to startup configuration under wizards and setup tools. Make sure that "Tcp_cmd_server_pa" project is loaded to be automatically compiled when the robot is turned on.
 - Go to Control Panels and then Operator Control panel. Verify that TCP Command Server is running. 
 
@@ -51,16 +51,6 @@ This is a ROS2 wrapper that accepts service calls from wei_client with string me
 - `colcon build`
 - `source install/setup.bash`
 
-## Python Driver Install
-
-- `conda create -n rpl-test python=3.8`
-- `conda activate rpl-test`
-- `git clone https://github.com/AD-SDL/pf400_module.git`
-- `cd pf400_driver`
-- `#pip install -r requirements.txt`
-- `pip install -e .`
-
-Better to install in develop-mode while the config is still changing
 
 ## Rviz Visualization
 ### Launch with real robot
@@ -70,21 +60,9 @@ Better to install in develop-mode while the config is still changing
 
 ![RViz PF400 Visualization](https://github.com/AD-SDL/PF400_cobot/blob/main/resources/diagrams-figures/pf400-rviz.png)
 
-
-## Create new configuration
-
-## Logging
-CURRENTLY DEFECTIVE
-- Logs go to the "running" PC `/pf400_logs/robot_client_logs.log`
-
 ## Resources
 
 * Original documents `/resources/documents`
 * Serverside VBA software `/resources/original_tcp_code`
 * Backup config files `/resources/config_files`
 
-## TODO
-
-* move log to receive arbitrary path
-* move log to receive robot_name
-* move log to receive date
