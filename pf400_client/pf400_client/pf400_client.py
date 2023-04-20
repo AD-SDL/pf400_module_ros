@@ -439,20 +439,6 @@ class PF400Client(Node):
             self.state = "ERROR"
             return response
 
-
-
-    def whereJCallback(self, request, response):
-        '''
-        The descriptionCallback function is a service that can be called to showcase the available actions a robot
-        can preform as well as deliver essential information required by the master node.
-        '''
-
-        self.get_logger().info('What are my joint positions?')
- 
-        var  = self.pf400.send_command("wherej")
-        self.get_logger().info(str(var))
-        return response
-
 def main(args = None):
 
     rclpy.init(args=args)  # initialize Ros2 communication
