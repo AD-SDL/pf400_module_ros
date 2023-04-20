@@ -20,14 +20,21 @@ from pf400_driver.pf400_camera_driver import PF400_CAMERA
 
 class PF400Client(Node):
     '''
-    The jointControlNode inputs data from the 'action' topic, providing a set of commands for the driver to execute. It then receives feedback, 
-    based on the executed command and publishes the state of the peeler and a description of the peeler to the respective topics.
+    The PF400Client inputs data from the 'action' topic, providing a set of commands for the driver to execute. It then receives feedback, 
+    based on the executed command and publishes the state of the PF400 and a description of the PF400 to the respective topics.
     '''
     def __init__(self, TEMP_NODE_NAME = "PF400_Client_Node"):
-        '''
-        The init function is neccesary for the peelerNode class to initialize all variables, parameters, and other functions.
-        Inside the function the parameters exist, and calls to other functions and services are made so they can be executed in main.
-        '''
+        """ Connect to the robot by calling the PF400 object from the pf400_driver
+       
+         Parameters:
+        -----------
+            str
+                TEMP_NODE_NAME: A temporary node name to create the intial ROS node. Actual Node is later recieved by the launch parameters.
+            
+        Returns
+        -------
+            None
+        """
 
         super().__init__(TEMP_NODE_NAME)
         node_name = self.get_name()
@@ -71,6 +78,17 @@ class PF400Client(Node):
         self.description={}
 
     def connect_robot(self):
+        """ Connect to the robot by calling the PF400 object from the pf400_driver
+       
+         Parameters:
+        -----------
+            None
+
+        Returns
+        -------
+            None
+        """
+        
         try:
             self.pf400 = PF400(self.ip, self.port)
 
@@ -84,10 +102,17 @@ class PF400Client(Node):
             self.module_explorer = PF400_CAMERA(self.pf400)
 
     def robot_state_refresher_callback(self):
-        "Refreshes the robot states if robot cannot update the state parameters automatically because it is not running any jobs"
+        """ Refreshes the robot states if robot cannot update the state parameters automatically because it is not running any jobs
+       
+         Parameters:
+        -----------
+            None
+        Returns
+        -------
+            None
+        """
+
         try:
-            # TODO: FIX the bug: When Action call and refresh state callback function is executed at the same time action call is being ignored.
-            # Refresh state callback runs "update state" functions while action_callback is running transfer and Network socket losses data when multiple commands were sent 
 
             if self.action_flag == "READY": #Only refresh the state manualy if robot is not running a job.
                 self.pf400.get_robot_movement_state()
@@ -112,9 +137,15 @@ class PF400Client(Node):
             self.get_logger().error(str(err))
 
     def stateCallback(self):
-        '''
-        Publishes the pf400 state to the 'state' topic. 
-        '''
+        """ Publishes the pf400 state to the 'state' topic. 
+
+        Parameters:
+        -----------
+            None
+        Returns
+        -------
+            None
+        """
         msg = String()
 
         try:
@@ -178,7 +209,6 @@ class PF400Client(Node):
                 msg.data = 'State: %s' % self.state
                 self.statePub.publish(msg)
                 self.get_logger().info(msg.data)
-
 
         else: 
             msg.data = 'State: %s' % self.state
