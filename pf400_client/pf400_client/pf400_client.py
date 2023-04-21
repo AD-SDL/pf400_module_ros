@@ -70,7 +70,7 @@ class PF400Client(Node):
         self.statePub = self.create_publisher(String, node_name + '/state', 10)
         self.stateTimer = self.create_timer(timer_period, callback = self.stateCallback, callback_group = state_cb_group)
         
-        self.StateRefresherTimer = self.create_timer(timer_period+1, callback = self.robot_state_refresher_callback, callback_group = state_refresher_cb_group)
+        self.StateRefresherTimer = self.create_timer(timer_period, callback = self.robot_state_refresher_callback, callback_group = state_refresher_cb_group)
 
         self.action_handler = self.create_service(WeiActions, node_name + "/action_handler", self.actionCallback, callback_group = action_cb_group)
         self.description_handler = self.create_service(WeiDescription, node_name + "/description_handler", self.descriptionCallback, callback_group = description_cb_group)
@@ -120,7 +120,7 @@ class PF400Client(Node):
                 # self.get_logger().info("Refresh state")
                 self.state_refresher_timer = 0 
 
-            elif self.state_refresher_timer > 60 and self.movement_state == 1: # Refresh the state if robot has been stuck at a status for more than 25 refresh times.
+            elif self.state_refresher_timer > 120 and self.movement_state == 1: # Refresh the state if robot has been stuck at a status for more than 25 refresh times.
                 self.pf400.get_robot_movement_state()
                 self.pf400.get_overall_state()
                 # self.get_logger().info("Refresh state, robot state is frozen...")
@@ -158,7 +158,7 @@ class PF400Client(Node):
 
         if self.state != "PF400 CONNECTION ERROR":
             
-            # Addition check if robot wasn't attached to the software adter recovering from Power Off state
+            # Addition check if robot wasn't attached to the software after recovering from Power Off state
             if self.pf400.attach_state == "-1":
                 msg.data = "State: Robot is not attached"
                 self.statePub.publish(msg)
