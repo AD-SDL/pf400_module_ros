@@ -256,7 +256,7 @@ class PF400Client(Node):
             The robot steps it can do
         """
         '''
-
+        
         if self.state == "PF400 CONNECTION ERROR":
             message = "Connection error, cannot accept a job!"
             self.get_logger().error(message)
@@ -270,6 +270,7 @@ class PF400Client(Node):
 
         self.action_flag = "BUSY"    
         self.get_logger().info('Received Action: ' + request.action_handle.upper())
+        sleep(1)
 
         err=0
 
@@ -458,8 +459,8 @@ class PF400Client(Node):
                     response.action_response = 0
                     response.action_msg= "Replace lid successfully completed"
             
-            self.state = "COMPLETED"
-            return response
+            # self.state = "COMPLETED"
+            # return response
 
         else:
             msg = "UNKOWN ACTION REQUEST! Available actions: explore_workcell, transfer, remove_lid, replace_lid"
