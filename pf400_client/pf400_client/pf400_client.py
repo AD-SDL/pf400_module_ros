@@ -171,52 +171,33 @@ class PF400Client(Node):
         """
         msg = String()
         try_connect = False
-        err_flag = False
         warn_flag = False
+        err = None
 
         try:
             self.movement_state = self.pf400.movement_state
             # self.get_logger().warn("Move state: " + str(self.movement_state))
 
-        except ConnectionException as connection_err:
-            self.state = "PF400 CONNECTION ERROR"
-            self.get_logger().error(str(connection_err))
-            try_connect = True
-            err_flag = True
-
-        except CommandException as command_err:
-            self.state = "ERROR"
-            self.get_logger().error(str(command_err))
-            err_flag = True
-
         except UnboundLocalError as local_var_err:
-            self.state = "ERROR"
-            self.get_logger().error(str(local_var_err))
-            err_flag = True
+            err = local_var_err
 
         except AttributeError as attribute_err:
-            self.state = "ERROR"
-            self.get_logger().error(str(attribute_err))
+            err = attribute_err
             try_connect = True
-            err_flag = True
 
-        except TimeoutError as time_out_err:
-            self.state = "ERROR"
-            self.get_logger().error(str(attribute_err))
-            try_connect = True
-            err_flag = True
-
-        except Exception as err:
-            self.get_logger().error("ROBOT IS NOT RESPONDING! ERROR: " + str(err))
-            self.state = "ERROR"
-            err_flag = True
+        except Exception as general_err:
+            err = general_err
 
         finally:
             if try_connect:
+                self.state = "ERROR"
+                self.get_logger().error(str(err))
                 self.get_logger().warn("Trying to connect again! IP: " + self.ip + " Port:" + str(self.port))
                 self.connect_robot()
 
-            if err_flag:
+            if err:
+                self.state = "ERROR"
+                self.get_logger().error(str(err))
                 msg.data = 'State: %s' % self.state
                 self.statePub.publish(msg)
                 self.get_logger().error(msg.data)
