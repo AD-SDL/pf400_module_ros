@@ -61,7 +61,7 @@ class PF400Client(Node):
 
         self.connect_robot()
         sleep(1) # Sleep till robot connection is established to start checking for state information 
-        self.stateRefresherCallback()
+        self.stateRefresherCallback() 
 
         action_cb_group = ReentrantCallbackGroup()
         description_cb_group = ReentrantCallbackGroup()
@@ -218,7 +218,7 @@ class PF400Client(Node):
             self.pf400.force_initialize_robot()
 
         # Publishing robot warning messages if the job wasn't completed successfully
-        if self.pf400.robot_warning.upper() != "CLEAR":
+        if self.pf400.robot_warning.upper() != "CLEAR" and len(self.pf400.robot_warning)>0:
             self.state = "ERROR"
             self.get_logger().warn(self.pf400.robot_warning)
             err_flag = True
