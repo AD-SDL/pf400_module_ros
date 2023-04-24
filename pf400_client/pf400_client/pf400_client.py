@@ -13,9 +13,11 @@ from time import sleep
 from threading import Thread
 
 from wei_services.srv import WeiDescription 
-from wei_services.srv import WeiActions  
+from wei_services.srv import WeiActions 
 
+from pf400_driver.errors import ConnectionException, CommandException
 from pf400_driver.pf400_driver import PF400
+# from pf400_driver.errors import ConnectionException, CommandException
 from pf400_driver.pf400_camera_driver import PF400_CAMERA
 
 class PF400Client(Node):
@@ -94,10 +96,13 @@ class PF400Client(Node):
         try:
             self.pf400 = PF400(self.ip, self.port)
 
-        except Exception as error_msg:
+        except ConnectionException as error_msg:
             self.state = "PF400 CONNECTION ERROR"
-            self.get_logger().error("------- PF400 Error message: " + str(error_msg) +  (" -------"))
+            self.get_logger().error(str(error_msg))
 
+        except Exception as err:
+            self.state = "PF400 ERROR"
+            self.get_logger().error(str(err))
         else:
             self.get_logger().info("PF400 online")
             self.pf400.initialize_robot()
@@ -113,7 +118,7 @@ class PF400Client(Node):
         -------
             None
         """
-
+        err = None
         try:
 
             if self.action_flag == "READY": #Only refresh the state manualy if robot is not running a job.
@@ -134,9 +139,25 @@ class PF400Client(Node):
                 self.past_movement_state = self.movement_state
                 self.state_refresher_timer = 0 
 
-        except Exception as err:
-            self.state = "ERROR"
-            self.get_logger().error(str(err))
+        except ConnectionException as connection_err:
+            err = connection_err
+
+        except CommandException as command_err:
+            err = command_err
+
+        except UnboundLocalError as local_var_err:
+            err = local_var_err
+
+        except AttributeError as attribute_err:
+            err = attribute_err
+            self.get_logger().warn("Trying to connect again! IP: " + self.ip + " Port:" + str(self.port))
+            self.connect_robot()
+
+        finally:
+            if err:
+                self.state = "ERROR"
+                self.get_logger().error(str(err))
+         
 
     def stateCallback(self):
         """ Publishes the pf400 state to the 'state' topic. 
@@ -149,75 +170,107 @@ class PF400Client(Node):
             None
         """
         msg = String()
+        try_connect = False
+        err_flag = False
+        warn_flag = False
 
         try:
             self.movement_state = self.pf400.movement_state
             # self.get_logger().warn("Move state: " + str(self.movement_state))
 
+        except ConnectionException as connection_err:
+            self.state = "PF400 CONNECTION ERROR"
+            self.get_logger().error(str(connection_err))
+            try_connect = True
+            err_flag = True
+
+        except CommandException as command_err:
+            self.state = "ERROR"
+            self.get_logger().error(str(command_err))
+            err_flag = True
+
+        except UnboundLocalError as local_var_err:
+            self.state = "ERROR"
+            self.get_logger().error(str(local_var_err))
+            err_flag = True
+
+        except AttributeError as attribute_err:
+            self.state = "ERROR"
+            self.get_logger().error(str(attribute_err))
+            try_connect = True
+            err_flag = True
+
+        except TimeoutError as time_out_err:
+            self.state = "ERROR"
+            self.get_logger().error(str(attribute_err))
+            try_connect = True
+            err_flag = True
+
         except Exception as err:
             self.get_logger().error("ROBOT IS NOT RESPONDING! ERROR: " + str(err))
-            self.state = "PF400 CONNECTION ERROR"
+            self.state = "ERROR"
+            err_flag = True
 
-        if self.state != "PF400 CONNECTION ERROR":
+        finally:
+            if try_connect:
+                self.get_logger().warn("Trying to connect again! IP: " + self.ip + " Port:" + str(self.port))
+                self.connect_robot()
+
+            if err_flag:
+                msg.data = 'State: %s' % self.state
+                self.statePub.publish(msg)
+                self.get_logger().error(msg.data)
+                return
             
-            # Check if robot wasn't attached to the software after recovering from Power Off state
-            if self.pf400.attach_state == "-1":
-                msg.data = "State: Robot is not attached"
-                self.statePub.publish(msg)
-                self.get_logger().warn(msg.data)
-                self.pf400.force_initialize_robot()
-                sleep(6) 
+        # Check if robot wasn't attached to the software after recovering from Power Off state
+        if self.pf400.attach_state == "-1":
+            msg.data = "State: Robot is not attached"
+            warn_flag = True
+            self.pf400.force_initialize_robot()
+            sleep(6) 
 
-            # Publishing robot warning messages if the job wasn't completed successfully
-            if self.pf400.robot_warning.upper() != "CLEAR":
-                self.state = self.pf400.robot_warning
-                msg.data = 'State: %s' % self.state
-                self.statePub.publish(msg)
-                self.get_logger().warn(msg.data)
-                self.pf400.robot_warning = "CLEAR"
-                self.action_flag = "READY"
-
-            # Checking real robot state parameters and publishing the current state
-            if self.movement_state == 0:
-                self.state = "POWER OFF"
-                msg.data = 'State: %s' % self.state
-                self.statePub.publish(msg)
-                self.get_logger().error(msg.data)
-                self.pf400.force_initialize_robot()
-                self.action_flag = "READY"
-
-            elif self.pf400.robot_state == "ERROR":
-                self.state = "ERROR"
-                msg.data = 'State: %s' % self.state
-                self.statePub.publish(msg)
-                self.get_logger().error(msg.data)
-                self.get_logger().error("Error Message: " + self.pf400.robot_error_msg)
-                self.action_flag = "READY"
-
-            elif self.state == "COMPLETED" and self.action_flag == "BUSY":
-                msg.data = 'State: %s' % self.state
-                self.statePub.publish(msg)
-                self.get_logger().info(msg.data)
-                self.action_flag = "READY"
-
-            elif (self.movement_state >= 1 and self.action_flag == "BUSY") or self.movement_state >= 2:
-                self.state = "BUSY"
-                msg.data = 'State: %s' % self.state
-                self.statePub.publish(msg)
-                self.get_logger().info(msg.data)
-
-            elif self.movement_state == 1 and self.action_flag == "READY":
-                self.state = "READY"
-                msg.data = 'State: %s' % self.state
-                self.statePub.publish(msg)
-                self.get_logger().info(msg.data)
-
-        else: 
+        # Publishing robot warning messages if the job wasn't completed successfully
+        if self.pf400.robot_warning.upper() != "CLEAR":
+            self.state = self.pf400.robot_warning
             msg.data = 'State: %s' % self.state
-            self.statePub.publish(msg)
+            warn_flag = True
+            self.pf400.robot_warning = "CLEAR"
+            self.action_flag = "READY"
+
+        # Checking real robot state parameters and publishing the current state
+        if self.movement_state == 0:
+            self.state = "POWER OFF"
+            msg.data = 'State: %s' % self.state
+            err_flag = True
+            self.pf400.force_initialize_robot()
+            self.action_flag = "READY"
+
+        elif self.pf400.robot_state == "ERROR":
+            self.state = "ERROR"
+            msg.data = 'State: %s' % self.state
+            err_flag = True
+            self.get_logger().error("Error Message: " + self.pf400.robot_error_msg)
+            self.action_flag = "READY"
+
+        elif self.state == "COMPLETED" and self.action_flag == "BUSY":
+            msg.data = 'State: %s' % self.state
+            self.action_flag = "READY"
+
+        elif (self.movement_state >= 1 and self.action_flag == "BUSY") or self.movement_state >= 2:
+            self.state = "BUSY"
+            msg.data = 'State: %s' % self.state
+
+        elif self.movement_state == 1 and self.action_flag == "READY":
+            self.state = "READY"
+            msg.data = 'State: %s' % self.state
+    
+        self.statePub.publish(msg)
+        if warn_flag:
+            self.get_logger().warn(msg.data)
+        elif err_flag:
             self.get_logger().error(msg.data)
-            self.get_logger().warn("Trying to connect again! IP: " + self.ip + " Port:" + str(self.port))
-            self.connect_robot()
+        else:
+            self.get_logger().info(msg.data)
 
     def descriptionCallback(self, request, response):
         """The descriptionCallback function is a service that can be called to showcase the available actions a robot
