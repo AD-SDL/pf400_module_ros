@@ -932,7 +932,7 @@ if __name__ == "__main__":
 	gamma = [161.481, 60.986, 88.774, 657.358, 124.091, -951.510] 	 	 	 	 	 	 	 
 
 	thermocycler = [247.0, 40.698, 38.294, 728.332, 123.077, 301.082]
-	# robot.transfer(gamma, robot.plate_camera_deck, "wide", "narrow")
+	#robot.transfer( robot.plate_camera_deck,gamma,"narrow",  "wide")
 	# robot.transfer(sciclops,OT2_alpha_deck_cooler,"narrow","wide")
 	# robot.move_all_joints_neutral()
 	# robot.move_joint([160.485, 60.452, 234.133, 422.715, 81.916, 995.074])
