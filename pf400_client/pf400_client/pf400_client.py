@@ -180,7 +180,8 @@ class PF400Client(Node):
         msg = String()
         try_connect = False
         err = None
-
+        err_flag = False
+        
         try:
             self.movement_state = self.pf400.movement_state
             # self.get_logger().warn("Move state: " + str(self.movement_state))
