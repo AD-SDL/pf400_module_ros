@@ -1,5 +1,12 @@
 
 class ConnectionException(Exception):
-    def __init__(self, message="Could not establish connection"):
+    def __init__(self, err_message = "error"):
         # Call the base class constructor with the parameters it needs
-        super(ConnectionException, self).__init__(message)
+        super(ConnectionException, self).__init__("Could not establish connection! Error type: " + err_message)
+
+class CommandException(Exception):
+    def __init__(self, err_message = "error"):
+        super(CommandException, self).__init__(
+            "Invalid command! Check if communication is open. Error type: " + err_message
+        )
+
