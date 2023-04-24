@@ -61,7 +61,7 @@ class PF400Client(Node):
 
         self.connect_robot()
         sleep(1) # Sleep till robot connection is established to start checking for state information 
-        self.robot_state_refresher_callback()
+        self.stateRefresherCallback()
 
         action_cb_group = ReentrantCallbackGroup()
         description_cb_group = ReentrantCallbackGroup()
@@ -69,12 +69,12 @@ class PF400Client(Node):
         state_refresher_cb_group = ReentrantCallbackGroup()
 
         state_publisher_period = 0.5  # seconds
-        state_refresher_period = state_publisher_period + 1.0  # seconds
+        self.state_refresher_period = state_publisher_period + 1.0  # seconds
 
         self.statePub = self.create_publisher(String, node_name + '/state', 10)
         self.stateTimer = self.create_timer(state_publisher_period, callback = self.stateCallback, callback_group = state_cb_group)
         
-        self.StateRefresherTimer = self.create_timer(state_refresher_period, callback = self.robot_state_refresher_callback, callback_group = state_refresher_cb_group)
+        self.StateRefresherTimer = self.create_timer(self.state_refresher_period, callback = self.stateRefresherCallback, callback_group = state_refresher_cb_group)
 
         self.action_handler = self.create_service(WeiActions, node_name + "/action_handler", self.actionCallback, callback_group = action_cb_group)
         self.description_handler = self.create_service(WeiDescription, node_name + "/description_handler", self.descriptionCallback, callback_group = description_cb_group)
@@ -108,7 +108,7 @@ class PF400Client(Node):
             self.pf400.initialize_robot()
             self.module_explorer = PF400_CAMERA(self.pf400)
 
-    def robot_state_refresher_callback(self):
+    def stateRefresherCallback(self):
         """ Refreshes the robot states if robot cannot update the state parameters automatically because it is not running any jobs
        
          Parameters:
@@ -127,11 +127,14 @@ class PF400Client(Node):
                 # self.get_logger().info("Refresh state")
                 self.state_refresher_timer = 0 
 
-            elif self.state_refresher_timer > 60 and self.movement_state == 1: # Refresh the state if robot has been stuck at a status for more than 25 refresh times.
+            elif self.state_refresher_timer > 60: # Refresh the state if robot has been stuck at the same status for more than 60x1.5 seconds.
+                # self.state_refresher_counter += 0
+                # if self.state_refresher_counter > 3: # Before calling the state refresher functions make sure this condition is consistant for at least 3 cycles.
                 self.pf400.get_robot_movement_state()
                 self.pf400.get_overall_state()
-                # self.get_logger().info("Refresh state, robot state is frozen...")
+                self.get_logger().info("Refresh state, robot state is frozen...")
                 self.action_flag = "READY"
+                self.state_refresher_counter = 0
 
             if self.past_movement_state == self.movement_state:
                 self.state_refresher_timer += 1
@@ -304,7 +307,7 @@ class PF400Client(Node):
 
         self.action_flag = "BUSY"    
         self.get_logger().info('Received Action: ' + request.action_handle.upper())
-        # sleep(1)
+        sleep(self.state_refresher_period + 0.1) #Before starting the action, wait for stateRefresherCallback function to cycle for at least once to avoid data loss.
 
         vars = eval(request.vars)
         self.get_logger().info(str(vars))
