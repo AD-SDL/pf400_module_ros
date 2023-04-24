@@ -148,6 +148,9 @@ class PF400Client(Node):
         except UnboundLocalError as local_var_err:
             err = local_var_err
 
+        except TimeoutError as time_err:
+            err = time_err
+
         except AttributeError as attribute_err:
             err = attribute_err
             self.get_logger().warn("Trying to connect again! IP: " + self.ip + " Port:" + str(self.port))
@@ -205,50 +208,45 @@ class PF400Client(Node):
             
         # Check if robot wasn't attached to the software after recovering from Power Off state
         if self.pf400.attach_state == "-1":
-            msg.data = "State: Robot is not attached"
-            warn_flag = True
+            self.state = "ERROR"
+            self.get_logger().warn("Robot is not attached")
+            err_flag = True
             self.pf400.force_initialize_robot()
-            sleep(6) 
 
         # Publishing robot warning messages if the job wasn't completed successfully
         if self.pf400.robot_warning.upper() != "CLEAR":
-            self.state = self.pf400.robot_warning
-            msg.data = 'State: %s' % self.state
-            warn_flag = True
+            self.state = "ERROR"
+            self.get_logger().warn(self.pf400.robot_warning)
+            err_flag = True
             self.pf400.robot_warning = "CLEAR"
             self.action_flag = "READY"
 
         # Checking real robot state parameters and publishing the current state
         if self.movement_state == 0:
             self.state = "POWER OFF"
-            msg.data = 'State: %s' % self.state
             err_flag = True
             self.pf400.force_initialize_robot()
             self.action_flag = "READY"
 
         elif self.pf400.robot_state == "ERROR":
             self.state = "ERROR"
-            msg.data = 'State: %s' % self.state
             err_flag = True
             self.get_logger().error("Error Message: " + self.pf400.robot_error_msg)
             self.action_flag = "READY"
 
         elif self.state == "COMPLETED" and self.action_flag == "BUSY":
-            msg.data = 'State: %s' % self.state
             self.action_flag = "READY"
 
         elif (self.movement_state >= 1 and self.action_flag == "BUSY") or self.movement_state >= 2:
             self.state = "BUSY"
-            msg.data = 'State: %s' % self.state
 
         elif self.movement_state == 1 and self.action_flag == "READY":
             self.state = "READY"
-            msg.data = 'State: %s' % self.state
-    
+
+        msg.data = 'State: %s' % self.state
         self.statePub.publish(msg)
-        if warn_flag:
-            self.get_logger().warn(msg.data)
-        elif err_flag:
+
+        if err_flag:
             self.get_logger().error(msg.data)
         else:
             self.get_logger().info(msg.data)
