@@ -228,10 +228,10 @@ class PF400Client(Node):
             self.pf400.force_initialize_robot()
             self.action_flag = "READY"
 
-        elif self.pf400.robot_state == "ERROR":
+        elif self.pf400.robot_state == "ERROR" or self.state == "ERROR":
             self.state = "ERROR"
             err_flag = True
-            self.get_logger().error("Error Message: " + self.pf400.robot_error_msg)
+            self.get_logger().error(self.pf400.robot_error_msg)
             self.action_flag = "READY"
 
         elif self.state == "COMPLETED" and self.action_flag == "BUSY":
@@ -304,9 +304,12 @@ class PF400Client(Node):
 
         self.action_flag = "BUSY"    
         self.get_logger().info('Received Action: ' + request.action_handle.upper())
-        sleep(1)
+        # sleep(1)
 
-        err=0
+        vars = eval(request.vars)
+        self.get_logger().info(str(vars))
+
+        err=False
 
         if request.action_handle == "explore_workcell":
             
@@ -329,28 +332,25 @@ class PF400Client(Node):
 
             source_plate_rotation = ""
             target_plate_rotation = ""
-            
-            vars = eval(request.vars)
-            self.get_logger().info(str(vars))
 
             if 'source' not in vars.keys():
-                err = 1
+                err = True
                 msg = "Pick up location is not provided. Canceling the job!"
             elif 'target' not in vars.keys():
-                err = 1
+                err = True
                 msg = "Drop off up location is not provided. Canceling the job!"
             elif len(vars.get('source')) != 6:
-                err = 1
+                err = True
                 msg = "Position 1 should be six joint angles lenght. Canceling the job!"
             elif len(vars.get('target')) != 6:
-                err = 1
+                err = True
                 msg = "Position 2 should be six joint angles lenght. Canceling the job!"
 
             if err:
                 response.action_response = -1
                 response.action_msg= msg
                 self.get_logger().error('Error: ' + msg)
-                self.state = "COMPLETED"
+                self.state = "ERROR"
                 return response
 
             if 'source_plate_rotation' not in vars.keys():
@@ -377,6 +377,7 @@ class PF400Client(Node):
                 if self.pf400.robot_warning.upper() != "CLEAR":
                     response.action_msg = self.pf400.robot_warning.upper()
                 self.state = "ERROR"
+
             else:    
                 response.action_response = 0
                 response.action_msg = "PF400 succsessfully completed a transfer"
@@ -389,21 +390,19 @@ class PF400Client(Node):
         elif request.action_handle == "remove_lid":
 
             target_plate_rotation = ""
-            vars = eval(request.vars)
-            self.get_logger().info(str(vars))
 
             if 'target' not in vars.keys():
                 err = 1
                 msg = "Target location is not provided. Canceling the job!"
                 self.get_logger().error(msg)
-                self.state = "COMPLETED"
+                self.state = "ERROR"
                  
 
             if len(vars.get('target')) != 6:
                 err = 1
                 msg = "Target position should be six joint angles lenght. Canceling the job!"
                 self.get_logger().error(msg)
-                self.state = "COMPLETED"
+                self.state = "ERROR"
             
             if err:
                 response.action_response = -1
@@ -427,74 +426,67 @@ class PF400Client(Node):
             except Exception as err:
                 response.action_response = -1
                 response.action_msg= "Remove lid failed. Error:" + err
+                self.state = "ERROR"
             else:    
                 response.action_response = 0
                 response.action_msg= "Remove lid successfully completed"
+                self.state = "COMPLETED"
 
-            self.state = "COMPLETED"
-
-            return response
-
+            finally:
+                self.get_logger().info('Finished Action: ' + request.action_handle)
+                return response
+            
         elif request.action_handle == "replace_lid":
 
             target_plate_rotation = ""
 
-            vars = eval(request.vars)
-            self.get_logger().info(vars)
-
             if 'target' not in vars.keys():
                 err = 1
-                msg = "Drop off location is not provided. Canceling the job!"
+                msg = "Target location is not provided. Canceling the job!"
                 self.get_logger().error(msg)
-                self.state = "COMPLETED"
+                self.state = "ERROR"
+                 
 
             if len(vars.get('target')) != 6:
                 err = 1
-                msg = "Position 2 should be six joint angles lenght. Canceling the job!"
+                msg = "Target position should be six joint angles lenght. Canceling the job!"
                 self.get_logger().error(msg)
-                self.state = "COMPLETED"
+                self.state = "ERROR"
 
             if err:
                 response.action_response = -1
                 response.action_msg= msg
                 self.get_logger().error('Error: ' + msg)
                 return response
-
+        
             if 'target_plate_rotation' not in vars.keys():
                 self.get_logger().info("Setting target plate rotation to 0")
             else:
                 target_plate_rotation = str(vars.get('target_plate_rotation'))
             
-            target = vars.get('target')
-            self.get_logger().info("Target location: ",target)
 
             if 'lid_height' not in vars.keys():
                 self.get_logger().info('Using defult lid hight')
+                lid_height = 7.0
 
-                try:
-                    self.pf400.replace_lid(target, target_plate_rotation)
-                except Exception as err:
-                    response.action_response = -1
-                    response.action_msg= "Replace lid failed. Error:" + err
-                else:    
-                    response.action_response = 0
-                    response.action_msg= "Replace lid successfully completed"
             else:    
                 lid_height = vars.get('lid_height')
 
-                self.get_logger().info("Lid hight: " + str(lid_height))
+            self.get_logger().info("Lid hight: " + str(lid_height))
 
-                try:    
-                    self.pf400.replace_lid(target, lid_height, target_plate_rotation)
-                except Exception as err:
-                    response.action_response = -1
-                    response.action_msg= "Replace lid failed. Error:" + err
-                else:    
-                    response.action_response = 0
-                    response.action_msg= "Replace lid successfully completed"
-            
-            # self.state = "COMPLETED"
-            # return response
+            try:    
+                self.pf400.replace_lid(target, lid_height, target_plate_rotation)
+            except Exception as err:
+                response.action_response = -1
+                response.action_msg= "Replace lid failed. Error:" + err
+                self.state = "ERROR"
+            else:    
+                response.action_response = 0
+                response.action_msg= "Replace lid successfully completed"
+                self.state = "COMPLETED"
+            finally:
+                self.get_logger().info('Finished Action: ' + request.action_handle)
+                return response
 
         else:
             msg = "UNKOWN ACTION REQUEST! Available actions: explore_workcell, transfer, remove_lid, replace_lid"
