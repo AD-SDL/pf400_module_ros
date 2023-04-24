@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 
-# import rclpy
-import profile
 import telnetlib
 import threading
 import copy
@@ -12,6 +10,7 @@ from time import sleep
 
 from pf400_driver.pf400_motion_profiles import motion_profiles
 from pf400_driver.pf400_error_codes import error_codes
+from pf400_driver.errors import ConnectionException, CommandException
 from pf400_driver.pf400_output_codes import output_codes
 from pf400_driver.pf400_kinematics import KINEMATICS
 
@@ -101,8 +100,8 @@ class PF400(KINEMATICS):
 		"""   
 		try:
 			self.connection = telnetlib.Telnet(self.host, self.port, 5)
-		except:
-			raise Exception("Could not establish connection")
+		except TimeoutError:
+			raise ConnectionException(err_message="Timed out error")
 
 	def disconnect(self):
 		"""
@@ -120,7 +119,7 @@ class PF400(KINEMATICS):
 		
 		try:
 			if not self.connection:
-				self.Connect()	
+				self.connect()	
 
 			self.get_robot_movement_state()
 			if self.movement_state > 1:
@@ -150,28 +149,32 @@ class PF400(KINEMATICS):
 
 			return response
 
-		finally:
-		
-			self.commandLock.release()
+		except AttributeError:
+			raise CommandException(err_message="Attribute Error")
 
-	# INITIALIZE COMMANDS 
+		finally:
+			self.commandLock.release()
 
 	def init_connection_mode(self):
 		"""
         """
 		if not self.connection:
-			self.Connect()
+			self.connect()
 			
 		if self.mode == 1:
 			# Set TCS to verbose
-			self.connection.write(("mode 1".encode("ascii") + b"\n"))
+			# self.connection.write(("mode 1".encode("ascii") + b"\n"))
+			self.send_command("mode 1")
 			self.send_command("selectrobot 1")
+			print("Setting connection mode to 1")
+
 		else:
 			# Set TCS to nonverbose
-			self.connection.write(("mode 0".encode("ascii") + b"\n"))
+			# self.connection.write(("mode 0".encode("ascii") + b"\n"))
+			self.send_command("mode 0")
 			print("Setting connection mode to 0")
 			
-		init_mode = self.connection.read_until(b"\r\n").rstrip().decode("ascii")
+		# init_mode = self.connection.read_until(b"\r\n").rstrip().decode("ascii")
 
 	def handle_error_output(self, output):
 		"""
@@ -282,9 +285,11 @@ class PF400(KINEMATICS):
         Description: 
         """
 
-		self.connection.write(("wherej".encode("ascii") + b"\n"))
-		joint_array = self.connection.read_until(b"\r\n").rstrip().decode("ascii")
-		
+		try:
+			self.connection.write(("wherej".encode("ascii") + b"\n"))
+			joint_array = self.connection.read_until(b"\r\n").rstrip().decode("ascii")
+		except AttributeError:
+			raise CommandException(err_message="Attribute Error")
 		
 		if joint_array != "" and joint_array in self.error_codes:
 			self.handle_error_output(joint_array)
@@ -309,15 +314,20 @@ class PF400(KINEMATICS):
 				2 = Acceleration
 				3 = Decelaration	
 		"""
+		try:
+			self.connection.write(("state".encode("ascii") + b"\n"))
+			movement_state = self.connection.read_until(b"\r\n").rstrip().decode("ascii")
+		except AttributeError:
+			raise CommandException(err_message="Attribute Error")
 
-		self.connection.write(("state".encode("ascii") + b"\n"))
-	
-		movement_state = self.connection.read_until(b"\r\n").rstrip().decode("ascii")
-		if movement_state != "" and movement_state in self.error_codes:
-			self.handle_error_output(movement_state)
-		else:
-			self.movement_state = int(float(movement_state.split(" ")[1]))
-			
+		try:	
+			if movement_state != "" and movement_state in self.error_codes:
+				self.handle_error_output(movement_state)
+			else:
+				self.movement_state = int(float(movement_state.split(" ")[1]))
+		except UnboundLocalError:
+			raise CommandException(err_message="UnboundLocalError")
+
 	def get_overall_state(self):
 			"""
 			Decription: Checks general state
