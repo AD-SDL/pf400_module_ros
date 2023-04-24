@@ -95,6 +95,8 @@ class PF400Client(Node):
         
         try:
             self.pf400 = PF400(self.ip, self.port)
+            self.pf400.initialize_robot()
+            self.module_explorer = PF400_CAMERA(self.pf400)
 
         except ConnectionException as error_msg:
             self.state = "PF400 CONNECTION ERROR"
@@ -103,10 +105,10 @@ class PF400Client(Node):
         except Exception as err:
             self.state = "PF400 ERROR"
             self.get_logger().error(str(err))
+            
         else:
             self.get_logger().info("PF400 online")
-            self.pf400.initialize_robot()
-            self.module_explorer = PF400_CAMERA(self.pf400)
+
 
     def stateRefresherCallback(self):
         """ Refreshes the robot states if robot cannot update the state parameters automatically because it is not running any jobs
@@ -177,7 +179,6 @@ class PF400Client(Node):
         """
         msg = String()
         try_connect = False
-        warn_flag = False
         err = None
 
         try:
