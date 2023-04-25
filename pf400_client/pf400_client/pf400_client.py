@@ -238,6 +238,7 @@ class PF400Client(Node):
             err_flag = True
             self.get_logger().error(self.pf400.robot_error_msg)
             self.action_flag = "READY"
+            self.state = "UNKOWN"
 
         elif self.state == "COMPLETED" and self.action_flag == "BUSY":
             self.action_flag = "READY"
