@@ -180,12 +180,16 @@ class PF400(KINEMATICS):
 		"""
 		Decription: Handles the error message output
 		"""
-		if output in self.error_codes:
-			print("<< " + self.error_codes[output])
-			self.robot_error_msg = self.error_codes[output]
-		else:
-			print("<< TCS Unknown error: " + output)
-			self.robot_error_msg = output
+		response = ErrorResponse.from_error_code(output)
+		print(response)
+		self.robot_error_msg = response
+
+		# if output in self.error_codes:
+		# 	print("<< " + self.error_codes[output])
+		# 	self.robot_error_msg = self.error_codes[output]
+		# else:
+		# 	print("<< TCS Unknown error: " + output)
+		# 	self.robot_error_msg = output
 
 	def check_robot_state(self, wait:int = 0.1):
 		"""
