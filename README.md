@@ -12,7 +12,7 @@ Python interface that allows remote commands to be executed using simple string 
 
 This is a sub class of the PF400 class, which includes more specific functions that will be utilized only in Rapid Prototyping Lab. `/pf400_module/pf400_driver/pf400_driver/pf400_camera_driver.py`
 
-- This class is designed to move PF400 robot in the workcell and also discovere the module location by using two cameras with OpenCV algorithms.
+- This class is designed to move PF400 robot in the workcell and also discover the module location by using two cameras with OpenCV algorithms.
 
 ### Current features
 * Robot initilazation (enable power, home robot joints, attach robot to the software and check robot state)
@@ -48,6 +48,12 @@ This is a ROS2 wrapper that accepts service calls from wei_client with string me
 - `sudo apt install python3-rosdep2`
 - `rosdep update && rosdep install -i --from-path src`
 - `sudo apt install python3-colcon-common-extensions`
+- `colcon build`
+- `source install/setup.bash`
+
+## ROS Update
+- `cd ~/pf400_ws`
+- `git pull`
 - `colcon build`
 - `source install/setup.bash`
 
