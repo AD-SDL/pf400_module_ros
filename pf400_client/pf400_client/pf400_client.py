@@ -312,14 +312,14 @@ class PF400Client(Node):
         self.get_logger().info('Received Action: ' + request.action_handle.upper())
         sleep(self.state_refresher_period + 0.1) #Before starting the action, wait for stateRefresherCallback function to cycle for at least once to avoid data loss.
 
-        vars = eval(request.vars)
+        vars = json.loads(request.vars)
         self.get_logger().info(str(vars))
 
         err=False
 
         if request.action_handle == "explore_workcell":
             
-            vars = eval(request.vars)
+            vars = json.loads(request.vars)
             self.get_logger().info(vars)
 
             module_list = self.module_explorer.explore_workcell()     #Recieve the module list

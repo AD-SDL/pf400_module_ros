@@ -67,7 +67,7 @@ class PF400CameraNode(Node):
 
             self.state = "BUSY"
             self.stateCallback()
-            vars = eval(request.vars)
+            vars = json.loads(request.vars)
             print(vars)
 
             locations = self.camera.explore_workcell()
