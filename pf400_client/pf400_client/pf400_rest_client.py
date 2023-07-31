@@ -53,28 +53,38 @@ async def lifespan(app: FastAPI):
     ip = "127.0.0.1"
     port = 8085
 
+    ip= "146.137.240.35"
+    port = 10100
+
     try:
         pf400 = PF400(ip, port)
         pf400.initialize_robot()
-        module_explorer = PF400_CAMERA(pf400)
+        #module_explorer = PF400_CAMERA(pf400)
+        state="READY"
 
     except ConnectionException as error_msg:
         state = "ERROR"
+        print(error_msg)
         #get_logger().error(str(error_msg))
 
     except Exception as err:
         state = "ERROR"
+        print(err)
         #get_logger().error(str(err))
-        
-        #get_logger().info("PF400 online")
+    else:
+        print("PF400 online")
+    yield
+
+    # Do any cleanup here
+    pass
 
 
 app = FastAPI(lifespan=lifespan, )
 
 @app.get("/state")
-async def state():
-    global sealer
-    return JSONResponse(content={"State": sealer.get_status() })
+def state():
+    global state
+    return JSONResponse(content={"State": state })
 
 @app.get("/description")
 async def description():
@@ -88,17 +98,17 @@ async def resources():
 
 
 @app.post("/action")
-async def do_action(
+def do_action(
     action_handle: str,
-    action_vars: dict, 
-):
+    action_vars):
     response = {"action_response": "", "action_msg": "", "action_log": ""}
+    print(action_vars)
     global sealer, state
     if state == "PF400 CONNECTION ERROR":
         message = "Connection error, cannot accept a job!"
         #get_logger().error(message)
-        response.action_response = -1
-        response.action_msg= message
+        #response.action_response = -1
+        #wresponse.action_msg= message
         return response
 
     while state != "READY":
@@ -132,8 +142,8 @@ async def do_action(
             msg = "Position 2 should be six joint angles lenght. Canceling the job!"
 
         if err:
-            response.action_response = -1
-            response.action_msg= msg
+            response["action_response"] = -1
+            response["action_msg"]= msg
             #get_logger().error('Error: ' + msg)
             state = "ERROR"
             return response
@@ -159,15 +169,16 @@ async def do_action(
             pf400.transfer(source, target, source_plate_rotation, target_plate_rotation)
 
         except Exception as err:
-            response.action_msg = "Transfer failed. Error:" + err
-            response.action_response = -1
+            #response.action_msg = "Transfer failed. Error:" + err
+            #response.action_response = -1
             if pf400.robot_warning.upper() != "CLEAR":
-                response.action_msg = pf400.robot_warning.upper()
+                #response.action_msg = pf400.robot_warning.upper()
+                pass
             state = "ERROR"
 
         else:    
-            response.action_response = 0
-            response.action_msg = "PF400 succsessfully completed a transfer"
+            #response.action_response = 0
+            #response.action_msg = "PF400 succsessfully completed a transfer"
             state = "READY"
 
         finally:
@@ -192,8 +203,8 @@ async def do_action(
             state = "ERROR"
         
         if err:
-            response.action_response = -1
-            response.action_msg= msg
+            #response.action_response = -1
+            #response.action_msg= msg
             #get_logger().error('Error: ' + msg)
             return response
 
@@ -212,12 +223,12 @@ async def do_action(
         try:
             pf400.remove_lid(target, lid_height, target_plate_rotation)
         except Exception as err:
-            response.action_response = -1
-            response.action_msg= "Remove lid failed. Error:" + err
+            #response.action_response = -1
+            #response.action_msg= "Remove lid failed. Error:" + err
             state = "ERROR"
         else:    
-            response.action_response = 0
-            response.action_msg= "Remove lid successfully completed"
+            #response.action_response = 0
+            #response.action_msg= "Remove lid successfully completed"
             state = "COMPLETED"
 
         finally:
@@ -242,8 +253,8 @@ async def do_action(
             state = "ERROR"
 
         if err:
-            response.action_response = -1
-            response.action_msg= msg
+            #response.action_response = -1
+            #response.action_msg= msg
             #get_logger().error('Error: ' + msg)
             return response
     
@@ -266,12 +277,12 @@ async def do_action(
         try:    
             pf400.replace_lid(target, lid_height, target_plate_rotation)
         except Exception as err:
-            response.action_response = -1
-            response.action_msg= "Replace lid failed. Error:" + err
+            #response.action_response = -1
+            #response.action_msg= "Replace lid failed. Error:" + err
             state = "ERROR"
         else:    
-            response.action_response = 0
-            response.action_msg= "Replace lid successfully completed"
+            #response.action_response = 0
+            #response.action_msg= "Replace lid successfully completed"
             state = "COMPLETED"
         finally:
             #get_logger().info('Finished Action: ' + action_handle)
@@ -279,8 +290,8 @@ async def do_action(
 
     else:
         msg = "UNKOWN ACTION REQUEST! Available actions: explore_workcell, transfer, remove_lid, replace_lid"
-        response.action_response = -1
-        response.action_msg = msg
+        #response.action_response = -1
+        #response.action_msg = msg
         #get_logger().error('Error: ' + msg)
         state = "ERROR"
         return response
