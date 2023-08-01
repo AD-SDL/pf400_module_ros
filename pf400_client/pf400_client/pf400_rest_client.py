@@ -122,7 +122,7 @@ def do_action(
     #get_logger().info(str(vars))
 
     err=False
-
+    state = "BUSY"
     if action_handle == "transfer":
 
         source_plate_rotation = ""
@@ -229,7 +229,7 @@ def do_action(
         else:    
             #response.action_response = 0
             #response.action_msg= "Remove lid successfully completed"
-            state = "COMPLETED"
+            state = "READY"
 
         finally:
             #get_logger().info('Finished Action: ' + action_handle)
@@ -283,7 +283,7 @@ def do_action(
         else:    
             #response.action_response = 0
             #response.action_msg= "Replace lid successfully completed"
-            state = "COMPLETED"
+            state = "READY"
         finally:
             #get_logger().info('Finished Action: ' + action_handle)
             return response
