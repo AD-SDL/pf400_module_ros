@@ -60,7 +60,7 @@ async def lifespan(app: FastAPI):
         pf400 = PF400(ip, port)
         pf400.initialize_robot()
         #module_explorer = PF400_CAMERA(pf400)
-        state="READY"
+        state="IDLE"
 
     except ConnectionException as error_msg:
         state = "ERROR"
@@ -111,8 +111,8 @@ def do_action(
         #wresponse.action_msg= message
         return response
 
-    while state != "READY":
-        #get_logger().warn("Waiting for PF400 to switch READY state...")
+    while state != "IDLE":
+        #get_logger().warn("Waiting for PF400 to switch IDLE state...")
         sleep(0.2)
   
     #get_logger().info('Received Action: ' + action_handle.upper())
@@ -179,7 +179,7 @@ def do_action(
         else:    
             #response.action_response = 0
             #response.action_msg = "PF400 succsessfully completed a transfer"
-            state = "READY"
+            state = "IDLE"
 
         finally:
             #get_logger().info('Finished Action: ' + action_handle)
@@ -229,7 +229,7 @@ def do_action(
         else:    
             #response.action_response = 0
             #response.action_msg= "Remove lid successfully completed"
-            state = "READY"
+            state = "IDLE"
 
         finally:
             #get_logger().info('Finished Action: ' + action_handle)
@@ -283,7 +283,7 @@ def do_action(
         else:    
             #response.action_response = 0
             #response.action_msg= "Replace lid successfully completed"
-            state = "READY"
+            state = "IDLE"
         finally:
             #get_logger().info('Finished Action: ' + action_handle)
             return response
