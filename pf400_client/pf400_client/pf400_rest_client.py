@@ -115,23 +115,23 @@ def check_state():
             if try_connect:
                 state = "ERROR"
                 try:
-                     ip= "146.137.240.35"
+                    ip= "146.137.240.35"
                     port = 10100
                     pf400 = PF400(ip, port)
                     pf400.initialize_robot()
                     #module_explorer = PF400_CAMERA(pf400)
                     state="IDLE"
 
-                    except ConnectionException as error_msg:
+                except ConnectionException as error_msg:
                         state = "ERROR"
                         print(error_msg)
                         #get_logger().error(str(error_msg))
 
-                    except Exception as err:
+                except Exception as err:
                         state = "ERROR"
                         print(err)
                         #get_logger().error(str(err))
-                    else:
+                else:
                         print("PF400 online")
 
             if err:
@@ -172,6 +172,7 @@ def check_state():
 @app.get("/state")
 def state():
     global state
+    check_state()
     return JSONResponse(content={"State": state })
 
 @app.get("/description")
