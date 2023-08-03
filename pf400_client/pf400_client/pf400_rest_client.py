@@ -81,6 +81,94 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan, )
 
+def check_state(): 
+        """ updates the Pf400 state 
+
+        Parameters:
+        -----------
+            None
+        Returns
+        -------
+            None
+        """
+        global state, pf400
+        msg = String()
+        try_connect = False
+        err = None
+        err_flag = False
+        
+        try:
+            movement_state = pf400.movement_state
+            # self.get_logger().warn("Move state: " + str(self.movement_state))
+
+        except UnboundLocalError as local_var_err:
+            err = local_var_err
+
+        except AttributeError as attribute_err:
+            err = attribute_err
+            try_connect = True
+
+        except Exception as general_err:
+            err = general_err
+
+        finally:
+            if try_connect:
+                state = "ERROR"
+                try:
+                     ip= "146.137.240.35"
+                    port = 10100
+                    pf400 = PF400(ip, port)
+                    pf400.initialize_robot()
+                    #module_explorer = PF400_CAMERA(pf400)
+                    state="IDLE"
+
+                    except ConnectionException as error_msg:
+                        state = "ERROR"
+                        print(error_msg)
+                        #get_logger().error(str(error_msg))
+
+                    except Exception as err:
+                        state = "ERROR"
+                        print(err)
+                        #get_logger().error(str(err))
+                    else:
+                        print("PF400 online")
+
+            if err:
+                state = "ERROR"
+                return
+            
+        # Check if robot wasn't attached to the software after recovering from Power Off state
+        if pf400.attach_state == "-1":
+            state = "ERROR"
+            err_flag = True
+            pf400.force_initialize_robot()
+
+        # Publishing robot warning messages if the job wasn't completed successfully
+        if pf400.robot_warning.upper() != "CLEAR" and len(pf400.robot_warning)>0:
+            state = "ERROR"
+            err_flag = True
+            pf400.robot_warning = "CLEAR"
+         
+
+        # Checking real robot state parameters and publishing the current state
+        if movement_state == 0:
+            state = "ERROR"
+            err_flag = True
+            pf400.force_initialize_robot()
+          
+
+        elif pf400.robot_state == "ERROR" or state == "ERROR":
+            state = "ERROR"
+            err_flag = True
+            state = "UNKOWN"
+
+
+        elif (movement_state >= 1 and state == "BUSY") or movement_state >= 2:
+            state = "BUSY"
+
+
+
 @app.get("/state")
 def state():
     global state
