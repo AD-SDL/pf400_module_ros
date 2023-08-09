@@ -27,11 +27,12 @@ import json
 from argparse import ArgumentParser
 from contextlib import asynccontextmanager
 import time
+import datetime
 from fastapi import FastAPI, File, Form, UploadFile
 from fastapi.responses import JSONResponse
 
 workcell = None
-global sealer, state
+global sealer, state, action_start
 serial_port = '/dev/ttyUSB0'
 local_ip = 'parker.alcf.anl.gov'
 local_port = '8000'
@@ -171,8 +172,9 @@ def check_state():
 
 @app.get("/state")
 def state():
-    global state
-    check_state()
+    global state, action_start
+    if not(state == "BUSY") or (action_start and (datetime.datetime.now() - action_start > datetime.timedelta(0, 2))):
+     check_state()
     return JSONResponse(content={"State": state })
 
 @app.get("/description")
@@ -192,7 +194,10 @@ def do_action(
     action_vars):
     response = {"action_response": "", "action_msg": "", "action_log": ""}
     print(action_vars)
-    global sealer, state
+    global sealer, state, action_start
+    if state == "BUSY":
+      return
+    action_start = datetime.datetime.now()
     if state == "PF400 CONNECTION ERROR":
         message = "Connection error, cannot accept a job!"
         #get_logger().error(message)
@@ -200,9 +205,9 @@ def do_action(
         #wresponse.action_msg= message
         return response
 
-    while state != "IDLE":
+   # while state != "IDLE":
         #get_logger().warn("Waiting for PF400 to switch IDLE state...")
-        sleep(0.2)
+  #      sleep(0.2)
   
     #get_logger().info('Received Action: ' + action_handle.upper())
     sleep(0.3) #Before starting the action, wait for stateRefresherCallback function to cycle for at least once to avoid data loss.
